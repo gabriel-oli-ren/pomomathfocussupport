@@ -1,0 +1,720 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pomofocus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #D94F3D;
+    --red-light: #F2604D;
+    --red-dim: rgba(217,79,61,0.12);
+    --bg: #0F0D0C;
+    --bg2: #161412;
+    --bg3: #1E1A18;
+    --surface: #252018;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #F5EFE6;
+    --text2: rgba(245,239,230,0.5);
+    --text3: rgba(245,239,230,0.25);
+    --green: #4CAF7D;
+    --amber: #D4963A;
+    --r: 108;
+    --circ: 678.58px;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    overflow: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.6;
+  }
+
+  /* Ambient glow */
+  body::after {
+    content: '';
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217,79,61,0.06) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: background 1s ease;
+    z-index: 0;
+  }
+
+  body.mode-break::after {
+    background: radial-gradient(circle, rgba(76,175,125,0.06) 0%, transparent 70%);
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 0 1.5rem;
+    border-bottom: 1px solid var(--border);
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    display: inline-block;
+    animation: pulse-dot 2s ease infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .session-badges {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .badge {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border2);
+    transition: background 0.4s ease;
+  }
+
+  .badge.done {
+    background: var(--red);
+  }
+
+  /* Main timer area */
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  /* Mode tabs */
+  .mode-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .tab {
+    padding: 0.4rem 1.1rem;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: none;
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .tab:hover { color: var(--text); }
+
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+
+  .tab.active[data-mode="pomodoro"] { color: var(--red-light); }
+  .tab.active[data-mode="break"] { color: var(--green); }
+  .tab.active[data-mode="long"] { color: var(--amber); }
+
+  /* Ring */
+  .ring-container {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .ring-svg {
+    width: 260px;
+    height: 260px;
+    transform: rotate(-90deg);
+  }
+
+  .ring-track {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 3;
+  }
+
+  .ring-fill {
+    fill: none;
+    stroke: var(--red);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: var(--circ);
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.6s ease;
+    filter: drop-shadow(0 0 6px rgba(217,79,61,0.5));
+  }
+
+  .ring-fill.break-mode { stroke: var(--green); filter: drop-shadow(0 0 6px rgba(76,175,125,0.5)); }
+  .ring-fill.long-mode { stroke: var(--amber); filter: drop-shadow(0 0 6px rgba(212,150,58,0.5)); }
+
+  .ring-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .time-display {
+    font-size: 4.5rem;
+    font-weight: 400;
+    letter-spacing: -3px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    transition: transform 0.15s ease;
+  }
+
+  .time-display.tick {
+    transform: scale(0.98);
+  }
+
+  .mode-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    animation: fadeUp 0.6s 0.3s ease both;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-main {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--red);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 24px rgba(217,79,61,0.3);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-main:hover::before { opacity: 1; }
+  .btn-main:active { transform: scale(0.93); }
+
+  .btn-main.break-mode { background: var(--green); box-shadow: 0 4px 24px rgba(76,175,125,0.3); }
+  .btn-main.long-mode { background: var(--amber); box-shadow: 0 4px 24px rgba(212,150,58,0.3); }
+
+  .btn-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--border2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: var(--text2);
+  }
+
+  .btn-icon:hover { background: var(--bg3); color: var(--text); border-color: var(--border2); }
+  .btn-icon:active { transform: scale(0.92); }
+
+  /* Play/pause SVG icons */
+  .icon-play, .icon-pause, .icon-reset, .icon-skip {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  .icon-play-main, .icon-pause-main {
+    width: 22px;
+    height: 22px;
+    fill: #fff;
+  }
+
+  /* Stats row */
+  .stats {
+    display: flex;
+    gap: 2rem;
+    animation: fadeUp 0.6s 0.35s ease both;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-val {
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -1px;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+    align-self: center;
+  }
+
+  /* Footer */
+  footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0 2rem;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .quote {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.75rem;
+    color: var(--text3);
+    text-align: center;
+    max-width: 300px;
+    line-height: 1.6;
+    transition: opacity 0.5s ease;
+  }
+
+  /* Notification toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 100px;
+    padding: 0.6rem 1.4rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--text2);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes ring-complete {
+    0%, 100% { transform: scale(1) rotate(-90deg); }
+    50% { transform: scale(1.03) rotate(-90deg); }
+  }
+
+  .ring-svg.complete { animation: ring-complete 0.4s ease; }
+
+  /* Progress bar at top */
+  .progress-line {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--red);
+    width: 0%;
+    transition: width 1s linear, background 0.6s ease;
+    z-index: 10;
+    box-shadow: 0 0 8px rgba(217,79,61,0.6);
+  }
+
+  .progress-line.break-mode { background: var(--green); box-shadow: 0 0 8px rgba(76,175,125,0.6); }
+  .progress-line.long-mode { background: var(--amber); box-shadow: 0 0 8px rgba(212,150,58,0.6); }
+
+  /* Title blink when running */
+  @keyframes title-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-line" id="progressLine"></div>
+
+<div id="app">
+  <header>
+    <div class="logo">
+      <span class="logo-dot"></span>
+      pomofocus
+    </div>
+    <div class="header-right">
+      <div class="session-badges" id="badges">
+        <div class="badge"></div>
+        <div class="badge"></div>
+        <div class="badge"></div>
+        <div class="badge"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="mode-tabs" role="tablist" aria-label="Timer mode">
+      <button class="tab active" data-mode="pomodoro" role="tab" aria-selected="true">pomodoro</button>
+      <button class="tab" data-mode="break" role="tab" aria-selected="false">short break</button>
+      <button class="tab" data-mode="long" role="tab" aria-selected="false">long break</button>
+    </div>
+
+    <div class="ring-container" aria-live="polite" aria-label="Timer">
+      <svg class="ring-svg" id="ringSvg" viewBox="0 0 260 260">
+        <circle class="ring-track" cx="130" cy="130" r="108"/>
+        <circle class="ring-fill" id="ringFill" cx="130" cy="130" r="108"/>
+      </svg>
+      <div class="ring-inner">
+        <div class="time-display" id="timeDisplay">25:00</div>
+        <div class="mode-label" id="modeLabel">focus time</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-icon" id="resetBtn" aria-label="Reset timer" title="Reset">
+        <svg class="icon-reset" viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+      </button>
+      <button class="btn-main" id="playBtn" aria-label="Start timer">
+        <svg class="icon-play-main" id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="btn-icon" id="skipBtn" aria-label="Skip to next session" title="Skip">
+        <svg class="icon-skip" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      </button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val" id="statSessions">0</div>
+        <div class="stat-label">sessions</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <div class="stat-val" id="statFocus">0m</div>
+        <div class="stat-label">focused</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <div class="stat-val" id="statStreak">0</div>
+        <div class="stat-label">streak</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="quote" id="quote">"Focus is not about doing more — it's about doing what matters."</div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MODES = {
+  pomodoro: { duration: 25 * 60, label: 'focus time', color: 'red' },
+  break:    { duration: 5 * 60,  label: 'short break', color: 'green' },
+  long:     { duration: 15 * 60, label: 'long break', color: 'amber' },
+};
+
+const QUOTES = [
+  '"The secret of getting ahead is getting started."',
+  '"Focus is the art of knowing what to ignore."',
+  '"Deep work is the superpower of the 21st century."',
+  '"One thing at a time, and that done well."',
+  '"The best time to focus was yesterday. Now is second best."',
+  '"Concentration is the root of all higher abilities."',
+];
+
+const CIRCUMFERENCE = 2 * Math.PI * 108;
+
+let mode = 'pomodoro';
+let remaining = MODES[mode].duration;
+let total = MODES[mode].duration;
+let running = false;
+let interval = null;
+let completedPomodoros = 0;
+let totalFocusMin = 0;
+let streak = 0;
+let lastCompleted = null;
+
+const timeEl = document.getElementById('timeDisplay');
+const modeLabelEl = document.getElementById('modeLabel');
+const ringFill = document.getElementById('ringFill');
+const ringSvg = document.getElementById('ringSvg');
+const playBtn = document.getElementById('playBtn');
+const playIcon = document.getElementById('playIcon');
+const resetBtn = document.getElementById('resetBtn');
+const skipBtn = document.getElementById('skipBtn');
+const progressLine = document.getElementById('progressLine');
+const toastEl = document.getElementById('toast');
+const quoteEl = document.getElementById('quote');
+const badgesEl = document.getElementById('badges');
+const statSessions = document.getElementById('statSessions');
+const statFocus = document.getElementById('statFocus');
+const statStreak = document.getElementById('statStreak');
+
+const PLAY_PATH = 'M8 5v14l11-7z';
+const PAUSE_PATH = 'M6 19h4V5H6v14zm8-14v14h4V5h-4z';
+
+function fmt(s) {
+  return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+}
+
+function updateRing() {
+  const progress = 1 - remaining / total;
+  const offset = CIRCUMFERENCE * (1 - progress);
+  ringFill.style.strokeDasharray = CIRCUMFERENCE;
+  ringFill.style.strokeDashoffset = offset;
+  progressLine.style.width = (progress * 100) + '%';
+}
+
+function setMode(m) {
+  const wasRunning = running;
+  stop();
+  mode = m;
+  remaining = MODES[m].duration;
+  total = MODES[m].duration;
+
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.mode === m);
+    t.setAttribute('aria-selected', t.dataset.mode === m);
+  });
+
+  modeLabelEl.textContent = MODES[m].label;
+  const colorMap = { pomodoro: '', break: 'break-mode', long: 'long-mode' };
+  ringFill.className = 'ring-fill ' + (colorMap[m] || '');
+  playBtn.className = 'btn-main ' + (colorMap[m] || '');
+  progressLine.className = 'progress-line ' + (colorMap[m] || '');
+  document.body.className = m === 'break' || m === 'long' ? 'mode-break' : '';
+
+  render();
+}
+
+function render() {
+  timeEl.textContent = fmt(remaining);
+  document.title = fmt(remaining) + ' — pomofocus';
+  updateRing();
+}
+
+function tick() {
+  if (remaining <= 0) { complete(); return; }
+  remaining--;
+  timeEl.classList.add('tick');
+  setTimeout(() => timeEl.classList.remove('tick'), 100);
+  render();
+}
+
+function complete() {
+  stop();
+  ringSvg.classList.add('complete');
+  setTimeout(() => ringSvg.classList.remove('complete'), 400);
+
+  if (mode === 'pomodoro') {
+    completedPomodoros++;
+    totalFocusMin += 25;
+    streak++;
+    lastCompleted = Date.now();
+    updateBadges();
+    updateStats();
+    showToast('🍅 session complete — take a break!');
+    rotateQuote();
+    if (completedPomodoros % 4 === 0) {
+      setMode('long');
+    } else {
+      setMode('break');
+    }
+  } else {
+    showToast('break over — ready to focus?');
+    setMode('pomodoro');
+  }
+}
+
+function start() {
+  running = true;
+  interval = setInterval(tick, 1000);
+  playIcon.setAttribute('d', PAUSE_PATH);
+  playBtn.setAttribute('aria-label', 'Pause timer');
+}
+
+function stop() {
+  running = false;
+  clearInterval(interval);
+  interval = null;
+  playIcon.setAttribute('d', PLAY_PATH);
+  playBtn.setAttribute('aria-label', 'Start timer');
+}
+
+function updateBadges() {
+  const badges = badgesEl.querySelectorAll('.badge');
+  const idx = (completedPomodoros - 1) % 4;
+  badges[idx].classList.add('done');
+  if (completedPomodoros % 4 === 0) {
+    setTimeout(() => badges.forEach(b => b.classList.remove('done')), 600);
+  }
+}
+
+function updateStats() {
+  statSessions.textContent = completedPomodoros;
+  statFocus.textContent = totalFocusMin + 'm';
+  statStreak.textContent = streak;
+}
+
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 3000);
+}
+
+function rotateQuote() {
+  quoteEl.style.opacity = '0';
+  setTimeout(() => {
+    quoteEl.textContent = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    quoteEl.style.opacity = '1';
+  }, 500);
+}
+
+playBtn.addEventListener('click', () => {
+  if (remaining === 0) return;
+  running ? stop() : start();
+});
+
+resetBtn.addEventListener('click', () => {
+  stop();
+  remaining = total;
+  render();
+});
+
+skipBtn.addEventListener('click', () => {
+  stop();
+  if (mode === 'pomodoro') {
+    setMode('break');
+  } else {
+    setMode('pomodoro');
+  }
+});
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => setMode(tab.dataset.mode));
+});
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && e.target === document.body) {
+    e.preventDefault();
+    if (remaining > 0) running ? stop() : start();
+  }
+  if (e.code === 'KeyR') { stop(); remaining = total; render(); }
+});
+
+// Init
+ringFill.style.strokeDasharray = CIRCUMFERENCE;
+ringFill.style.strokeDashoffset = 0;
+render();
+</script>
+</body>
+</html>
