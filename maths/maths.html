@@ -139,7 +139,7 @@ body {
 .sp-footer{color:rgba(255,255,255,.2);font-size:.75em;text-align:center;margin-top:20px}
 
 /* ── AUTH OVERLAY ── */
-.auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);z-index:99999;display:flex;justify-content:center;align-items:center}
+.auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);z-index:999999;display:flex;justify-content:center;align-items:center}
 .auth-overlay.hidden{display:none!important}
 .auth-box{background:#fff;padding:44px 50px;border-radius:22px;box-shadow:0 16px 48px rgba(0,0,0,.25);text-align:center;max-width:420px;width:90%}
 .auth-logo{font-size:2.6em;margin-bottom:6px}
@@ -1102,7 +1102,47 @@ body {
 
 <!-- SITE PASSWORD OVERLAY -->
 <!-- sitepass overlay removed -->
-<!-- auth overlay removed -->
+
+<!-- AUTH OVERLAY (MANDATORY) -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">🎮</div>
+    <h2>Maths Support</h2>
+    <div class="auth-sub">Sign in to access games and chat</div>
+    
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
+    </div>
+    
+    <!-- Login Form -->
+    <div id="loginForm">
+      <input type="text" class="auth-field" id="loginUsername" placeholder="Username" maxlength="30">
+      <input type="password" class="auth-field" id="loginPassword" placeholder="Password" maxlength="50">
+      <button class="auth-submit" id="loginBtn" onclick="doLogin()">Sign In →</button>
+      <div class="auth-error" id="loginError"></div>
+      <div class="auth-success" id="loginSuccess"></div>
+    </div>
+    
+    <!-- Register Form -->
+    <div id="registerForm" style="display:none">
+      <input type="text" class="auth-field" id="regUsername" placeholder="Username" maxlength="30">
+      <input type="password" class="auth-field" id="regPassword" placeholder="Password (min 6 characters)" maxlength="50">
+      <input type="password" class="auth-field" id="regPasswordConfirm" placeholder="Confirm Password" maxlength="50">
+      
+      <div style="margin:16px 0">
+        <label style="display:flex;align-items:start;gap:8px;cursor:pointer;font-size:.85em;color:#666;line-height:1.4">
+          <input type="checkbox" id="regTermsAccept" style="margin-top:2px;accent-color:#667eea;width:16px;height:16px">
+          <span>I have read and agree to the <a href="#" onclick="openTermsModal();return false" style="color:#667eea;text-decoration:underline">Terms of Service</a> and <a href="#" onclick="openPrivacyModal();return false" style="color:#667eea;text-decoration:underline">Privacy Policy</a></span>
+        </label>
+      </div>
+      
+      <button class="auth-submit" id="registerBtn" onclick="doRegister()">Create Account →</button>
+      <div class="auth-error" id="registerError"></div>
+      <div class="auth-success" id="registerSuccess"></div>
+    </div>
+  </div>
+</div>
 
 <!-- QUESTIONNAIRE -->
 <div class="questionnaire-overlay" id="questionnaireOverlay">
@@ -1290,6 +1330,13 @@ body {
       <p style="color:#aaa;font-size:.88em;margin-bottom:16px">Share this with friends so they can add you.</p>
       <div class="friend-code-box"><span class="friend-code-val" id="myFriendCode">------</span><button class="copy-btn" onclick="copyFriendCode()">📋 Copy</button></div>
       <div class="page-msg" id="codeMsg"></div>
+    </div>
+    <div class="page-card">
+      <h3>⚙️ Settings</h3>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <button class="save-btn" onclick="openPrivacyModal()" style="background:rgba(102,126,234,0.1);color:#667eea;border:1px solid rgba(102,126,234,0.3)">🔒 Privacy Policy</button>
+        <button class="save-btn" onclick="openTermsModal()" style="background:rgba(102,126,234,0.1);color:#667eea;border:1px solid rgba(102,126,234,0.3)">📜 Terms of Service</button>
+      </div>
     </div>
   </div>
 
@@ -1610,12 +1657,83 @@ body {
   </div>
 </div>
 
+<!-- PRIVACY POLICY MODAL -->
+<div class="reveal-modal-overlay" id="privacyModal">
+  <div class="reveal-modal" style="max-width:600px">
+    <h3>🔒 Privacy Policy</h3>
+    <div style="max-height:400px;overflow-y:auto;text-align:left;color:rgba(255,255,255,.7);font-size:.85em;line-height:1.6;margin-bottom:20px">
+      <p><strong>Last Updated:</strong> August 21, 2026</p>
+      
+      <h4 style="color:#fff;margin-top:16px">1. Information We Collect</h4>
+      <p>We collect information you provide directly, including username, display name, and any messages you send through our chat system. We also collect technical data such as IP addresses and device information for security purposes.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">2. How We Use Your Information</h4>
+      <p>Your information is used to provide and improve our services, enable chat functionality, manage user accounts, and ensure platform security. We do not sell your personal data to third parties.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">3. Data Storage and Security</h4>
+      <p>We use industry-standard security measures to protect your data. However, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">4. Third-Party Services</h4>
+      <p>We use Supabase for data storage and authentication. Please review their privacy policies for information on how they handle your data.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">5. User Content</h4>
+      <p>You retain ownership of any content you create, but you grant us a license to use, modify, and display it for the purpose of providing our services.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">6. Disclaimer</h4>
+      <p>This platform is provided "as is" without any warranties. We are not responsible for any damages arising from the use of this service.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">7. Changes to This Policy</h4>
+      <p>We may update this policy from time to time. Continued use of the service constitutes acceptance of any changes.</p>
+    </div>
+    <div class="reveal-modal-actions">
+      <button class="reveal-modal-btn confirm" onclick="closePrivacyModal()">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE MODAL -->
+<div class="reveal-modal-overlay" id="termsModal">
+  <div class="reveal-modal" style="max-width:600px">
+    <h3>📜 Terms of Service</h3>
+    <div style="max-height:400px;overflow-y:auto;text-align:left;color:rgba(255,255,255,.7);font-size:.85em;line-height:1.6;margin-bottom:20px">
+      <p><strong>Last Updated:</strong> August 21, 2026</p>
+      
+      <h4 style="color:#fff;margin-top:16px">1. Acceptance of Terms</h4>
+      <p>By accessing and using Maths Support, you accept and agree to be bound by these Terms of Service.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">2. User Responsibilities</h4>
+      <p>You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">3. Acceptable Use</h4>
+      <p>You agree not to use the service for any unlawful purpose, harass other users, transmit harmful content, or attempt to gain unauthorized access to our systems.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">4. Content and Conduct</h4>
+      <p>You are solely responsible for any content you post or transmit through our services. We reserve the right to remove any content that violates these terms.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">5. Disclaimer of Warranties</h4>
+      <p>The service is provided "as is" without any warranties, expressed or implied. We do not guarantee that the service will be uninterrupted, timely, secure, or error-free.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">6. Limitation of Liability</h4>
+      <p>In no event shall we be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or related to your use of the service.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">7. Termination</h4>
+      <p>We reserve the right to terminate or suspend your account at any time, with or without cause, with or without notice.</p>
+      
+      <h4 style="color:#fff;margin-top:16px">8. Governing Law</h4>
+      <p>These terms shall be governed by and construed in accordance with applicable laws.</p>
+    </div>
+    <div class="reveal-modal-actions">
+      <button class="reveal-modal-btn confirm" onclick="closeTermsModal()">I Accept</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════════════════════
 // SUPABASE SETUP
 // ══════════════════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://hsmfjpetvcsgkpkwpdjr.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzbWZqcGV0dmNzZ2twa3dwZGpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3NDc0MzEsImV4cCI6MjA3OTMyMzQzMX0.IBiJtUJBPyjNwGowfgnlfrbHpb46C43NmYY3O9rEFqQ';
+const SUPABASE_URL = 'https://inidxltybmadzgggvpxz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_iC27fcyIHAuebhn2Twuv-A_5eEQOHWm,tmb';
 const EDGE_BASE = SUPABASE_URL + '/functions/v1';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1746,17 +1864,19 @@ async function doRegister(){
   const username=rawUsername;
   const password=document.getElementById('regPassword').value.trim();
   const confirm=document.getElementById('regPasswordConfirm').value.trim();
+  const termsAccepted=document.getElementById('regTermsAccept').checked;
   const errEl=document.getElementById('registerError'), okEl=document.getElementById('registerSuccess'), btn=document.getElementById('registerBtn');
   errEl.classList.remove('show');okEl.classList.remove('show');
   if(!username||!password||!confirm){errEl.textContent='Please fill in all fields.';errEl.classList.add('show');return;}
   if(username.length<3){errEl.textContent='Username must be at least 3 characters.';errEl.classList.add('show');return;}
   if(password.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.classList.add('show');return;}
   if(password!==confirm){errEl.textContent='Passwords do not match.';errEl.classList.add('show');return;}
+  if(!termsAccepted){errEl.textContent='You must accept the Terms of Service and Privacy Policy to create an account.';errEl.classList.add('show');return;}
   const{data:existing}=await sb.from('users').select('id').ilike('username',username).maybeSingle();
   if(existing){errEl.textContent='That username is already taken.';errEl.classList.add('show');return;}
   btn.disabled=true;btn.textContent='Creating account...';
   const fc=genCode();
-  const{data,error}=await sb.from('users').insert({username,display_name:username,password,friend_code:fc,role:null,is_admin:false}).select().single();
+  const{data,error}=await sb.from('users').insert({username,display_name:username,password,friend_code:fc,role:null,is_admin:false,terms_accepted:true}).select().single();
   btn.disabled=false;btn.textContent='Create Account →';
   if(error||!data){errEl.textContent='Error: '+(error?.message||'unknown');errEl.classList.add('show');return;}
   okEl.textContent='✅ Account created! Signing you in…';okEl.classList.add('show');
@@ -1798,11 +1918,27 @@ async function onSignedIn(profile){
   if(currentUser){ loadMyStickers(); loadPublicStickers(); }
 }
 
+async function initApp(){
+  const restored=await restoreSession();
+  if(restored){
+    await onSignedIn(restored);
+  }else{
+    document.getElementById('authOverlay').classList.remove('hidden');
+  }
+}
+
 async function restoreSession(){
   const uid=localStorage.getItem(AUTH_SESSION_KEY);
-  if(!uid)return null;
+  if(!uid){
+    document.getElementById('authOverlay').classList.remove('hidden');
+    return null;
+  }
   const{data,error}=await sb.from('users').select('*').eq('id',uid).maybeSingle();
-  if(error||!data){localStorage.removeItem(AUTH_SESSION_KEY);return null;}
+  if(error||!data){
+    localStorage.removeItem(AUTH_SESSION_KEY);
+    document.getElementById('authOverlay').classList.remove('hidden');
+    return null;
+  }
   return data;
 }
 
@@ -2591,6 +2727,14 @@ async function confirmReveal(){
 }
 
 // ══════════════════════════════════════════════════════════════════
+// PRIVACY & TERMS MODALS
+// ══════════════════════════════════════════════════════════════════
+function openPrivacyModal(){document.getElementById('privacyModal').classList.add('active');}
+function closePrivacyModal(){document.getElementById('privacyModal').classList.remove('active');}
+function openTermsModal(){document.getElementById('termsModal').classList.add('active');}
+function closeTermsModal(){document.getElementById('termsModal').classList.remove('active');}
+
+// ══════════════════════════════════════════════════════════════════
 // CUSTOM APPS
 // ══════════════════════════════════════════════════════════════════
 const CUSTOM_APP_EMOJIS = ['🌐','🎮','📺','🎵','📚','🔗','🛒','📰','💬','📧','🗂️','🎨','⚡','🚀','🧠','📊','🔒','🎯','🏆','🌍'];
@@ -2790,6 +2934,8 @@ document.getElementById('petModalOverlay').addEventListener('click',function(e){
 document.getElementById('petNameInput')?.addEventListener('keydown',function(e){if(e.key==='Enter') savePetName();if(e.key==='Escape') closePetModal();});
 
 async function runAppInit(){
+  // Función obsoleta, reemplazada por initApp
+  await initApp();
   enableSecurityProtection();
   try{const res=await fetch(EDGE_BASE+'/check-ban',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const d=await res.json();if(d.banned){document.body.innerHTML=`<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#1a1a2e,#16213e);font-family:'Plus Jakarta Sans',sans-serif;text-align:center;color:#fff"><div><div style="font-size:4em;margin-bottom:20px">🚫</div><h1 style="font-size:2em;color:#ff4444;margin-bottom:12px">Access Denied</h1><p style="color:rgba(255,255,255,.6);font-size:1.1em">Your access to this site has been revoked.</p></div></div>`;return;}}catch(e){}
   const profile=await restoreSession();
@@ -3173,7 +3319,10 @@ document.addEventListener('click', function(e){
     picker.style.display = 'none';
   }
 });
-document.addEventListener('DOMContentLoaded',async()=>{ runAppInit(); });
+document.addEventListener('DOMContentLoaded',async()=>{ 
+  // Inicializar app con autenticación obligatoria
+  await initApp(); 
+});
 </script>
 
 <script src="https://cdn.apitiny.net/scripts/v2.0/main.js" data-site-id="69dce897a70b9c4ef5d47080" data-test-mode="false" async></script>
