@@ -160,35 +160,7 @@ body {
 .auth-success.show{display:block}
 .demo-mode-badge{position:absolute;top:-10px;right:-10px;background:#f59e0b;color:#fff;font-size:.65em;font-weight:800;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;box-shadow:0 2px 8px rgba(245,158,11,.4)}
 
-/* ── CHROMEBOOK & SCHOOL NETWORK HELP PANEL ── */
-.chromebook-help-wrap{margin-top:18px;text-align:left}
-.chromebook-help-toggle{width:100%;padding:10px 14px;background:#f0f4ff;border:1.5px solid #d0dcfd;border-radius:10px;color:#3b82f6;font-size:.82em;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-space-between;transition:all .2s ease;font-family:inherit}
-.chromebook-help-toggle:hover{background:#e5edff;border-color:#667eea;color:#1d4ed8}
-.chromebook-arrow{font-size:.75em;transition:transform .25s ease}
-.chromebook-arrow.open{transform:rotate(180deg)}
-.chromebook-info-panel{display:none;margin-top:10px;transition:all .3s ease}
-.chromebook-info-panel.show{display:block}
-.chromebook-card{background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:12px;padding:14px;font-size:.8em;color:#334155;box-shadow:0 4px 14px rgba(0,0,0,.06)}
-.chromebook-header{display:flex;align-items:center;gap:10px;border-bottom:1px solid #e2e8f0;padding-bottom:8px;margin-bottom:10px}
-.chromebook-icon{font-size:1.4em}
-.chromebook-title{font-weight:800;color:#1e293b;font-size:.95em}
-.chromebook-subtitle{font-size:.78em;color:#64748b}
-.chromebook-body p{line-height:1.45;margin-bottom:8px}
-.chromebook-body code{background:#e2e8f0;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:.9em;color:#334155}
-.chromebook-diag-box{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:10px;margin:10px 0}
-.chromebook-diag-title{font-weight:700;color:#1e293b;margin-bottom:6px}
-.chromebook-btn{width:100%;padding:9px 12px;border-radius:8px;font-size:.85em;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:inherit;margin-top:4px}
-.chromebook-btn.primary{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff}
-.chromebook-btn.primary:hover{opacity:.95;box-shadow:0 3px 10px rgba(79,70,229,.35)}
-.chromebook-btn.secondary{background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe}
-.chromebook-btn.secondary:hover{background:#c7d2fe}
-.chromebook-diag-status{margin-top:8px;padding:8px 10px;border-radius:6px;font-size:.82em;line-height:1.4}
-.chromebook-diag-status.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-.chromebook-diag-status.blocked{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-.chromebook-solutions{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.chromebook-sol-item{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}
-.chromebook-sol-item strong{display:block;color:#1e293b;margin-bottom:2px}
-.chromebook-sol-item p{margin:0;font-size:.82em;color:#64748b}
+
 
 /* ── TIMETABLE CLOCK ── */
 .timetable-clock{display:none;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(102,126,234,.12),rgba(118,75,162,.12));border:1.5px solid rgba(102,126,234,.45);border-radius:14px;padding:8px 18px;backdrop-filter:blur(6px);box-shadow:0 2px 12px rgba(102,126,234,.15);min-width:260px;margin-left:auto;white-space:nowrap}
@@ -1254,55 +1226,7 @@ body {
       <div class="auth-error" id="registerError"></div>
       <div class="auth-success" id="registerSuccess"></div>
     </div>
-    
-    <!-- CHROMEBOOK & SCHOOL NETWORK HELP PANEL -->
-    <div class="chromebook-help-wrap">
-      <button type="button" class="chromebook-help-toggle" id="chromebookToggleBtn" onclick="toggleChromebookPanel()">
-        <span>💻 Chromebook / School Network Help</span>
-        <span class="chromebook-arrow" id="chromebookArrow">▼</span>
-      </button>
-      
-      <div class="chromebook-info-panel" id="chromebookInfoPanel">
-        <div class="chromebook-card">
-          <div class="chromebook-header">
-            <span class="chromebook-icon">🏫</span>
-            <div>
-              <div class="chromebook-title">Why am I getting connection errors?</div>
-              <div class="chromebook-subtitle">School Firewalls & Chromebook Restrictions</div>
-            </div>
-          </div>
-          <div class="chromebook-body">
-            <p>School Wi-Fi networks and managed Chromebooks frequently block external backend services like <code>*.supabase.co</code> or CDNs (Securly, GoGuardian, Lightspeed, Fortinet, etc.).</p>
-            
-            <div class="chromebook-diag-box">
-              <div class="chromebook-diag-title">🔌 Connection Diagnostics</div>
-              <button type="button" class="chromebook-btn secondary" id="testSupabaseBtn" onclick="testSupabaseConnection()">
-                ⚡ Test Supabase Connection
-              </button>
-              <div class="chromebook-diag-status" id="supabaseDiagStatus" style="display:none"></div>
-            </div>
-            
-            <div class="chromebook-solutions">
-              <div class="chromebook-sol-item">
-                <strong>Option 1: Switch to Offline / Demo Mode</strong>
-                <p>Play games and create your account locally on your browser without needing network access to Supabase.</p>
-                <button type="button" class="chromebook-btn primary" onclick="enableDemoModeFromPanel()">
-                  🎮 Enable Chromebook Demo Mode
-                </button>
-              </div>
-              <div class="chromebook-sol-item">
-                <strong>Option 2: Switch Wi-Fi Network</strong>
-                <p>Connect to a personal mobile hotspot or home network that allows external database connections.</p>
-              </div>
-              <div class="chromebook-sol-item">
-                <strong>Option 3: Ask School IT Admin</strong>
-                <p>Request your school tech team to whitelist <code>*.supabase.co</code> and <code>cdn.jsdelivr.net</code>.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
   </div>
 </div>
 
@@ -2075,12 +1999,14 @@ body {
 
 <!-- CONTACT MODAL -->
 <div class="reveal-modal-overlay" id="contactModal">
-  <div class="reveal-modal" style="max-width:600px">
-    <h3>CONTACT</h3>
-    <div style="max-height:400px;overflow-y:auto;text-align:left;color:rgba(255,255,255,.7);font-size:.85em;line-height:1.6;margin-bottom:20px">
-      <h1></h1><strong>admin@mathssupport.es</strong></h1>
-        <div class="reveal-modal-actions">
-      <button class="reveal-modal-btn confirm" onclick="closeContactModal()">X</button>
+  <div class="reveal-modal" style="max-width:480px;text-align:center">
+    <h3>📧 Contact Support</h3>
+    <p style="color:rgba(255,255,255,.8);font-size:.9em;margin:16px 0">Need help or have questions about Maths Support? Reach out to us below:</p>
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:14px;border-radius:12px;color:#fff;font-size:1.05em;font-weight:700;margin-bottom:20px;letter-spacing:.5px">
+      admin@mathssupport.es
+    </div>
+    <div class="reveal-modal-actions">
+      <button class="reveal-modal-btn confirm" onclick="closeContactModal()">Close</button>
     </div>
   </div>
 </div>
@@ -2235,91 +2161,7 @@ function friendlyDate(ts){
   return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
 }
 
-// ══════════════════════════════════════════════════════════════════
-// CHROMEBOOK & SCHOOL NETWORK HELPERS
-// ══════════════════════════════════════════════════════════════════
-function toggleChromebookPanel(forceOpen){
-  const panel=document.getElementById('chromebookInfoPanel');
-  const arrow=document.getElementById('chromebookArrow');
-  if(!panel)return;
-  const isShow=forceOpen!==undefined?forceOpen:!panel.classList.contains('show');
-  if(isShow){
-    panel.classList.add('show');
-    if(arrow)arrow.classList.add('open');
-  }else{
-    panel.classList.remove('show');
-    if(arrow)arrow.classList.remove('open');
-  }
-}
 
-async function testSupabaseConnection(){
-  const statusEl=document.getElementById('supabaseDiagStatus');
-  const btn=document.getElementById('testSupabaseBtn');
-  if(!statusEl||!btn)return;
-  
-  statusEl.style.display='block';
-  statusEl.className='chromebook-diag-status';
-  statusEl.innerHTML='⏳ Testing connection to <code>inidxltybmadzgggvpxz.supabase.co</code>...';
-  btn.disabled=true;
-
-  const startTime=Date.now();
-  let supabaseOk=false;
-  let cdnOk=false;
-
-  try{
-    const controller=new AbortController();
-    const timeoutId=setTimeout(()=>controller.abort(),4000);
-    const res=await fetch(SUPABASE_URL+'/rest/v1/',{
-      method:'GET',
-      headers:{'apikey':SUPABASE_ANON_KEY},
-      signal:controller.signal
-    });
-    clearTimeout(timeoutId);
-    if(res.status>=200 && res.status<500) supabaseOk=true;
-  }catch(e){
-    console.warn('Supabase test fetch failed:',e);
-    supabaseOk=false;
-  }
-
-  try{
-    const controller2=new AbortController();
-    const timeoutId2=setTimeout(()=>controller2.abort(),3000);
-    const res2=await fetch('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',{
-      method:'HEAD',
-      signal:controller2.signal
-    });
-    clearTimeout(timeoutId2);
-    if(res2.ok) cdnOk=true;
-  }catch(e){
-    cdnOk=false;
-  }
-
-  btn.disabled=false;
-  const elapsed=Date.now()-startTime;
-
-  if(supabaseOk){
-    statusEl.className='chromebook-diag-status success';
-    statusEl.innerHTML=`✅ <strong>Supabase Connected (${elapsed}ms)!</strong><br>Your network can reach Supabase. If sign-up still fails, check field values or username availability.`;
-  }else{
-    statusEl.className='chromebook-diag-status blocked';
-    statusEl.innerHTML=`🚫 <strong>Supabase Blocked by Network / School Firewall!</strong><br>Your school Chromebook or Wi-Fi filter is blocking access to <code>inidxltybmadzgggvpxz.supabase.co</code>.<br><br>💡 Click <strong>"Enable Chromebook Demo Mode"</strong> below to create your account and play games offline!`;
-  }
-}
-
-function enableDemoModeFromPanel(){
-  window.DEMO_MODE_FALLBACK=true;
-  const badge=document.getElementById('demoModeBadge');
-  if(badge)badge.style.display='block';
-  
-  const errEl=document.getElementById('registerError')||document.getElementById('loginError');
-  const okEl=document.getElementById('registerSuccess')||document.getElementById('loginSuccess');
-  if(okEl){
-    okEl.innerHTML='⚡ <strong>Chromebook Demo Mode Activated!</strong> You can now sign up or sign in locally.';
-    okEl.classList.add('show');
-  }
-  if(errEl) errEl.classList.remove('show');
-  toggleChromebookPanel(false);
-}
 
 // ══════════════════════════════════════════════════════════════════
 // CUSTOM AUTH
@@ -2362,9 +2204,7 @@ async function doLogin(){
     
     if(error){
       console.error('Login error:', error);
-      errEl.innerHTML='Error: '+error.message+'<br><a href="#" onclick="toggleChromebookPanel(true);return false" style="color:#4f46e5;font-weight:bold;text-decoration:underline;display:inline-block;margin-top:6px">💻 School Chromebook / Wi-Fi issue? Click for Diagnostics & Demo Mode</a>';
-      errEl.classList.add('show');
-      return;
+      errEl.textContent='Error: '+error.message;errEl.classList.add('show');return;
     }
     
     if(!data){errEl.textContent='No account found with that username.';errEl.classList.add('show');return;}
@@ -2376,9 +2216,7 @@ async function doLogin(){
   }catch(e){
     console.error('Login exception:', e);
     btn.disabled=false;btn.textContent='Sign In →';
-    errEl.innerHTML='Connection error: '+e.message+'<br><a href="#" onclick="toggleChromebookPanel(true);return false" style="color:#4f46e5;font-weight:bold;text-decoration:underline;display:inline-block;margin-top:6px">💻 School Chromebook / Wi-Fi issue? Click for Diagnostics & Demo Mode</a>';
-    errEl.classList.add('show');
-    toggleChromebookPanel(true);
+    errEl.textContent='Connection error: '+e.message;errEl.classList.add('show');
   }
 }
 
@@ -2422,9 +2260,7 @@ async function doRegister(){
     
     if(error){
       console.error('Registration error:', error);
-      errEl.innerHTML='Error: '+error.message+'<br><a href="#" onclick="toggleChromebookPanel(true);return false" style="color:#4f46e5;font-weight:bold;text-decoration:underline;display:inline-block;margin-top:6px">💻 School Chromebook / Wi-Fi issue? Click for Diagnostics & Demo Mode</a>';
-      errEl.classList.add('show');
-      return;
+      errEl.textContent='Error: '+error.message;errEl.classList.add('show');return;
     }
     
     if(!data){
@@ -2438,9 +2274,7 @@ async function doRegister(){
   }catch(e){
     console.error('Registration exception:', e);
     btn.disabled=false;btn.textContent='Create Account →';
-    errEl.innerHTML='Connection error: '+e.message+'<br><a href="#" onclick="toggleChromebookPanel(true);return false" style="color:#4f46e5;font-weight:bold;text-decoration:underline;display:inline-block;margin-top:6px">💻 School Chromebook / Wi-Fi issue? Click for Diagnostics & Demo Mode</a>';
-    errEl.classList.add('show');
-    toggleChromebookPanel(true);
+    errEl.textContent='Connection error: '+e.message;errEl.classList.add('show');
   }
 }
 
