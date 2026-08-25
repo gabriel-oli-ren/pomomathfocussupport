@@ -12,7 +12,7 @@
 <script src="https://cdn.jsdelivr.net/gh/bubbls/granny@212c543a85b243c4a0b92211f557e760d83d2292/sdk.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.puter.com/v2/"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer onerror="window.__gsiLoadFailed = true; console.error('No se pudo cargar accounts.google.com/gsi/client. Probablemente está bloqueado por un adblocker, una extensión de privacidad, o el firewall de la red.');"></script>
 <style>
 /* MODERNIZED VERSION - Enhanced Color System */
 :root{
@@ -2283,12 +2283,12 @@ body {
 <div class="reveal-modal-overlay" id="contactModal">
   <div class="reveal-modal" style="max-width:480px;text-align:center">
     <h3>📧 Contact Support</h3>
-    <p style="color:rgba(255,255,255,.8);font-size:.9em;margin:16px 0">Need help or have questions about Maths Support? Reach out to us below:</p>
-    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:14px;border-radius:12px;color:#fff;font-size:1.05em;font-weight:700;margin-bottom:20px;letter-spacing:.5px">
-      admin@mathssupport.es
-    </div>
+    <p style="color:rgba(255,255,255,.8);font-size:.9em;margin:16px 0">Need help or have questions about Maths Support? Send us a message and we'll get back to you.</p>
+    <textarea id="contactMessageInput" placeholder="Type your message here..." maxlength="1000" style="width:100%;min-height:120px;padding:12px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:inherit;font-size:.95em;resize:vertical;box-sizing:border-box"></textarea>
+    <div class="page-msg" id="contactMsg" style="margin-top:10px"></div>
     <div class="reveal-modal-actions">
-      <button class="reveal-modal-btn confirm" onclick="closeContactModal()">Close</button>
+      <button class="reveal-modal-btn confirm" id="contactSendBtn" onclick="sendContactMessage()">Send</button>
+      <button class="reveal-modal-btn" onclick="closeContactModal()">Close</button>
     </div>
   </div>
 </div>
@@ -2328,8 +2328,18 @@ const EDGE_BASE = SUPABASE_URL + '/functions/v1';
 // ══════════════════════════════════════════════════════════════════
 // GOOGLE IDENTITY SERVICES FUNCTIONS
 // ══════════════════════════════════════════════════════════════════
+let __gsiRetryCount = 0;
 function initializeGoogleSignIn() {
   if (typeof google === 'undefined' || !google.accounts) {
+    if (window.__gsiLoadFailed) {
+      console.error('Google Identity Services no se pudo cargar (bloqueado por adblocker, extensión de privacidad, o red). El login con Google no está disponible.');
+      return;
+    }
+    __gsiRetryCount++;
+    if (__gsiRetryCount > 20) {
+      console.error('Google Identity Services sigue sin cargar tras 10s. Revisa la pestaña Network: probablemente accounts.google.com/gsi/client está bloqueado por un adblocker, extensión de privacidad, o el firewall de la red.');
+      return;
+    }
     console.warn('Google Identity Services not loaded yet');
     // Retry after a short delay
     setTimeout(initializeGoogleSignIn, 500);
@@ -2768,7 +2778,7 @@ function populateAccountPage(){
   document.getElementById('acctAvatarSub').textContent='@'+currentProfile.username;
   document.getElementById('acctDisplayName').value=name;
   document.getElementById('acctUsername').value=currentProfile.username;
-  document.getElementById('acctEmail').value=currentProfile.username;
+  document.getElementById('acctEmail').value=currentProfile.email||currentProfile.username;
   document.getElementById('myFriendCode').textContent=currentProfile.friend_code;
   const isAdmin=ADMIN_USER_IDS.includes(currentUser.id)||currentProfile?.is_admin;
   const devEntry=document.getElementById('adminDevEntry');
@@ -3999,8 +4009,31 @@ function openPrivacyModal(){document.getElementById('privacyModal').classList.ad
 function closePrivacyModal(){document.getElementById('privacyModal').classList.remove('active');}
 function openTermsModal(){document.getElementById('termsModal').classList.add('active');}
 function closeTermsModal(){document.getElementById('termsModal').classList.remove('active');}
-function openContactModal(){document.getElementById('contactModal').classList.add('active');}
+function openContactModal(){document.getElementById('contactModal').classList.add('active');document.getElementById('contactMessageInput').value='';document.getElementById('contactMsg').classList.remove('show');}
 function closeContactModal(){document.getElementById('contactModal').classList.remove('active');}
+async function sendContactMessage(){
+  const input=document.getElementById('contactMessageInput');
+  const msg=input.value.trim();
+  if(!msg){showMsg('contactMsg','Please write a message first.','err');return;}
+  const btn=document.getElementById('contactSendBtn');
+  btn.disabled=true;btn.textContent='Sending...';
+  try{
+    const{error}=await sb.from('contact_messages').insert({
+      user_id: currentUser?.id || null,
+      email: currentProfile?.email || currentProfile?.username || null,
+      message: msg
+    });
+    if(error) throw error;
+    showMsg('contactMsg','✅ Message sent! We\'ll get back to you soon.','ok');
+    input.value='';
+    setTimeout(closeContactModal,1500);
+  }catch(e){
+    console.error('Error sending contact message:',e);
+    showMsg('contactMsg','❌ Could not send message. Try again later.','err');
+  }finally{
+    btn.disabled=false;btn.textContent='Send';
+  }
+}
 
 // ══════════════════════════════════════════════════════════════════
 // MATHS PASS SYSTEM
