@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +12,7 @@
 <script src="https://cdn.jsdelivr.net/gh/bubbls/granny@212c543a85b243c4a0b92211f557e760d83d2292/sdk.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.puter.com/v2/"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 /* MODERNIZED VERSION - Enhanced Color System */
 :root{
@@ -1418,40 +1418,14 @@ body {
     <div class="demo-mode-badge" id="demoModeBadge" style="display:none">Demo Mode</div>
     <div class="auth-logo">🎮</div>
     <h2>Maths Support</h2>
-    <div class="auth-sub">Sign in to access games and chat</div>
+    <div class="auth-sub">Sign in with your google account to access Maths Support</div>
     
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
-      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
-    </div>
+    <!-- Google Sign-In Button -->
+    <div id="googleSignInButton" style="margin-top: 20px;"></div>
     
-    <!-- Login Form -->
-    <div id="loginForm">
-      <input type="text" class="auth-field" id="loginUsername" placeholder="Username" maxlength="30">
-      <input type="password" class="auth-field" id="loginPassword" placeholder="Password" maxlength="50">
-      <button class="auth-submit" id="loginBtn" onclick="doLogin()">Sign In →</button>
-      <div class="auth-error" id="loginError"></div>
-      <div class="auth-success" id="loginSuccess"></div>
-    </div>
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-success" id="authSuccess"></div>
     
-    <!-- Register Form -->
-    <div id="registerForm" style="display:none">
-      <input type="text" class="auth-field" id="regUsername" placeholder="Username" maxlength="30">
-      <input type="password" class="auth-field" id="regPassword" placeholder="Password (min 6 characters)" maxlength="50">
-      <input type="password" class="auth-field" id="regPasswordConfirm" placeholder="Confirm Password" maxlength="50">
-      
-      <div style="margin:16px 0">
-        <label style="display:flex;align-items:start;gap:8px;cursor:pointer;font-size:.85em;color:#666;line-height:1.4">
-          <input type="checkbox" id="regTermsAccept" style="margin-top:2px;accent-color:#667eea;width:16px;height:16px">
-          <span>I have read and agree to the <a href="#" onclick="openTermsModal();return false" style="color:#667eea;text-decoration:underline">Terms of Service</a> and <a href="#" onclick="openPrivacyModal();return false" style="color:#667eea;text-decoration:underline">Privacy Policy</a></span>
-        </label>
-      </div>
-      
-      <button class="auth-submit" id="registerBtn" onclick="doRegister()">Create Account →</button>
-      <div class="auth-error" id="registerError"></div>
-      <div class="auth-success" id="registerSuccess"></div>
-    </div>
-
   </div>
 </div>
 
@@ -2326,6 +2300,11 @@ body {
 const SUPABASE_URL = 'https://proxy.mathssupport.es';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaWR4bHR5Ym1hZHpnZ2d2cHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMjMyOTMsImV4cCI6MjEwMjg5OTI5M30.7yrNe9mk_cj6YPi4adutrKfC0pDZxWLyUcsdvbnkSqY';
 
+// ══════════════════════════════════════════════════════════════════
+// GOOGLE IDENTITY SERVICES SETUP
+// ══════════════════════════════════════════════════════════════════
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID_HERE'; // Replace with your Google Client ID
+
 // DEMO MODE - Usar localStorage si Supabase no funciona
 const DEMO_MODE = false;
 let sb = null;
@@ -2334,6 +2313,9 @@ let demoUsers = JSON.parse(localStorage.getItem('demo_users') || '[]');
 try {
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   console.log('Supabase client initialized');
+  
+  // Initialize Google Identity Services after Supabase is ready
+  initializeGoogleSignIn();
 } catch (error) {
   console.error('Supabase initialization error:', error);
   console.log('Using demo mode with localStorage');
@@ -2342,6 +2324,156 @@ try {
 }
 
 const EDGE_BASE = SUPABASE_URL + '/functions/v1';
+
+// ══════════════════════════════════════════════════════════════════
+// GOOGLE IDENTITY SERVICES FUNCTIONS
+// ══════════════════════════════════════════════════════════════════
+function initializeGoogleSignIn() {
+  if (typeof google === 'undefined' || !google.accounts) {
+    console.warn('Google Identity Services not loaded yet');
+    // Retry after a short delay
+    setTimeout(initializeGoogleSignIn, 500);
+    return;
+  }
+
+  try {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+      auto_select: false,
+      cancel_on_tap_outside: false
+    });
+
+    // Show the One Tap popup
+    google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed()) {
+        console.log('Google One Tap not displayed:', notification.getNotDisplayedReason());
+      } else if (notification.isSkipped()) {
+        console.log('Google One Tap skipped:', notification.getSkippedReason());
+      }
+    });
+
+    console.log('Google Identity Services initialized');
+  } catch (error) {
+    console.error('Google Identity Services initialization error:', error);
+  }
+}
+
+async function handleCredentialResponse(response) {
+  try {
+    console.log('Google credential received, signing in with Supabase...');
+    
+    // First, decode the JWT to get the email before calling Supabase
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const email = payload.email;
+    
+    // Validate email domain
+    const allowedDomains = ['@kcpupils.org', '@mathssupport.es'];
+    const isAllowedDomain = allowedDomains.some(domain => email.toLowerCase().endsWith(domain));
+    
+    if (!isAllowedDomain) {
+      const errorEl = document.getElementById('authError');
+      errorEl.textContent = 'Access denied: Only @kcpupils.org or @mathssupport.es accounts are allowed.';
+      errorEl.classList.add('show');
+      console.error('Unauthorized domain attempt:', email);
+      return;
+    }
+    
+    const { data, error } = await sb.auth.signInWithIdToken({
+      provider: 'google',
+      token: response.credential
+    });
+
+    if (error) {
+      console.error('Error de login con Google:', error);
+      
+      // Check if Google is not configured yet
+      if (error.message && error.message.includes('Google')) {
+        const errorEl = document.getElementById('authError');
+        errorEl.textContent = 'Google is not set up yet. Please contact the administrator.';
+        errorEl.classList.add('show');
+      } else {
+        const errorEl = document.getElementById('authError');
+        errorEl.textContent = 'Error signing in with Google: ' + error.message;
+        errorEl.classList.add('show');
+      }
+    } else {
+      console.log('Sesión iniciada con Google:', data.user);
+      
+      // Store user session data
+      localStorage.setItem('user_id', data.user.id);
+      localStorage.setItem('username', data.user.email);
+      localStorage.setItem('display_name', data.user.user_metadata?.full_name || data.user.email);
+      
+      // Update UI for logged in user
+      updateUserUI(data.user);
+      
+      // Hide auth overlay if visible
+      const authOverlay = document.querySelector('.auth-overlay');
+      if (authOverlay) {
+        authOverlay.classList.add('hidden');
+      }
+      
+      // Show success message
+      const successEl = document.getElementById('authSuccess');
+      successEl.textContent = '¡Sesión iniciada con éxito! Bienvenido, ' + (data.user.user_metadata?.full_name || data.user.email);
+      successEl.classList.add('show');
+      
+      setTimeout(() => {
+        successEl.classList.remove('show');
+      }, 3000);
+    }
+  } catch (error) {
+    console.error('Error handling Google credential:', error);
+    const errorEl = document.getElementById('authError');
+    
+    // Check if it's a Google configuration error
+    if (error.message && (error.message.includes('Google') || error.message.includes('configured'))) {
+      errorEl.textContent = 'Google is not set up yet. Please contact the administrator.';
+    } else {
+      errorEl.textContent = 'Error processing Google credential: ' + error.message;
+    }
+    errorEl.classList.add('show');
+  }
+}
+
+function renderGoogleButton(elementId) {
+  if (typeof google === 'undefined' || !google.accounts) {
+    console.warn('Google Identity Services not loaded yet');
+    setTimeout(() => renderGoogleButton(elementId), 500);
+    return;
+  }
+
+  try {
+    google.accounts.id.renderButton(
+      document.getElementById(elementId),
+      {
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        width: 300,
+        logo_alignment: 'left'
+      }
+    );
+    console.log('Google Sign-In button rendered in', elementId);
+  } catch (error) {
+    console.error('Error rendering Google button:', error);
+  }
+}
+
+function updateUserUI(user) {
+  // Update user badge if it exists
+  const userBadge = document.querySelector('.user-badge');
+  if (userBadge) {
+    userBadge.classList.add('visible');
+    const userName = userBadge.querySelector('.user-name-sm');
+    if (userName) {
+      userName.textContent = user.user_metadata?.full_name || user.email;
+    }
+  }
+  
+  // You can add more UI updates here as needed
+}
 
 // Demo mode functions (fallback)
 function demoCreateUser(username, password, termsAccepted) {
@@ -2477,133 +2609,24 @@ function friendlyDate(ts){
 const AUTH_SESSION_KEY = 'ms_user_id';
 
 function switchAuthTab(tab){
-  document.getElementById('loginForm').style.display=tab==='login'?'':'none';
-  document.getElementById('registerForm').style.display=tab==='register'?'':'none';
-  document.getElementById('tabLogin').classList.toggle('active',tab==='login');
-  document.getElementById('tabRegister').classList.toggle('active',tab==='register');
+  // No longer needed since we only have Google sign-in
+  console.log('Tab switching disabled - Google only auth');
 }
 
 async function doLogin(){
-  const username=document.getElementById('loginUsername').value.trim();
-  const password=document.getElementById('loginPassword').value.trim();
-  const errEl=document.getElementById('loginError'), btn=document.getElementById('loginBtn');
-  errEl.classList.remove('show');
-  
-  if(!username||!password){errEl.textContent='Please fill in all fields.';errEl.classList.add('show');return;}
-  
-  btn.disabled=true;btn.textContent='Signing in...';
-  
-  try{
-    let data, error;
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    if(useDemo) {
-      console.log('Using demo mode for login');
-      const result = demoLoginUser(username, password);
-      data = result.data;
-      error = result.error;
-    } else {
-      const result=await sb.from('users').select('*').ilike('username',username).maybeSingle();
-      data = result.data;
-      error = result.error;
-    }
-    
-    btn.disabled=false;btn.textContent='Sign In →';
-    
-    if(error){
-      console.error('Login error:', error);
-      errEl.textContent='Error: '+error.message;errEl.classList.add('show');return;
-    }
-    
-    if(!data){errEl.textContent='No account found with that username.';errEl.classList.add('show');return;}
-    if(data.password.trim()!==password){errEl.textContent='Incorrect password.';errEl.classList.add('show');return;}
-    
-    localStorage.setItem(AUTH_SESSION_KEY,data.id);
-    localStorage.setItem('ms_saved_username',data.username);
-    await onSignedIn(data);
-  }catch(e){
-    console.error('Login exception:', e);
-    btn.disabled=false;btn.textContent='Sign In →';
-    errEl.textContent='Connection error: '+e.message;errEl.classList.add('show');
-  }
+  // No longer needed - Google only auth
+  console.log('Traditional login disabled - use Google sign-in');
+  const errorEl = document.getElementById('authError');
+  errorEl.textContent = 'Please use Google sign-in to access the site.';
+  errorEl.classList.add('show');
 }
 
 async function doRegister(){
-  const rawUsername=document.getElementById('regUsername').value.trim().replace(/[^\p{L}\p{N}_]/gu,'');
-  const username=rawUsername;
-  const password=document.getElementById('regPassword').value.trim();
-  const confirm=document.getElementById('regPasswordConfirm').value.trim();
-  const termsAccepted=document.getElementById('regTermsAccept').checked;
-  const errEl=document.getElementById('registerError'), okEl=document.getElementById('registerSuccess'), btn=document.getElementById('registerBtn');
-  errEl.classList.remove('show');okEl.classList.remove('show');
-  
-  if(!username||!password||!confirm){errEl.textContent='Please fill in all fields.';errEl.classList.add('show');return;}
-  if(username.length<3){errEl.textContent='Username must be at least 3 characters.';errEl.classList.add('show');return;}
-  if(password.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.classList.add('show');return;}
-  if(password!==confirm){errEl.textContent='Passwords do not match.';errEl.classList.add('show');return;}
-  if(!termsAccepted){errEl.textContent='You must accept the Terms of Service and Privacy Policy to create an account.';errEl.classList.add('show');return;}
-  
-  btn.disabled=true;btn.textContent='Creating account...';
-  
-  try{
-    let data, error;
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    if(useDemo) {
-      console.log('Using demo mode for registration');
-      const result = demoCreateUser(username, password, termsAccepted);
-      data = result.data;
-      error = result.error;
-    } else {
-      // Check if username already exists in users or registration_requests
-      const{data:existingUser}=await sb.from('users').select('id').ilike('username',username).maybeSingle();
-      const{data:existingRequest}=await sb.from('registration_requests').select('id').ilike('username',username).maybeSingle();
-      
-      if(existingUser || existingRequest){
-        errEl.textContent='That username is already taken or pending approval.';errEl.classList.add('show');btn.disabled=false;btn.textContent='Create Account →';return;}
-      
-      const fc=genCode();
-      // Insert into registration_requests instead of users
-      const result=await sb.from('registration_requests').insert({
-        username,
-        display_name: username,
-        password,
-        friend_code: fc,
-        status: 'pending'
-      }).select().single();
-      
-      data = result.data;
-      error = result.error;
-    }
-    
-    btn.disabled=false;btn.textContent='Create Account →';
-    
-    if(error){
-      console.error('Registration error:', error);
-      errEl.textContent='Error: '+error.message;errEl.classList.add('show');return;
-    }
-    
-    if(!data){
-      errEl.textContent='Registration failed. Please try again.';errEl.classList.add('show');return;
-    }
-    
-    // For registration requests, show pending message instead of signing in
-    okEl.textContent='✅ Registration request submitted! Please wait for admin approval.';okEl.classList.add('show');
-    document.getElementById('regUsername').value = '';
-    document.getElementById('regPassword').value = '';
-    document.getElementById('regPasswordConfirm').value = '';
-    document.getElementById('regTermsAccept').checked = false;
-    
-    // Switch to login tab
-    setTimeout(() => {
-      switchAuthTab('login');
-      okEl.classList.remove('show');
-    }, 3000);
-  }catch(e){
-    console.error('Registration exception:', e);
-    btn.disabled=false;btn.textContent='Create Account →';
-    errEl.textContent='Connection error: '+e.message;errEl.classList.add('show');
-  }
+  // No longer needed - Google only auth
+  console.log('Traditional registration disabled - use Google sign-in');
+  const errorEl = document.getElementById('authError');
+  errorEl.textContent = 'Please use Google sign-in to access the site.';
+  errorEl.classList.add('show');
 }
 
 async function doSignOut(e){
@@ -2612,10 +2635,27 @@ async function doSignOut(e){
   if(chatPollTimer){clearInterval(chatPollTimer);chatPollTimer=null;}
   if(chatRealtime){sb.removeChannel(chatRealtime);chatRealtime=null;}
   if(typingRealtime){sb.removeChannel(typingRealtime);typingRealtime=null;}
+  
+  // Sign out from Supabase auth
+  try {
+    await sb.auth.signOut();
+  } catch (error) {
+    console.error('Error signing out from Supabase:', error);
+  }
+  
   localStorage.removeItem(AUTH_SESSION_KEY);
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('username');
+  localStorage.removeItem('display_name');
   currentUser=null;currentProfile=null;
   document.getElementById('userBadge').classList.remove('visible');
   stopClock();
+  
+  // Show auth overlay again
+  document.getElementById('authOverlay').classList.remove('hidden');
+  
+  // Re-render Google button
+  setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
 }
 
 async function onSignedIn(profile){
@@ -2655,6 +2695,8 @@ async function initApp(){
     await onSignedIn(restored);
   }else{
     document.getElementById('authOverlay').classList.remove('hidden');
+    // Render Google Sign-In button when auth overlay is shown
+    setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
   }
 }
 
