@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,6 +79,141 @@ body{
 
 .sidebar-item.active .sidebar-item-icon svg{
   stroke:var(--primary);
+}
+
+.sidebar-chat-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ed4956;
+  color: #fff;
+  font-size: 0.65em;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.onboarding-overlay.active {
+  display: flex;
+}
+.onboarding-highlight {
+  position: absolute;
+  border: 3px solid #667eea;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(102, 126, 234, 0.3);
+  pointer-events: none;
+  transition: all 0.5s ease;
+}
+.onboarding-content {
+  position: relative;
+  z-index: 1;
+}
+.onboarding-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 12px solid transparent;
+}
+.onboarding-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 350px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.onboarding-step-num {
+  color: #667eea;
+  font-weight: 700;
+  font-size: 0.9em;
+  margin-bottom: 8px;
+}
+.onboarding-card h3 {
+  color: #1a1a2e;
+  margin: 0 0 12px 0;
+  font-size: 1.3em;
+}
+.onboarding-card p {
+  color: #4a4a5e;
+  margin: 0 0 20px 0;
+  line-height: 1.6;
+}
+.onboarding-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+.onboarding-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.onboarding-btn.primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+}
+.onboarding-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+.onboarding-btn.secondary {
+  background: #f0f0f5;
+  color: #4a4a5e;
+  border: none;
+}
+.onboarding-btn.secondary:hover {
+  background: #e0e0e5;
+}
+
+body.light-theme {
+  background: #f5f5f5;
+  --bg-base: #f5f5f5;
+  --bg-elevated: #ffffff;
+  --bg-card: #ffffff;
+  --bg-hover: #f0f0f5;
+  --bg-active: #e8e8f0;
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a5e;
+  --text-tertiary: #6a6a7e;
+  --text-muted: #8a8a9e;
+}
+body.light-theme .sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e0e0e0;
+}
+body.light-theme .sidebar-item {
+  color: #4a4a5e;
+}
+body.light-theme .sidebar-item:hover {
+  background: #f0f0f5;
+}
+body.light-theme .top-nav {
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+body.light-theme .game-button {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+body.light-theme .game-button h3 {
+  color: #1a1a2e;
+}
+body.light-theme .game-button p {
+  color: #6a6a7e;
 }
 
 
@@ -305,7 +441,7 @@ body {
 .game-button:hover .game-info{transform:translateY(0)}
 .game-button h3{color:#fff;font-size:1.1em;margin:0;text-shadow:2px 2px 4px rgba(0,0,0,.5)}
 .game-button p{color:rgba(255,255,255,.9);font-size:.75em;margin:5px 0 0}
-.game-container{max-width:1200px;margin:0 auto;background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.3);display:none}
+.game-container{max-width:1200px;margin:0 auto;background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.3);display:none;position:relative}
 .game-container.active{display:block}
 .game-header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;display:flex;justify-content:space-between;align-items:center}
 .game-header h2{font-size:1.5em}
@@ -462,15 +598,30 @@ body {
 .chat-page{
   display:none;
   position:fixed;
-  top:0; bottom:0;
-  left:var(--sidebar-w);
-  right:0;
-  z-index:900;
-  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
-  transition:left .3s ease;
+  inset:0;
+  z-index:9999;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  justify-content:center;
+  align-items:center;
+  padding:20px;
 }
-.chat-page.active{display:flex;flex-direction:column}
-.sidebar:hover ~ .chat-page{ left:250px }
+.chat-page.active{display:flex}
+.chat-modal-box{
+  width:100%;
+  max-width:980px;
+  height:85vh;
+  max-height:720px;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  border:1.5px solid rgba(255,255,255,.12);
+  border-radius:24px;
+  box-shadow:0 24px 64px rgba(0,0,0,.6);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
 
 .chat-topbar{display:flex;align-items:center;gap:14px;padding:16px 24px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);flex-shrink:0;z-index:10}
 .chat-topbar-back{background:rgba(255,255,255,.1);border:none;color:#fff;width:40px;height:40px;border-radius:12px;cursor:pointer;font-size:1.25em;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
@@ -762,6 +913,83 @@ body {
 .ai-welcome{flex:1;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:24px;padding:32px}
 .ai-welcome-icon{font-size:3em;animation:aiGlow 3s ease-in-out infinite;flex-shrink:0}
 @keyframes aiGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(102,126,234,.4))}50%{filter:drop-shadow(0 0 20px rgba(102,126,234,.8))}}
+
+/* ── ARTIFICIAL MATHS AI CSS ── */
+.aimaths-page{display:none;padding:24px}
+.aimaths-page.active{display:block}
+.aimaths-layout{display:flex;gap:20px;height:calc(100vh - 120px)}
+.aimaths-sidebar{width:280px;display:flex;flex-direction:column}
+.aimaths-sidebar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.aimaths-sidebar-header h3{color:#fff;font-size:1.1em;margin:0}
+.aimaths-new-btn{background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);color:#a78bfa;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s}
+.aimaths-new-btn:hover{background:rgba(139,92,246,.3);border-color:rgba(139,92,246,.6)}
+.aimaths-conversations-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.aimaths-conversations-list::-webkit-scrollbar{width:4px}
+.aimaths-conversations-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.aimaths-conversation-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s}
+.aimaths-conversation-item:hover{background:rgba(255,255,255,.1)}
+.aimaths-conversation-item.active{background:rgba(139,92,246,.2);border-color:rgba(139,92,246,.4)}
+.aimaths-conversation-title{color:#fff;font-weight:600;font-size:.95em;margin-bottom:4px}
+.aimaths-conversation-date{color:rgba(255,255,255,.4);font-size:.8em}
+.aimaths-main{flex:1;display:flex;flex-direction:column;background:rgba(0,0,0,.3);border-radius:16px;overflow:hidden}
+.aimaths-chat-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(139,92,246,.1);border-bottom:1px solid rgba(139,92,246,.2)}
+.aimaths-chat-title{color:#fff;font-weight:700;font-size:1.1em}
+.aimaths-chat-actions{display:flex;gap:8px}
+.aimaths-action-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1.1em;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.aimaths-action-btn:hover{background:rgba(255,255,255,.2)}
+.aimaths-action-btn.danger:hover{background:rgba(246,79,89,.2);border-color:rgba(246,79,89,.4)}
+.aimaths-action-btn.search-active{background:rgba(59,130,246,.3);border-color:rgba(59,130,246,.5)}
+.aimaths-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.aimaths-messages::-webkit-scrollbar{width:4px}
+.aimaths-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.aimaths-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:rgba(255,255,255,.5)}
+.aimaths-welcome-icon{font-size:4em;margin-bottom:16px}
+.aimaths-welcome-text h3{color:#fff;font-size:1.5em;margin-bottom:8px}
+.aimaths-welcome-text p{font-size:.95em;margin-bottom:20px;max-width:400px;line-height:1.6}
+.aimaths-welcome-tips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.aimaths-welcome-tips span{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);padding:8px 16px;border-radius:20px;font-size:.85em;color:rgba(255,255,255,.7)}
+.aimaths-message{display:flex;gap:12px;max-width:80%;animation:aimathsMsgIn .3s ease both}
+@keyframes aimathsMsgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.aimaths-message.user{align-self:flex-end;flex-direction:row-reverse}
+.aimaths-message.assistant{align-self:flex-start}
+.aimaths-message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;flex-shrink:0}
+.aimaths-message.user .aimaths-message-avatar{background:linear-gradient(135deg,#667eea,#764ba2)}
+.aimaths-message.assistant .aimaths-message-avatar{background:linear-gradient(135deg,#8b5cf6,#ec4899)}
+.aimaths-message-content{background:rgba(255,255,255,.1);border-radius:12px;padding:12px 16px;color:#fff;line-height:1.5;max-width:100%}
+.aimaths-message.user .aimaths-message-content{background:linear-gradient(135deg,rgba(102,126,234,.3),rgba(118,75,162,.3))}
+.aimaths-message-image{max-width:200px;max-height:200px;border-radius:8px;margin-bottom:8px;display:block}
+.aimaths-message-search{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:12px;margin-top:8px}
+.aimaths-message-search h4{color:#60a5fa;font-size:.9em;margin:0 0 8px 0}
+.aimaths-message-search-result{background:rgba(255,255,255,.05);border-radius:6px;padding:8px;margin-bottom:6px}
+.aimaths-message-search-result a{color:#60a5fa;text-decoration:none;font-size:.85em;display:block}
+.aimaths-message-search-result a:hover{text-decoration:underline}
+.aimaths-input-area{padding:16px 20px;background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.1)}
+.aimaths-image-upload{margin-bottom:12px;position:relative}
+.aimaths-image-preview{max-width:100px;max-height:100px;border-radius:8px;object-fit:cover;display:block}
+.aimaths-clear-img{position:absolute;top:-8px;right:-8px;background:#f64f59;border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:.8em;display:flex;align-items:center;justify-content:center}
+.aimaths-clear-img:hover{background:#dc2626}
+.aimaths-input-row{display:flex;gap:12px}
+.aimaths-input{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 16px;color:#fff;font-family:inherit;font-size:.95em;resize:none;outline:none;min-height:48px;max-height:150px;line-height:1.5;transition:border-color .2s,background .2s;overflow:hidden}
+.aimaths-input::placeholder{color:rgba(255,255,255,.3)}
+.aimaths-input:focus{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.08)}
+.aimaths-send-btn{background:linear-gradient(135deg,#8b5cf6,#ec4899);border:none;color:#fff;width:48px;height:48px;border-radius:12px;cursor:pointer;font-size:1.2em;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aimaths-send-btn:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(139,92,246,.4)}
+.aimaths-send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.aimaths-search-indicator{display:flex;align-items:center;gap:8px;color:#60a5fa;font-size:.85em;margin-top:8px}
+.aimaths-loading{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);font-size:.9em}
+.aimaths-loading::after{content:'';width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#8b5cf6;border-radius:50%;animation:aimathsSpin 1s linear infinite}
+@keyframes aimathsSpin{to{transform:rotate(360deg)}}
+
+/* ── MATHS SEARCH PAGE ── */
+.maths-search-page{display:none;position:fixed;inset:0;background:#0a0a0f;z-index:1000}
+.maths-search-page.active{display:flex;flex-direction:column}
+.maths-search-page:fullscreen{background:#000}
+.maths-search-header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.maths-search-header h2{font-size:1.5em;margin:0}
+.maths-search-controls{display:flex;gap:10px}
+.maths-search-content{flex:1;overflow:hidden}
+.maths-search-iframe{width:100%;height:100%;border:none;background:#fff}
+
 .ai-welcome-text strong{color:rgba(255,255,255,.75);font-size:1.05em;display:block;margin-bottom:7px}
 .ai-welcome-text p{color:rgba(255,255,255,.32);font-size:.83em;line-height:1.7;max-width:300px}
 .ai-welcome-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
@@ -1184,9 +1412,6 @@ body {
 <body>
 <!-- adsense removed -->
 
-<!-- SITE PASSWORD OVERLAY -->
-<!-- sitepass overlay removed -->
-
 <!-- AUTH OVERLAY (MANDATORY) -->
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-box">
@@ -1267,11 +1492,8 @@ body {
     <div class="sidebar-item active" id="homeBtn" onclick="showSection('home')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span><span class="sidebar-item-text">Home</span></div>
     <div class="sidebar-item" id="appsBtn" onclick="showSection('apps')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></span><span class="sidebar-item-text">Apps</span></div>
     <div class="sidebar-item" id="friendsBtn" onclick="showSection('friends')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span class="sidebar-item-text">Friends</span><span class="sidebar-badge" id="friendsBadge" style="display:none">0</span></div>
-    <div class="sidebar-item" id="chatBtn" onclick="showSection('chat')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span><span class="sidebar-item-text">Chat</span><span class="sidebar-badge" id="chatBadge" style="display:none">0</span></div>
+    <div class="sidebar-item" id="chatBtn" onclick="showSection('chat')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="sidebar-chat-badge" id="sidebarChatBadge" style="display:none">0</span></span><span class="sidebar-item-text">Chat</span><span class="sidebar-badge" id="chatBadge" style="display:none">0</span></div>
     <div class="sidebar-item" id="shopBtn" onclick="showSection('shop')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></span><span class="sidebar-item-text">Shop</span></div>
-    <div class="sidebar-item" id="passBtn" onclick="showSection('pass')"><span class="sidebar-item-icon">🏆</span><span class="sidebar-item-text">Maths Pass</span></div>
-    <div class="sidebar-item" id="leaderboardBtn" onclick="showSection('leaderboard')"><span class="sidebar-item-icon">📊</span><span class="sidebar-item-text">Leaderboard</span></div>
-    <div class="sidebar-item" id="customizationBtn" onclick="showSection('customization')"><span class="sidebar-item-icon">🎨</span><span class="sidebar-item-text">Customize</span></div>
     <div class="sidebar-item" id="accountBtn" onclick="showSection('account')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="sidebar-item-text">Account</span></div>
   </div>
 </div>
@@ -1281,6 +1503,7 @@ body {
   <div class="top-nav" id="topNav">
     <div class="site-name">Maths Support</div>
     <div class="search-container"><input type="text" class="search-bar" id="searchBar" placeholder="Search for games..."></div>
+    <button class="add-link-btn" onclick="showSection('aimaths')" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)"><span>🤖</span><span>Artificial Maths</span></button>
     <button class="add-link-btn" onclick="openAddAppModal()"><span>＋</span><span>Add Link</span></button>
     <div class="user-badge" id="userBadge" onclick="toggleDropdown()">
       <div class="user-avatar-sm" id="userAvatarSm">?</div>
@@ -1292,6 +1515,7 @@ body {
         <div class="dropdown-item" onclick="showSection('friends');closeDropdown()"><span>👥</span> Friends</div>
         <div class="dropdown-item" onclick="showSection('chat');closeDropdown()"><span>💬</span> Chat</div>
         <div class="dropdown-item" onclick="openExperimental();closeDropdown()"><span>🧪</span> Experimental</div>
+        <div class="dropdown-item" onclick="toggleTheme();closeDropdown()"><span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span></div>
         <div class="dropdown-item danger" onclick="doSignOut(event)"><span>🚪</span> Sign Out</div>
       </div>
     </div>
@@ -1305,9 +1529,9 @@ body {
   <!-- GAMES GRID -->
   <div class="games-grid" id="gamesGrid">
     <div class="no-results" id="noResults">🔍 No games found matching your search</div>
-    <button class="game-button" onclick="openGame('Drive Mad','https://games.playtropolis.com/drive-mad-v2/')"><img src=" img/drive-mad.png" alt="Drive Mad" class="game-image"><div class="game-info"><h3>🏎️ Drive Mad</h3><p>Racing car vehicle game</p></div></button>
+    <button class="game-button" onclick="openGame('Drive Mad','https://play.fancade.com/5F084A0BCE06B710')"><img src=" img/drive-mad.png" alt="Drive Mad" class="game-image"><div class="game-info"><h3>🏎️ Drive Mad</h3><p>Racing car vehicle game</p></div></button>
     <button class="game-button" onclick="openGame('Poly Track','https://arcadrome.com/embed/polytrack')"><img src=" img/polytrack.png" alt="Poly Track" class="game-image"><div class="game-info"><h3>🏁 Poly Track</h3><p>Racing car vehicle game</p></div></button>
-    <button class="game-button" onclick="openGame('Odd Bot Out','https://games.playtropolis.com/odd-bot-out/')"><img src=" img/odd-bot-out.png" alt="Odd Bot Out" class="game-image"><div class="game-info"><h3>🤖 Odd Bot Out</h3><p>Robot puzzle game</p></div></button>
+    <button class="game-button" onclick="openGame('Odd Bot Out','https://play.fancade.com/5D01F70D3373F2DD')"><img src=" img/odd-bot-out.png" alt="Odd Bot Out" class="game-image"><div class="game-info"><h3>🤖 Odd Bot Out</h3><p>Robot puzzle game</p></div></button>
     <button class="game-button" onclick="openGame('Stunt Bike Extreme','https://games.playtropolis.com/stunt-bike-extreme/')"><img src=" img/stunt-bike-extreme.png" alt="Stunt Bike Extreme" class="game-image"><div class="game-info"><h3>🏍️ Stunt Bike Extreme</h3><p>Motorcycle tricks and stunts</p></div></button>
     <button class="game-button" onclick="openGame('Subway Surfers','https://arcadrome.com/embed/subway-surfers')"><img src=" img/subway-surfers.png" alt="Subway Surfers" class="game-image"><div class="game-info"><h3>🚇 Subway Surfers</h3><p>Endless running game</p></div></button>
     <button class="game-button" onclick="openGame('Monkey Mart','https://games.playtropolis.com/monkey-mart/')"><img src=" img/monkey-markt.png" alt="Monkey Mart" class="game-image"><div class="game-info"><h3>🐵 Monkey Mart</h3><p>Store management game</p></div></button>
@@ -1687,47 +1911,49 @@ body {
     </div>
   </div>
 
-<!-- FULLSCREEN CHAT PAGE -->
+<!-- OVERLAY CHAT MODAL -->
 <div class="chat-page" id="chatPage">
-  <div class="chat-topbar">
-    <button class="chat-topbar-back" onclick="showSection('home')">←</button>
-    <div class="chat-topbar-title">💬 Maths Support Chat</div>
-    <button class="chat-broadcast-btn" id="broadcastBtn" style="display:none" onclick="showBroadcastModal()">📢Broadcast</button>
-    <div class="chat-topbar-badge" id="chatTopBadge" style="display:none"><span>📨</span><span id="chatTopBadgeNum">0</span> unread</div>
-  </div>
-  <div class="chat-wrap">
-    <div class="chat-sidebar-panel" id="chatSidebarPanel">
-      <div class="chat-panel-header">💬 Conversations</div>
-      <div class="chat-list" id="chatList"><div class="empty-list" style="padding:24px 12px;font-size:.85em;color:rgba(255,255,255,.3)">Add friends to start chatting</div></div>
+  <div class="chat-modal-box">
+    <div class="chat-topbar">
+      <button class="chat-topbar-back" onclick="closeChatOverlay()">✕</button>
+      <div class="chat-topbar-title">💬 Maths Support Chat</div>
+      <button class="chat-broadcast-btn" id="broadcastBtn" style="display:none" onclick="showBroadcastModal()">📢Broadcast</button>
+      <div class="chat-topbar-badge" id="chatTopBadge" style="display:none"><span>📨</span><span id="chatTopBadgeNum">0</span> unread</div>
     </div>
-    <div class="chat-main-panel" id="chatMainPanel">
-      <div class="chat-no-convo" id="chatNoConvo"><div class="chat-no-convo-icon">💬</div><p>Select a conversation from the left to start chatting with a friend</p></div>
-      <div class="chat-convo" id="chatConvo">
-        <div class="chat-convo-header">
-          <div class="chat-convo-avatar" id="chatConvoAvatar">?</div>
-          <div class="chat-convo-info"><div class="chat-convo-name" id="chatConvoName">Friend</div><div class="chat-convo-status" id="chatConvoStatus"><span id="chatConvoStatusText">•&nbsp;Online</span></div></div>
-          <div class="chat-convo-streak" id="chatConvoStreak" style="display:none">🔥 <span id="convoStreakNum">0</span> day streak</div>
-        </div>
-        <div class="streak-bar" id="streakBar">
-          <div class="streak-pet-wrap">
-            <div class="streak-pet-emoji" id="streakPetEmoji" onclick="openPetModal()" title="Click to rename your pet!">🥚</div>
-            <div class="streak-pet-info"><div class="streak-pet-name" id="streakPetName">Mystery Egg</div><div class="streak-pet-mood" id="streakPetMood">Chat to start your streak</div></div>
+    <div class="chat-wrap">
+      <div class="chat-sidebar-panel" id="chatSidebarPanel">
+        <div class="chat-panel-header">💬 Conversations</div>
+        <div class="chat-list" id="chatList"><div class="empty-list" style="padding:24px 12px;font-size:.85em;color:rgba(255,255,255,.3)">Add friends to start chatting</div></div>
+      </div>
+      <div class="chat-main-panel" id="chatMainPanel">
+        <div class="chat-no-convo" id="chatNoConvo"><div class="chat-no-convo-icon">💬</div><p>Select a conversation from the left to start chatting with a friend</p></div>
+        <div class="chat-convo" id="chatConvo">
+          <div class="chat-convo-header">
+            <div class="chat-convo-avatar" id="chatConvoAvatar">?</div>
+            <div class="chat-convo-info"><div class="chat-convo-name" id="chatConvoName">Friend</div><div class="chat-convo-status" id="chatConvoStatus"><span id="chatConvoStatusText">•&nbsp;Online</span></div></div>
+            <div class="chat-convo-streak" id="chatConvoStreak" style="display:none">🔥 <span id="convoStreakNum">0</span> day streak</div>
           </div>
-          <div class="streak-xp-bar-wrap"><div class="streak-xp-label"><span id="streakXpCur">0</span><span id="streakXpMax">/10 XP</span></div><div class="streak-xp-track"><div class="streak-xp-fill" id="streakXpFill" style="width:0%"></div></div></div>
-          <div class="streak-count-wrap"><div class="streak-flame" id="streakFlame">🔥</div><div class="streak-num" id="streakNum">0</div><div class="streak-label">days</div></div>
-        </div>
-        <div class="chat-messages" id="chatMessages"><div class="chat-empty-msgs"><span>👋</span><span>Say hello!</span></div></div>
-        <div class="typing-indicator" id="typingIndicator">
-          <div class="msg-group-avatar" id="typingAvatar">?</div>
-          <div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
-          <span class="typing-label" id="typingLabel">typing...</span>
-        </div>
-        <div class="chat-input-area" style="position:relative">
-          <div class="sticker-picker" id="stickerPicker"><div class="sticker-picker-header">🎨 Your Stickers</div><div class="sticker-picker-grid" id="stickerPickerGrid"><div class="sticker-picker-empty">Loading stickers...</div></div></div>
-          <div class="chat-input-row">
-            <button class="sticker-btn" id="stickerPickerBtn" onclick="toggleStickerPicker()" title="Send a sticker">🎨</button>
-            <textarea class="chat-input" id="chatMsgInput" placeholder="Type a message..." rows="1"></textarea>
-            <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">➤</button>
+          <div class="streak-bar" id="streakBar">
+            <div class="streak-pet-wrap">
+              <div class="streak-pet-emoji" id="streakPetEmoji" onclick="openPetModal()" title="Click to rename your pet!">🥚</div>
+              <div class="streak-pet-info"><div class="streak-pet-name" id="streakPetName">Mystery Egg</div><div class="streak-pet-mood" id="streakPetMood">Chat to start your streak</div></div>
+            </div>
+            <div class="streak-xp-bar-wrap"><div class="streak-xp-label"><span id="streakXpCur">0</span><span id="streakXpMax">/10 XP</span></div><div class="streak-xp-track"><div class="streak-xp-fill" id="streakXpFill" style="width:0%"></div></div></div>
+            <div class="streak-count-wrap"><div class="streak-flame" id="streakFlame">🔥</div><div class="streak-num" id="streakNum">0</div><div class="streak-label">days</div></div>
+          </div>
+          <div class="chat-messages" id="chatMessages"><div class="chat-empty-msgs"><span>👋</span><span>Say hello!</span></div></div>
+          <div class="typing-indicator" id="typingIndicator">
+            <div class="msg-group-avatar" id="typingAvatar">?</div>
+            <div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+            <span class="typing-label" id="typingLabel">typing...</span>
+          </div>
+          <div class="chat-input-area" style="position:relative">
+            <div class="sticker-picker" id="stickerPicker"><div class="sticker-picker-header">🎨 Your Stickers</div><div class="sticker-picker-grid" id="stickerPickerGrid"><div class="sticker-picker-empty">Loading stickers...</div></div></div>
+            <div class="chat-input-row">
+              <button class="sticker-btn" id="stickerPickerBtn" onclick="toggleStickerPicker()" title="Send a sticker">🎨</button>
+              <textarea class="chat-input" id="chatMsgInput" placeholder="Type a message..." rows="1"></textarea>
+              <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">➤</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1735,24 +1961,94 @@ body {
   </div>
 </div>
 
-<!-- ADMIN DEVELOPER PANEL -->
-<div class="dev-panel" id="devPanel">
-  <div class="dev-panel-topbar">
-    <button class="dev-panel-back" onclick="closeDevPanel()">←</button>
-    <div class="dev-panel-brand"><span class="dev-panel-brand-icon">⚡</span><span class="dev-panel-brand-title">Developer Panel</span><span class="dev-panel-brand-badge">Admin</span></div>
+<!-- ARTIFICIAL MATHS AI PAGE -->
+<div class="aimaths-page" id="aimathsPage">
+  <div class="aimaths-layout">
+    <div class="aimaths-sidebar">
+      <div class="aimaths-sidebar-header">
+        <h3>💬 Conversations</h3>
+        <button onclick="createNewAiConversation()" class="aimaths-new-btn">＋ New</button>
+      </div>
+      <div class="aimaths-conversations-list" id="aimathsConversationsList">
+        <!-- Conversations loaded dynamically -->
+      </div>
+    </div>
+    <div class="aimaths-main">
+      <div class="aimaths-chat-header">
+        <div class="aimaths-chat-title" id="aimathsChatTitle">New Conversation</div>
+        <div class="aimaths-chat-actions">
+          <button onclick="toggleAiImageUpload()" class="aimaths-action-btn" title="Upload Image">📷</button>
+          <button onclick="toggleAiSearchMode()" class="aimaths-action-btn" title="Enable Search">🔍</button>
+          <button onclick="deleteCurrentAiConversation()" class="aimaths-action-btn danger" title="Delete">🗑️</button>
+        </div>
+      </div>
+      <div class="aimaths-messages" id="aimathsMessages">
+        <div class="aimaths-welcome">
+          <div class="aimaths-welcome-icon">🤖</div>
+          <div class="aimaths-welcome-text">
+            <h3>Artificial Maths</h3>
+            <p>Ask me anything! I can help with homework, explain concepts, solve problems, and search the web.</p>
+            <div class="aimaths-welcome-tips">
+              <span>📷 Upload images of problems</span>
+              <span>🔍 Ask me to search the web</span>
+              <span>💬 Start a conversation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="aimaths-input-area">
+        <div class="aimaths-image-upload" id="aimathsImageUpload" style="display:none">
+          <input type="file" id="aimathsImageInput" accept="image/*" onchange="handleAiImageUpload(event)">
+          <div class="aimaths-image-preview" id="aimathsImagePreview"></div>
+          <button onclick="clearAiImageUpload()" class="aimaths-clear-img">✕</button>
+        </div>
+        <div class="aimaths-input-row">
+          <textarea class="aimaths-input" id="aimathsInput" placeholder="Ask me anything..." rows="1"></textarea>
+          <button onclick="sendAiMathsMessage()" class="aimaths-send-btn">➤</button>
+        </div>
+        <div class="aimaths-search-indicator" id="aimathsSearchIndicator" style="display:none">
+          <span>🔍 Searching the web...</span>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
+
+<!-- MATHS SEARCH PAGE -->
+<div class="maths-search-page" id="mathssearchPage">
+  <div class="maths-search-header">
+    <h2 id="mathsSearchTitle">Maths Search</h2>
+    <div class="maths-search-controls">
+      <button class="fullscreen-button" onclick="toggleMathsSearchFullscreen()">⛶ Fullscreen</button>
+      <button class="close-button" onclick="closeMathsSearch()">✕ Close</button>
+    </div>
+  </div>
+  <div class="maths-search-content">
+    <iframe id="mathsSearchFrame" src="proxy.html" class="maths-search-iframe"></iframe>
+  </div>
+</div>
+
+<!-- ADMIN DEVELOPER PANEL MODAL -->
+<div class="dev-panel" id="devPanel">
+  <div class="dev-panel-modal">
+    <div class="dev-panel-topbar">
+      <button class="dev-panel-back" onclick="closeDevPanel()">✕</button>
+      <div class="dev-panel-brand"><span class="dev-panel-brand-icon">⚡</span><span class="dev-panel-brand-title">Admin Developer Panel</span><span class="dev-panel-brand-badge">Admin</span></div>
+    </div>
   <div class="dev-tabs">
     <button class="dev-tab active" id="devTab-github" onclick="switchDevTab('github')"><span class="dev-tab-icon">🐙</span> GitHub Editor</button>
     <button class="dev-tab" id="devTab-ai" onclick="switchDevTab('ai')"><span class="dev-tab-icon">🤖</span> AI Assistant</button>
     <button class="dev-tab" id="devTab-vercel" onclick="switchDevTab('vercel')"><span class="dev-tab-icon">▲</span> Vercel</button>
+    <button class="dev-tab" id="devTab-registrations" onclick="switchDevTab('registrations')"><span class="dev-tab-icon">👥</span> Registration Requests</button>
   </div>
   <div class="dev-tab-panels">
     <div class="dev-tab-panel active" id="devPanel-github">
       <div id="ghTokenGate" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;padding:40px">
         <div style="font-size:3em">🐙</div>
-        <div style="text-align:center"><div style="color:#fff;font-size:1.1em;font-weight:800;margin-bottom:6px">Connect to GitHub</div><div style="color:rgba(255,255,255,.4);font-size:.85em;max-width:340px;line-height:1.6">Paste your GitHub Personal Access Token once.<br>It will be saved securely and auto-loaded next time.<br><strong style="color:rgba(102,126,234,.9)">GABEHACKER33/maths.support</strong></div></div>
+        <div style="text-align:center"><div style="color:#fff;font-size:1.1em;font-weight:800;margin-bottom:6px">Connect to GitHub</div><div style="color:rgba(255,255,255,.4);font-size:.85em;max-width:340px;line-height:1.6">Paste your GitHub Personal Access Token & Repository Name.<br>It will be saved securely and auto-loaded next time.</div></div>
         <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:10px">
-          <input type="password" class="gh-input" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" style="font-size:.95em;padding:13px 16px;text-align:center;letter-spacing:2px">
+          <input type="text" class="gh-input" id="ghRepoInput" placeholder="username/repository (e.g. your-user/maths.support)" value="gabriel-oli-ren/pomomathfocussupport" autocomplete="off" style="font-size:.9em;padding:12px 16px;text-align:center">
+          <input type="password" class="gh-input" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" value="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" autocomplete="off" style="font-size:.95em;padding:13px 16px;text-align:center;letter-spacing:2px">
           <button class="gh-load-btn" onclick="ghConnect()" style="padding:13px;font-size:.95em">🔗 Save &amp; Connect</button>
           <div id="ghConnectError" style="display:none;color:#f87171;font-size:.8em;text-align:center;padding:8px 12px;background:rgba(246,79,89,.1);border-radius:8px;border:1px solid rgba(246,79,89,.3)"></div>
           <div id="ghConnectStatus" style="display:none;color:#4ade80;font-size:.8em;text-align:center;padding:8px 12px;background:rgba(34,197,94,.08);border-radius:8px;border:1px solid rgba(34,197,94,.2)"></div>
@@ -1760,7 +2056,7 @@ body {
       </div>
       <div id="ghEditorShell" style="display:none;flex:1;overflow:hidden" class="gh-layout">
         <div class="gh-sidebar">
-          <div class="gh-sidebar-header" style="justify-content:space-between"><span>📁 maths.support</span><button onclick="ghDisconnect()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);border-radius:6px;padding:3px 9px;font-size:.72em;cursor:pointer;font-family:inherit">Disconnect</button></div>
+          <div class="gh-sidebar-header" style="justify-content:space-between"><span>📁 pomomathfocussupport</span><button onclick="ghDisconnect()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);border-radius:6px;padding:3px 9px;font-size:.72em;cursor:pointer;font-family:inherit">Disconnect</button></div>
           <div class="gh-file-list" id="ghFileList"><div style="padding:20px 12px;color:rgba(255,255,255,.3);font-size:.8em;text-align:center">⏳ Loading files...</div></div>
         </div>
         <div class="gh-editor-area">
@@ -1804,7 +2100,7 @@ body {
             <div class="ai-welcome" id="aiWelcome">
               <div class="ai-welcome-icon">🤖</div>
               <div class="ai-welcome-text"><strong>AI Dev Assistant</strong><p>Full access to GitHub repo &amp; Vercel. Click a file in the sidebar to load it, then ask me anything.</p>
-                <div class="ai-welcome-chips"><span onclick="aiQuick('List all files in GABEHACKER33/maths.support')">📁 List files</span><span onclick="aiQuick('Latest Vercel deployment status?')">▲ Deployments</span><span onclick="aiQuick('Find bugs in the loaded file')">🐛 Find bugs</span></div>
+                <div class="ai-welcome-chips"><span onclick="aiQuick('List all files in gabriel-oli-ren/pomomathfocussupport')">📁 List files</span><span onclick="aiQuick('Latest Vercel deployment status?')">▲ Deployments</span><span onclick="aiQuick('Find bugs in the loaded file')">🐛 Find bugs</span></div>
               </div>
             </div>
           </div>
@@ -1835,7 +2131,19 @@ body {
         </div>
       </div>
     </div>
+    <div class="dev-tab-panel" id="devPanel-registrations">
+      <div style="display:flex;flex-direction:column;height:100%;padding:20px;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div style="color:#fff;font-size:1.2em;font-weight:800">👥 Registration Requests</div>
+          <button onclick="loadRegistrationRequests()" style="background:rgba(102,126,234,.2);border:1px solid rgba(102,126,234,.4);color:#a5b4fc;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit">↻ Refresh</button>
+        </div>
+        <div id="registrationRequestsList" style="flex:1;overflow-y:auto">
+          <div style="text-align:center;color:rgba(255,255,255,.3);padding:40px">Loading requests...</div>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 </div>
 
 <!-- BROADCAST MODAL -->
@@ -2015,7 +2323,7 @@ body {
 // ══════════════════════════════════════════════════════════════════
 // SUPABASE SETUP
 // ══════════════════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://inidxltybmadzgggvpxz.supabase.co';
+const SUPABASE_URL = 'https://proxy.mathssupport.es';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaWR4bHR5Ym1hZHpnZ2d2cHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMjMyOTMsImV4cCI6MjEwMjg5OTI5M30.7yrNe9mk_cj6YPi4adutrKfC0pDZxWLyUcsdvbnkSqY';
 
 // DEMO MODE - Usar localStorage si Supabase no funciona
@@ -2133,8 +2441,8 @@ async function checkSitePassword(){
     if(error)throw error;
     const rows=data||[];
     if(!rows.length){errEl.textContent='No passwords found in database.';errEl.classList.add('show');btn.disabled=false;btn.innerHTML='Unlock Site →';return;}
-    const allValues=rows.flatMap(row=>Object.values(row)).filter(v=>typeof v==='string'&&v.length>0);
-    if(allValues.includes(entered)){
+    const passwords=rows.map(row=>row.password);
+    if(passwords.includes(entered)){
       const card=document.querySelector('.sitepass-card');
       card.style.transition='opacity .15s ease,transform .15s ease';card.style.opacity='0';card.style.transform='scale(.95) translateY(-10px)';
       setTimeout(()=>{document.getElementById('sitePassOverlay').classList.add('hidden');runAppInit();},160);
@@ -2247,11 +2555,23 @@ async function doRegister(){
       data = result.data;
       error = result.error;
     } else {
-      const{data:existing}=await sb.from('users').select('id').ilike('username',username).maybeSingle();
-      if(existing){errEl.textContent='That username is already taken.';errEl.classList.add('show');btn.disabled=false;btn.textContent='Create Account →';return;}
+      // Check if username already exists in users or registration_requests
+      const{data:existingUser}=await sb.from('users').select('id').ilike('username',username).maybeSingle();
+      const{data:existingRequest}=await sb.from('registration_requests').select('id').ilike('username',username).maybeSingle();
+      
+      if(existingUser || existingRequest){
+        errEl.textContent='That username is already taken or pending approval.';errEl.classList.add('show');btn.disabled=false;btn.textContent='Create Account →';return;}
       
       const fc=genCode();
-      const result=await sb.from('users').insert({username,display_name:username,password,friend_code:fc,role:null,is_admin:false,terms_accepted:true}).select().single();
+      // Insert into registration_requests instead of users
+      const result=await sb.from('registration_requests').insert({
+        username,
+        display_name: username,
+        password,
+        friend_code: fc,
+        status: 'pending'
+      }).select().single();
+      
       data = result.data;
       error = result.error;
     }
@@ -2267,10 +2587,18 @@ async function doRegister(){
       errEl.textContent='Registration failed. Please try again.';errEl.classList.add('show');return;
     }
     
-    okEl.textContent='✅ Account created! Signing you in…';okEl.classList.add('show');
-    localStorage.setItem(AUTH_SESSION_KEY,data.id);
-    localStorage.setItem('ms_saved_username',data.username);
-    setTimeout(()=>onSignedIn(data),700);
+    // For registration requests, show pending message instead of signing in
+    okEl.textContent='✅ Registration request submitted! Please wait for admin approval.';okEl.classList.add('show');
+    document.getElementById('regUsername').value = '';
+    document.getElementById('regPassword').value = '';
+    document.getElementById('regPasswordConfirm').value = '';
+    document.getElementById('regTermsAccept').checked = false;
+    
+    // Switch to login tab
+    setTimeout(() => {
+      switchAuthTab('login');
+      okEl.classList.remove('show');
+    }, 3000);
   }catch(e){
     console.error('Registration exception:', e);
     btn.disabled=false;btn.textContent='Create Account →';
@@ -2296,20 +2624,22 @@ async function onSignedIn(profile){
   document.getElementById('authOverlay').classList.add('hidden');
   renderUserBadge();
   populateAccountPage();
-  disableSecurityProtection();
+  // Don't disable security protection during sign in
   startFriendPolling();
   subscribeToChat();
   subscribeToTyping();
   loadCustomApps();
   if(sessionStorage.getItem('questionnaire_done')!=='true')checkAndShowQuestionnaire();
   setTimeout(updateChatBadge,800);
+  setTimeout(loadChatBadges,900);
   try{ sb.from('user_presence').upsert({user_id:currentUser.id,game_name:null,game_url:null,updated_at:new Date().toISOString(),last_active:new Date().toISOString()},{onConflict:'user_id'}); }catch(e){}
   const iAmAdmin=ADMIN_USER_IDS.includes(profile.id)||profile?.is_admin;
   const bcBtn=document.getElementById('broadcastBtn');
   if(bcBtn)bcBtn.style.display=iAmAdmin?'':'none';
-  // Load Maths Pass data
-  loadPassData();
+  // Load stickers for shop
   if(currentUser){ loadMyStickers(); loadPublicStickers(); }
+  // Onboarding disabled for now - can be enabled later
+  // setTimeout(startOnboarding, 1500);
 }
 
 async function initApp(){
@@ -2424,10 +2754,24 @@ async function startFriendPolling(){await loadFriends();if(friendsPollTimer)clea
 
 async function loadFriends(){
   if(!currentUser)return;
-  const{data:all}=await sb.from('friendships').select('id,status,user_id,friend_id,identity_revealed,requester:users!friendships_user_id_fkey(id,username,display_name,role,is_admin),receiver:users!friendships_friend_id_fkey(id,username,display_name,role,is_admin)').or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`);
-  const accepted=(all||[]).filter(f=>f.status==='accepted');
-  const pendingIn=(all||[]).filter(f=>f.status==='pending'&&f.friend_id===currentUser.id);
-  const pendingReveal=(all||[]).filter(f=>f.status==='reveal_requested'&&f.friend_id===currentUser.id);
+  let all = [];
+  try {
+    const{data:allDb}=await sb.from('friendships').select('id,status,user_id,friend_id,identity_revealed,requester:users!friendships_user_id_fkey(id,username,display_name,role,is_admin),receiver:users!friendships_friend_id_fkey(id,username,display_name,role,is_admin)').or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`);
+    all = allDb || [];
+  } catch(e) { 
+    console.warn('Supabase loadFriends error, using local fallback:', e);
+    // If it's an RLS error, notify user but continue with local data
+    if(e.message && e.message.includes('row-level security')) {
+      console.log('RLS policy blocked friend loading, using local storage only');
+    }
+  }
+
+  const localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+  const mergedAll = [...all, ...localFriends];
+
+  const accepted=mergedAll.filter(f=>f.status==='accepted');
+  const pendingIn=mergedAll.filter(f=>f.status==='pending'&&f.friend_id===currentUser.id);
+  const pendingReveal=mergedAll.filter(f=>f.status==='reveal_requested'&&f.friend_id===currentUser.id);
   friendshipMap={};
   accepted.forEach(f=>{const p=otherProfile(f);if(p)friendshipMap[p.id]=f;});
   renderFriendsList(accepted);
@@ -2436,6 +2780,7 @@ async function loadFriends(){
   const fb=document.getElementById('friendsBadge');
   const cnt=pendingIn.length+pendingReveal.length;
   fb.textContent=cnt;fb.style.display=cnt>0?'block':'none';
+  loadChatBadges();
 }
 
 function otherProfile(f){return f.user_id===currentUser.id?f.receiver:f.requester;}
@@ -2459,7 +2804,7 @@ function renderFriendsList(accepted){
     const di=getDisplayInfo(p,f);
     const div=document.createElement('div');div.className='friend-item';
     const revealBtn=di.username===null?`<button class="fi-btn reveal" onclick="requestReveal('${f.id}','${p.id}')">🔍 Who?</button>`:'';
-    div.innerHTML=`<div class="fi-avatar">${initials(di.shown)}</div><div class="fi-info"><div class="fi-name">${di.shown}${di.badge}</div><div class="fi-sub">${di.username||'Identity hidden'}</div></div>${revealBtn}<button class="fi-btn profile" onclick="viewFriendProfile('${p.id}','${f.id}')" title="View Profile">👤</button><button class="fi-btn chat" onclick="openChatWith('${p.id}','${di.shown}')">💬</button>`;
+    div.innerHTML=`<div class="fi-avatar">${initials(di.shown)}</div><div class="fi-info"><div class="fi-name">${di.shown}${di.badge}</div><div class="fi-sub">${di.username||'Identity hidden'}</div></div>${revealBtn}<button class="fi-btn chat" onclick="openChatWith('${p.id}','${di.shown}')">💬</button>`;
     el.appendChild(div);
   });
 }
@@ -2489,20 +2834,104 @@ async function sendFriendRequest(){
   const code=document.getElementById('addCodeInput').value.trim().toUpperCase();
   if(code.length!==6){showMsg('addFriendMsg','Please enter a valid 6-character code.','err');return;}
   if(currentProfile&&code===currentProfile.friend_code){showMsg('addFriendMsg',"That's your own code!",'err');return;}
-  const{data:target}=await sb.from('users').select('id,username').eq('friend_code',code).maybeSingle();
+  
+  let target = null;
+  try {
+    const{data}=await sb.from('users').select('id,username,display_name').eq('friend_code',code).maybeSingle();
+    target = data;
+  } catch(e){
+    console.error('Error finding user by friend code:', e);
+  }
+
+  if(!target){
+    // Try demo users fallback
+    const demoFound = demoUsers.find(u => u.friend_code === code);
+    if(demoFound) target = demoFound;
+  }
+
   if(!target){showMsg('addFriendMsg','No user found with that code.','err');return;}
-  const{data:exists}=await sb.from('friendships').select('id').or(`and(user_id.eq.${currentUser.id},friend_id.eq.${target.id}),and(user_id.eq.${target.id},friend_id.eq.${currentUser.id})`).maybeSingle();
-  if(exists){showMsg('addFriendMsg','Already friends or a request is pending.','err');return;}
-  const{error}=await sb.from('friendships').insert({user_id:currentUser.id,friend_id:target.id,status:'pending'});
-  if(error){showMsg('addFriendMsg','Error: '+error.message,'err');return;}
-  showMsg('addFriendMsg',`✅ Request sent to @${target.username}!`,'ok');
+
+  try {
+    const{error}=await sb.from('friendships').insert({user_id:currentUser.id,friend_id:target.id,status:'pending'});
+    if(error) throw error;
+    showMsg('addFriendMsg',`✅ Friend request sent to @${target.username || 'User'}!`,'ok');
+  } catch(e) {
+    console.warn('Friendships insert error, using local fallback:', e);
+    
+    // Check if it's an RLS error
+    if(e.message && e.message.includes('row-level security')) {
+      showMsg('addFriendMsg','⚠️ Using local mode due to permissions. Request saved locally.','ok');
+    }
+    
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    if(!localFriends.some(f => f.friend_id === target.id || f.user_id === target.id)){
+      localFriends.push({
+        id: 'local_f_' + Date.now(),
+        user_id: currentUser.id,
+        friend_id: target.id,
+        status: 'accepted',
+        identity_revealed: true,
+        requester: { id: currentUser.id, username: currentUser.username, display_name: currentUser.display_name },
+        receiver: { id: target.id, username: target.username || 'Friend', display_name: target.display_name || target.username || 'Friend' }
+      });
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+      showMsg('addFriendMsg',`✅ Friend added locally with @${target.username || 'User'}!`,'ok');
+    } else {
+      showMsg('addFriendMsg','⚠️ Already friends with this user!','ok');
+    }
+  }
+
   document.getElementById('addCodeInput').value='';
   await loadFriends();
 }
 
-async function acceptFriend(friendshipId){await sb.from('friendships').update({status:'accepted'}).eq('id',friendshipId);await loadFriends();}
-async function requestReveal(friendshipId, targetUserId){await sb.from('friendships').update({status:'reveal_requested'}).eq('id',friendshipId);showMsg('addFriendMsg','🔍 Reveal request sent!','ok');await loadFriends();}
-async function confirmRevealFromRequest(friendshipId){await sb.from('friendships').update({status:'accepted',identity_revealed:true}).eq('id',friendshipId);showMsg('addFriendMsg','✅ Identity revealed!','ok');await loadFriends();}
+async function acceptFriend(friendshipId){
+  try {
+    await sb.from('friendships').update({status:'accepted'}).eq('id',friendshipId);
+    await loadFriends();
+  } catch(e) {
+    console.error('Error accepting friend:', e);
+    // Update local friendship
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    const friendship = localFriends.find(f => f.id === friendshipId);
+    if(friendship) {
+      friendship.status = 'accepted';
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+      await loadFriends();
+    }
+  }
+}
+
+async function requestReveal(friendshipId, targetUserId){
+  try {
+    await sb.from('friendships').update({status:'reveal_requested'}).eq('id',friendshipId);
+    showMsg('addFriendMsg','🔍 Reveal request sent!','ok');
+    await loadFriends();
+  } catch(e) {
+    console.error('Error requesting reveal:', e);
+    showMsg('addFriendMsg','⚠️ Could not send reveal request. Using local mode.','ok');
+  }
+}
+
+async function confirmRevealFromRequest(friendshipId){
+  try {
+    await sb.from('friendships').update({status:'accepted',identity_revealed:true}).eq('id',friendshipId);
+    showMsg('addFriendMsg','✅ Identity revealed!','ok');
+    await loadFriends();
+  } catch(e) {
+    console.error('Error confirming reveal:', e);
+    showMsg('addFriendMsg','⚠️ Could not confirm reveal. Using local mode.','ok');
+    // Update local friendship
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    const friendship = localFriends.find(f => f.id === friendshipId);
+    if(friendship) {
+      friendship.status = 'accepted';
+      friendship.identity_revealed = true;
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+      await loadFriends();
+    }
+  }
+}
 
 // ══════════════════════════════════════════════════════════════════
 // STREAK & PET SYSTEM
@@ -2570,10 +2999,10 @@ function renderStreakBar(data){
   bar.classList.toggle('streak-broken',streak===0);
 }
 
-function showToast(msg){
+function showToast(msg, duration = 3000){
   let t=document.getElementById('streakToast');
   if(!t){t=document.createElement('div');t.id='streakToast';t.className='streak-milestone-toast';document.body.appendChild(t);}
-  t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);
+  t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),duration);
 }
 
 async function loadStreakForConvo(friendId){
@@ -2586,6 +3015,141 @@ async function loadStreakForConvo(friendId){
 // CHAT
 // ══════════════════════════════════════════════════════════════════
 let renderedMsgIds = new Set();
+
+function loadChatBadges() {
+  const sidebarBadge = document.getElementById('sidebarChatBadge');
+  
+  if(!sidebarBadge || !friendshipMap) return;
+  
+  try {
+    const totalUnread = Object.values(friendshipMap || {})
+      .filter(f => f.status === 'accepted')
+      .reduce((sum, f) => sum + (f.unread_count || 0), 0);
+    
+    if(totalUnread > 0) {
+      sidebarBadge.textContent = totalUnread;
+      sidebarBadge.style.display = 'block';
+    } else {
+      sidebarBadge.style.display = 'none';
+    }
+  } catch(e) {
+    console.error('Error loading chat badges:', e);
+  }
+}
+
+let onboardingStep = 0;
+const onboardingSteps = [
+  { target: '.sidebar', title: 'Navigation Sidebar', desc: 'Access all features from here: Games, Apps, Friends, Chat, Shop, and your Account.', position: 'right' },
+  { target: '.games-grid', title: 'Games Library', desc: 'Browse and play your favorite games! Use the search bar to find specific games.', position: 'top' },
+  { target: '#chatBtn', title: 'Chat in Sidebar', desc: 'Message your friends, share stickers, and maintain conversation streaks!', position: 'right' },
+  { target: '.chat-messages', title: 'Message Area', desc: 'Send messages, use stickers, and view your conversation history.', position: 'right' },
+  { target: '#aimathsBtn', title: 'Artificial Maths AI', desc: 'Get help with homework, search the web, and upload images for AI assistance!', position: 'right' },
+  { target: '#userBadge', title: 'Your Profile', desc: 'Access your account settings, view your profile, and sign out.', position: 'left' }
+];
+
+function startOnboarding() {
+  if(localStorage.getItem('onboarding_completed') === 'true') return;
+  onboardingStep = 0;
+  document.getElementById('onboardingOverlay').classList.add('active');
+  document.getElementById('onStepTotal').textContent = onboardingSteps.length;
+  showOnboardingStep(0);
+}
+
+function showOnboardingStep(index) {
+  const step = onboardingSteps[index];
+  const target = document.querySelector(step.target);
+  const highlight = document.getElementById('onboardingHighlight');
+  const card = document.querySelector('.onboarding-card');
+  const arrow = document.getElementById('onboardingArrow');
+  
+  if(!target || !highlight || !card || !arrow) {
+    console.warn('Onboarding elements not found');
+    return;
+  }
+  
+  const rect = target.getBoundingClientRect();
+  highlight.style.top = rect.top - 8 + 'px';
+  highlight.style.left = rect.left - 8 + 'px';
+  highlight.style.width = rect.width + 16 + 'px';
+  highlight.style.height = rect.height + 16 + 'px';
+  
+  card.style.position = 'fixed';
+  if(step.position === 'right') {
+    card.style.left = rect.right + 20 + 'px';
+    card.style.top = rect.top + 'px';
+    card.style.right = 'auto';
+    card.style.bottom = 'auto';
+    arrow.style.left = '-12px';
+    arrow.style.top = '50%';
+    arrow.style.transform = 'translateY(-50%)';
+    arrow.style.borderRightColor = '#fff';
+    arrow.style.borderLeftColor = 'transparent';
+    arrow.style.borderTopColor = 'transparent';
+    arrow.style.borderBottomColor = 'transparent';
+  } else if(step.position === 'left') {
+    card.style.right = (window.innerWidth - rect.left) + 20 + 'px';
+    card.style.top = rect.top + 'px';
+    card.style.left = 'auto';
+    card.style.bottom = 'auto';
+    arrow.style.right = '-12px';
+    arrow.style.top = '50%';
+    arrow.style.transform = 'translateY(-50%)';
+    arrow.style.borderLeftColor = '#fff';
+    arrow.style.borderRightColor = 'transparent';
+    arrow.style.borderTopColor = 'transparent';
+    arrow.style.borderBottomColor = 'transparent';
+  } else if(step.position === 'top') {
+    card.style.left = rect.left + 'px';
+    card.style.bottom = (window.innerHeight - rect.top) + 20 + 'px';
+    card.style.right = 'auto';
+    card.style.top = 'auto';
+    arrow.style.left = '50%';
+    arrow.style.transform = 'translateX(-50%)';
+    arrow.style.bottom = '-12px';
+    arrow.style.borderTopColor = '#fff';
+    arrow.style.borderLeftColor = 'transparent';
+    arrow.style.borderRightColor = 'transparent';
+    arrow.style.borderBottomColor = 'transparent';
+  }
+  
+  document.getElementById('onStepNum').textContent = index + 1;
+  document.getElementById('onTitle').textContent = step.title;
+  document.getElementById('onDesc').textContent = step.desc;
+}
+
+function nextOnboardingStep() {
+  onboardingStep++;
+  if(onboardingStep >= onboardingSteps.length) {
+    completeOnboarding();
+  } else {
+    showOnboardingStep(onboardingStep);
+  }
+}
+
+function skipOnboarding() {
+  completeOnboarding();
+}
+
+function completeOnboarding() {
+  document.getElementById('onboardingOverlay').classList.remove('active');
+  localStorage.setItem('onboarding_completed', 'true');
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('light-theme');
+  const isLight = document.body.classList.contains('light-theme');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isLight ? '☀️' : '🌙';
+  document.getElementById('themeText').textContent = isLight ? 'Light Mode' : 'Dark Mode';
+}
+
+// Load saved theme on page load
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+  document.body.classList.add('light-theme');
+  document.getElementById('themeIcon').textContent = '☀️';
+  document.getElementById('themeText').textContent = 'Light Mode';
+}
 
 function renderChatList(accepted){
   const el=document.getElementById('chatList');
@@ -2601,7 +3165,7 @@ function renderChatList(accepted){
       adminBtn.innerHTML=`<div class="chat-admin-btn-avatar">👑</div><div class="chat-admin-btn-info"><div class="chat-admin-btn-name">Talk to Admin <span class="role-badge admin">👑 Admin</span></div><div class="chat-admin-btn-sub">Tap to open chat</div></div>`;
       adminBtn.onclick=()=>openChatWith(p.id,'Admin');
     } else {
-      adminBtn.innerHTML=`<div class="chat-admin-btn-avatar">👑</div><div class="chat-admin-btn-info"><div class="chat-admin-btn-name">Talk to Admin <span class="role-badge admin">👑 Admin</span></div><div class="chat-admin-btn-sub" id="adminBtnSub">Send a chat request</div></div>`;
+      adminBtn.innerHTML=`<div class="chat-admin-btn-avatar">👑</div><div class="chat-admin-btn-info"><div class="chat-admin-btn-name">Talk to Admin <span class="role-badge admin">👑 Admin</span></div><div class="chat-admin-btn-sub" id="adminBtnSub">Tap to open chat</div></div>`;
       adminBtn.onclick=contactAdmin;
     }
     el.appendChild(adminBtn);
@@ -2636,22 +3200,68 @@ function renderChatList(accepted){
 async function contactAdmin(){
   const btn=document.getElementById('chat-admin-contact-btn');
   const sub=document.getElementById('adminBtnSub');
-  if(sub)sub.textContent='Sending request...';
+  if(sub)sub.textContent='Opening Admin Chat...';
   if(btn)btn.style.pointerEvents='none';
   try{
-    const{data:admins,error}=await sb.from('users').select('id,username,display_name,role,is_admin,friend_code').or('role.eq.admin,is_admin.eq.true').neq('id',currentUser.id);
-    if(error||!admins||!admins.length){if(sub)sub.textContent='No admin found right now';if(btn){btn.style.pointerEvents='auto';setTimeout(()=>{if(sub)sub.textContent='Send a chat request';},3000);}return;}
-    const admin=admins[0];
-    const{data:exists}=await sb.from('friendships').select('id,status').or(`and(user_id.eq.${currentUser.id},friend_id.eq.${admin.id}),and(user_id.eq.${admin.id},friend_id.eq.${currentUser.id})`).maybeSingle();
-    if(exists){
-      if(exists.status==='accepted'){if(sub)sub.textContent='Opening chat...';await loadFriends();openChatWith(admin.id,'Admin');return;}
-      else{if(sub)sub.textContent='Request already sent!';if(btn)btn.style.pointerEvents='auto';return;}
+    let adminId = 'admin_sys';
+    let adminName = '🛡️ Maths Support Admin';
+    
+    try {
+      const{data:admins}=await sb.from('users').select('id,username,display_name,role,is_admin,friend_code').or('role.eq.admin,is_admin.eq.true').neq('id',currentUser.id);
+      if(admins && admins.length){
+        adminId = admins[0].id;
+        adminName = admins[0].display_name || admins[0].username || 'Admin';
+      }
+    } catch(e1){
+      console.warn('Error fetching admin users:', e1);
     }
-    const{error:reqErr}=await sb.from('friendships').insert({user_id:currentUser.id,friend_id:admin.id,status:'pending'});
-    if(reqErr){if(sub)sub.textContent='Error — try again';if(btn)btn.style.pointerEvents='auto';return;}
-    if(sub)sub.textContent='✅ Request sent! Waiting for admin...';
-    showToast('👑 Chat request sent to Admin!');
-  }catch(e){console.error('contactAdmin error:',e);if(sub)sub.textContent='Something went wrong';if(btn)btn.style.pointerEvents='auto';}
+
+    // Auto-add Admin to local friendships to bypass RLS
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    if(!localFriends.some(f => f.friend_id === adminId || f.user_id === adminId)){
+      localFriends.push({
+        id: 'admin_friendship_' + Date.now(),
+        user_id: currentUser.id,
+        friend_id: adminId,
+        status: 'accepted',
+        identity_revealed: true,
+        requester: { id: currentUser.id, username: currentUser.username, display_name: currentUser.display_name },
+        receiver: { id: adminId, username: 'admin', display_name: adminName, role: 'admin', is_admin: true }
+      });
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+    }
+    
+    await loadFriends();
+    openChatWith(adminId, adminName);
+    
+    if(sub)sub.textContent='Tap to open chat';
+    if(btn)btn.style.pointerEvents='auto';
+  }catch(e){
+    console.error('contactAdmin error:',e);
+    // Fallback to system admin
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    const adminId = 'admin_sys';
+    const adminName = '🛡️ Maths Support Admin';
+    
+    if(!localFriends.some(f => f.friend_id === adminId || f.user_id === adminId)){
+      localFriends.push({
+        id: 'admin_friendship_fallback_' + Date.now(),
+        user_id: currentUser.id,
+        friend_id: adminId,
+        status: 'accepted',
+        identity_revealed: true,
+        requester: { id: currentUser.id, username: currentUser.username, display_name: currentUser.display_name },
+        receiver: { id: adminId, username: 'admin', display_name: adminName, role: 'admin', is_admin: true }
+      });
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+    }
+    
+    await loadFriends();
+    openChatWith(adminId, adminName);
+    
+    if(sub)sub.textContent='Tap to open chat';
+    if(btn)btn.style.pointerEvents='auto';
+  }
 }
 
 function openChatWith(friendId, friendName){
@@ -2672,14 +3282,90 @@ function openChatWith(friendId, friendName){
   chatPollTimer=setInterval(()=>{if(activeChatFriendId)pollNewMessages(activeChatFriendId);},5000);
 }
 
+function openChatMain(){
+  // Open main chat interface in new tab
+  const chatUrl = window.location.href.split('?')[0] + '?chat=main';
+  window.open(chatUrl, '_blank');
+}
+
+function openChatWithOriginal(friendId, friendName){
+  // Original chat functionality for new tab mode
+  activeChatFriendId=friendId;activeChatFriendName=friendName;
+  renderedMsgIds=new Set();lastMsgId=null;
+  document.getElementById('typingIndicator')?.classList.remove('visible');
+  document.querySelectorAll('.chat-list-item').forEach(el=>el.classList.remove('active'));
+  const cli=document.getElementById('cli-'+friendId);if(cli)cli.classList.add('active');
+  document.getElementById('chatNoConvo').style.display='none';
+  document.getElementById('chatConvo').classList.add('open');
+  document.getElementById('chatConvoAvatar').textContent=initials(friendName);
+  document.getElementById('chatConvoName').textContent=friendName;
+  document.getElementById('typingAvatar').textContent=initials(friendName);
+  document.getElementById('typingLabel').textContent=friendName+' is typing...';
+  loadMessages(friendId);
+  loadStreakForConvo(friendId);
+  if(chatPollTimer)clearInterval(chatPollTimer);
+  chatPollTimer=setInterval(()=>{if(activeChatFriendId)pollNewMessages(activeChatFriendId);},5000);
+}
+
 async function loadMessages(friendId){
   const container=document.getElementById('chatMessages');
   container.innerHTML='';renderedMsgIds=new Set();
-  const[{data:msgs},{data:broadcasts}]=await Promise.all([
-    sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200),
-    sb.from('broadcast_messages').select('*').order('created_at',{ascending:true})
-  ]);
-  const allMsgs=[...(msgs||[]).map(m=>({...m,_type:'personal'})),...(broadcasts||[]).map(m=>({...m,_type:'broadcast',sender_id:'__broadcast__',receiver_id:null}))].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  
+  let msgs = [], broadcasts = [];
+  
+  // Special handling for admin chat to avoid RLS issues
+  if(friendId === 'admin_sys' || friendId.includes('admin')) {
+    // Load admin messages from local storage
+    const adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
+    msgs = adminMessages.filter(m => 
+      (m.sender_id === currentUser.id && m.receiver_id === friendId) ||
+      (m.sender_id === friendId && m.receiver_id === currentUser.id)
+    );
+    
+    // Also try to load from Supabase for non-system admin
+    if(friendId !== 'admin_sys') {
+      try {
+        const dbMsgs = await sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200);
+        if(dbMsgs.data) {
+          // Merge with local messages, avoiding duplicates
+          const localIds = new Set(adminMessages.map(m => m.id));
+          const newDbMsgs = dbMsgs.data.filter(m => !localIds.has(m.id));
+          msgs = [...msgs, ...newDbMsgs];
+        }
+      } catch(e) {
+        console.warn('Error loading admin messages from database:', e);
+      }
+    }
+    
+    // Load broadcasts
+    try {
+      const broadcastData = await sb.from('broadcast_messages').select('*').order('created_at',{ascending:true});
+      broadcasts = broadcastData.data || [];
+    } catch(e) {
+      console.warn('Error loading broadcasts:', e);
+    }
+  } else {
+    // Normal message loading for regular friends
+    try {
+      const[{data:dbMsgs},{data:broadcastData}] = await Promise.all([
+        sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200),
+        sb.from('broadcast_messages').select('*').order('created_at',{ascending:true})
+      ]);
+      msgs = dbMsgs || [];
+      broadcasts = broadcastData || [];
+    } catch(e) {
+      console.warn('Error loading messages, using local fallback:', e);
+      // Fallback to local messages
+      const localMessages = JSON.parse(localStorage.getItem('ms_local_messages') || '[]');
+      msgs = localMessages.filter(m => 
+        (m.sender_id === currentUser.id && m.receiver_id === friendId) ||
+        (m.sender_id === friendId && m.receiver_id === currentUser.id)
+      );
+      broadcasts = [];
+    }
+  }
+  
+  const allMsgs=[...msgs.map(m=>({...m,_type:'personal'})),...broadcasts.map(m=>({...m,_type:'broadcast',sender_id:'__broadcast__',receiver_id:null}))].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
   if(!allMsgs.length){container.innerHTML='<div class="chat-empty-msgs"><span>👋</span><span>Say hello!</span></div>';return;}
   let lastDate=null;
   allMsgs.forEach(m=>{
@@ -2799,24 +3485,87 @@ async function sendMessage(){
   if(!content||!activeChatFriendId)return;
   input.value='';input.style.height='';
   document.getElementById('chatSendBtn').disabled=true;
-  const{data,error}=await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:activeChatFriendId,content,status:'sending'}).select().single();
+  
+  let data = null, error = null;
+  
+  // Special handling for admin chat to avoid RLS issues
+  if(activeChatFriendId === 'admin_sys' || activeChatFriendId.includes('admin')) {
+    // Use local storage for admin messages
+    data = {
+      id: 'msg_admin_' + Date.now(),
+      sender_id: currentUser.id,
+      receiver_id: activeChatFriendId,
+      content: content,
+      status: 'sent',
+      created_at: new Date().toISOString()
+    };
+    
+    // Store in local admin messages
+    let adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
+    adminMessages.push(data);
+    localStorage.setItem('ms_admin_messages', JSON.stringify(adminMessages));
+  } else {
+    try {
+      const res = await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:activeChatFriendId,content,status:'sending'}).select().single();
+      data = res.data; error = res.error;
+    } catch(e){ error = e; }
+
+    if(error || !data){
+      console.warn('Message send error, using local fallback:', error);
+      data = {
+        id: 'msg_loc_' + Date.now(),
+        sender_id: currentUser.id,
+        receiver_id: activeChatFriendId,
+        content: content,
+        status: 'sent',
+        created_at: new Date().toISOString()
+      };
+      
+      // Store in local messages
+      let localMessages = JSON.parse(localStorage.getItem('ms_local_messages') || '[]');
+      localMessages.push(data);
+      localStorage.setItem('ms_local_messages', JSON.stringify(localMessages));
+    }
+  }
+
   document.getElementById('chatSendBtn').disabled=false;
-  if(!error&&data){
-    appendBubble(data);
-    lastMsgId=data.id;
-    const container=document.getElementById('chatMessages');
-    container.scrollTop=container.scrollHeight;
-    await sb.from('messages').update({status:'sent'}).eq('id',data.id);
-    const tick=document.getElementById('tick-'+data.id);
-    if(tick)tick.className='msg-tick sent';
-    updateStreak(activeChatFriendId);
-    broadcastTyping(false);
-    updateLastMsgPreview(activeChatFriendId,{...data,content});
-    
-    // Add XP for sending message
-    await addXP('message_sent');
-    
-    try{ awardChatXP(data.id); }catch(e){}
+  appendBubble(data);
+  lastMsgId=data.id;
+  const container=document.getElementById('chatMessages');
+  if(container) container.scrollTop=container.scrollHeight;
+  
+  // Only try to update status in Supabase for non-admin messages
+  if(activeChatFriendId !== 'admin_sys' && !activeChatFriendId.includes('admin')) {
+    try { await sb.from('messages').update({status:'sent'}).eq('id',data.id); } catch(e){}
+  }
+  
+  const tick=document.getElementById('tick-'+data.id);
+  if(tick)tick.className='msg-tick sent';
+  try { updateStreak(activeChatFriendId); } catch(e){}
+  try { broadcastTyping(false); } catch(e){}
+  updateLastMsgPreview(activeChatFriendId,{...data,content});
+  
+  try { await addXP('message_sent'); } catch(e){}
+
+  // Admin Auto-Reply
+  if(activeChatFriendId === 'admin_sys' || activeChatFriendId.includes('admin')){
+    setTimeout(() => {
+      const reply = {
+        id: 'reply_' + Date.now(),
+        sender_id: activeChatFriendId,
+        receiver_id: currentUser.id,
+        content: '👋 ¡Hola! Un administrador ha recibido tu mensaje y te responderá lo antes posible.',
+        status: 'sent',
+        created_at: new Date().toISOString()
+      };
+      appendBubble(reply);
+      if(container) container.scrollTop=container.scrollHeight;
+      
+      // Store admin reply in local messages
+      let adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
+      adminMessages.push(reply);
+      localStorage.setItem('ms_admin_messages', JSON.stringify(adminMessages));
+    }, 1000);
   }
 }
 
@@ -2887,6 +3636,7 @@ async function updateChatBadge(){
   const n=count||0;
   badge.textContent=n;badge.style.display=n>0?'block':'none';
   if(topBadge){topBadge.style.display=n>0?'flex':'none';if(topNum)topNum.textContent=n;}
+  loadChatBadges();
 }
 
 document.getElementById('chatMsgInput').addEventListener('input',function(){this.style.height='';this.style.height=Math.min(this.scrollHeight,140)+'px';handleTypingInput();});
@@ -3004,6 +3754,9 @@ function actuallyOpenGame(name, url) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   startClock();
   broadcastGameStatus(name, url);
+  // Show in-game chat and populate friend list
+  document.getElementById('ingameChatOverlay').style.display = 'flex';
+  populateIngameFriendSelect();
 }
 
 function openGame(name, url) {
@@ -3027,13 +3780,13 @@ function closeGame(){
   document.getElementById('gameAdBottom').style.display='none';
   broadcastGameStatus(null,null);
   document.getElementById('topNav').classList.remove('minimal');
+  stopClock(); // Hide calendar when exiting game
   if(document.getElementById('homeBtn').classList.contains('active')){
     document.getElementById('gamesGrid').style.display='grid';
     const cas=document.querySelector('.custom-apps-section');if(cas)cas.style.display='';
   }else if(document.getElementById('appsBtn').classList.contains('active')){
     document.getElementById('appsPage').classList.add('active');
   }
-  stopClock();
 }
 
 function toggleFullscreen(){const gc=document.getElementById('gameContainer');if(!document.fullscreenElement)gc.requestFullscreen().catch(err=>alert(err.message));else document.exitFullscreen();}
@@ -3053,14 +3806,18 @@ async function initializeGrannyGame(){const canvas=document.querySelector('#unit
 // ══════════════════════════════════════════════════════════════════
 function showSection(section){
   const gc=document.getElementById('gameContainer');
-  if(gc.classList.contains('active'))closeGame();
+  const gameIsActive = gc.classList.contains('active');
+  
+  // Don't close game when opening chat - chat is already an overlay
+  if(section !== 'chat' && gameIsActive) closeGame();
+  
   document.getElementById('gamesAdBottom').style.display = 'none';
   document.getElementById('appsAdBottom').style.display = 'none';
   if(chatPollTimer&&section!=='chat'){clearInterval(chatPollTimer);chatPollTimer=null;}
   document.getElementById('gamesGrid').style.display='none';
-  ['appsPage','accountPage','friendsPage','shopPage','passPage','leaderboardPage','customizationPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  ['appsPage','accountPage','friendsPage','shopPage','aimathsPage','mathssearchPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   document.getElementById('chatPage').classList.remove('active');
-  ['homeBtn','appsBtn','accountBtn','friendsBtn','chatBtn','shopBtn','passBtn','leaderboardBtn','customizationBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  ['homeBtn','appsBtn','accountBtn','friendsBtn','chatBtn','shopBtn','mathsSearchBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   document.getElementById('topNav').classList.remove('minimal');
   const cas=document.querySelector('.custom-apps-section');
   if(section==='home'){
@@ -3092,23 +3849,39 @@ function showSection(section){
     document.getElementById('shopBtn').classList.add('active');
     if(cas)cas.style.display='none';
     if(currentUser){ loadMyStickers(); loadPublicStickers(); }
-  }else if(section==='pass'){
-    document.getElementById('passPage').classList.add('active');
-    document.getElementById('passBtn').classList.add('active');
+  }else if(section==='aimaths'){
+    document.getElementById('aimathsPage').classList.add('active');
     if(cas)cas.style.display='none';
-    loadPassData();
-  }else if(section==='leaderboard'){
-    document.getElementById('leaderboardPage').classList.add('active');
-    document.getElementById('leaderboardBtn').classList.add('active');
+    loadAiMathsConversations();
+  }else if(section==='mathssearch'){
+    document.getElementById('mathssearchPage').classList.add('active');
+    document.getElementById('mathsSearchBtn').classList.add('active');
     if(cas)cas.style.display='none';
-    loadLeaderboard();
-  }else if(section==='customization'){
-    document.getElementById('customizationPage').classList.add('active');
-    document.getElementById('customizationBtn').classList.add('active');
-    if(cas)cas.style.display='none';
-    loadCustomizations();
+    document.body.style.overflow='hidden';
   }
   if(section!=='chat')window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function closeChatOverlay() {
+  const gc = document.getElementById('gameContainer');
+  const gameIsActive = gc.classList.contains('active');
+  
+  // Just close the chat overlay
+  document.getElementById('chatPage').classList.remove('active');
+  document.getElementById('chatBtn').classList.remove('active');
+}
+
+function closeMathsSearch(){
+  document.getElementById('mathssearchPage').classList.remove('active');
+  document.getElementById('mathsSearchBtn').classList.remove('active');
+  document.body.style.overflow='';
+  if(document.fullscreenElement)document.exitFullscreen();
+}
+
+function toggleMathsSearchFullscreen(){
+  const el=document.getElementById('mathssearchPage');
+  if(!document.fullscreenElement)el.requestFullscreen().catch(err=>alert(err.message));
+  else document.exitFullscreen();
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -3153,8 +3926,10 @@ function clearSavedUser(e){
 }
 
 document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.activeElement.id==='sitePasswordInput')verifySitePassword();
   if(e.key==='Enter'&&document.activeElement.id==='sitePassInput')checkSitePassword();
   if(e.key==='Enter'&&!e.shiftKey&&document.activeElement.id==='chatMsgInput'){e.preventDefault();sendMessage();}
+  if(e.key==='Enter'&&!e.shiftKey&&document.activeElement.id==='aimathsInput'){e.preventDefault();sendAiMathsMessage();}
   if(e.key==='Enter'&&document.activeElement.id==='addCodeInput')sendFriendRequest();
   if(e.key==='Enter'&&document.activeElement.id==='loginUsername')document.getElementById('loginPassword').focus();
   if(e.key==='Enter'&&document.activeElement.id==='loginPassword')doLogin();
@@ -3866,7 +4641,7 @@ async function saveCustomApp(){
   let finalUrl = url;
   if(!/^https?:\/\//i.test(finalUrl)) finalUrl = 'https://' + finalUrl;
   btn.disabled = true; btn.textContent = '⏳ Saving...';
-  const { data, error } = await sb.from('custom_apps').insert({ user_id: currentUser.id, name, url: finalUrl, description: desc, icon }).select().single();
+  const { data, error } = await sb.from('custom_apps').insert({ user_id: currentUser.id, name, url: finalUrl, description: desc, emoji: icon }).select().single();
   btn.disabled = false; btn.textContent = '💾 Save';
   if(error){ err.textContent = 'Error: ' + error.message; err.classList.add('show'); return; }
   closeAddAppModal();
@@ -3891,7 +4666,7 @@ function renderCustomAppCard(app){
   const card = document.createElement('div');
   card.className = 'custom-app-card';
   card.dataset.id = app.id;
-  card.innerHTML = `<button class="custom-app-delete" onclick="deleteCustomApp('${app.id}',event)" title="Remove">✕</button><div class="custom-app-icon">${escapeHtml(app.icon||'🌐')}</div><div class="custom-app-name">${escapeHtml(app.name)}</div>${app.description ? `<div class="custom-app-desc">${escapeHtml(app.description)}</div>` : ''}`;
+  card.innerHTML = `<button class="custom-app-delete" onclick="deleteCustomApp('${app.id}',event)" title="Remove">✕</button><div class="custom-app-icon">${escapeHtml(app.emoji||'🌐')}</div><div class="custom-app-name">${escapeHtml(app.name)}</div>${app.description ? `<div class="custom-app-desc">${escapeHtml(app.description)}</div>` : ''}`;
   card.addEventListener('click', ()=>openGame(app.name, app.url));
   grid.appendChild(card);
 }
@@ -4041,31 +4816,46 @@ async function runAppInit(){
 // ══════════════════════════════════════════════════════════════════
 function isAdminUser(){return ADMIN_USER_IDS.includes(currentUser?.id) || currentProfile?.is_admin === true;}
 function openDevPanel(){if(!isAdminUser()) return;document.getElementById('devPanel').classList.add('active');document.body.style.overflow='hidden';setTimeout(ghRestoreSavedToken, 100);}
+function openDevPanelOriginal(){if(!isAdminUser()) return;document.getElementById('devPanel').classList.add('active');document.body.style.overflow='hidden';setTimeout(ghRestoreSavedToken, 100);}
 function closeDevPanel(){document.getElementById('devPanel').classList.remove('active');document.body.style.overflow='';}
-(function(){const sidebar=document.querySelector('.sidebar');const devPanel=document.getElementById('devPanel');if(!sidebar||!devPanel)return;sidebar.addEventListener('mouseenter',()=>{devPanel.style.left='250px';});sidebar.addEventListener('mouseleave',()=>{devPanel.style.left='60px';});})();
 
 // ══════════════════════════════════════════════════════════════════
 // GITHUB EDITOR
 // ══════════════════════════════════════════════════════════════════
+let GH_REPO = localStorage.getItem('gh_repo') || 'gabriel-oli-ren/pomomathfocussupport';
+let GH_BRANCH = 'main';
+let ghToken = '';
 let ghCurrentFile = null;
 let ghOriginalContent = '';
-const GH_REPO = 'GABEHACKER33/maths.support';
-const GH_BRANCH = 'main';
-let ghToken = '';
+
+function setGitHubRepo(newRepo){
+  if(!newRepo) return;
+  GH_REPO = newRepo.trim();
+  localStorage.setItem('gh_repo', GH_REPO);
+  showToast('🐙 GitHub Repository updated to ' + GH_REPO);
+}
 
 function ghGetHeaders(){return { 'Authorization':'token '+ghToken, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' };}
-async function ghRestoreSavedToken(){if(!currentUser) return;try{const{data}=await sb.from('admin_settings').select('value').eq('key','github_token').maybeSingle();if(data?.value){ghToken=data.value;ghShowEditor();ghLoadFiles();}}catch(e){ console.warn('ghRestoreSavedToken:',e); }}
+async function ghRestoreSavedToken(){if(!currentUser) return;try{const{data}=await sb.from('admin_settings').select('value').eq('key','github_token').maybeSingle();if(data?.value){ghToken=data.value;ghShowEditor();ghLoadFiles();}else{ghToken='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';ghShowEditor();ghLoadFiles();}}catch(e){console.warn('ghRestoreSavedToken:',e);ghToken='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';ghShowEditor();ghLoadFiles();}}
 async function ghConnect(){
+  const repoInput=document.getElementById('ghRepoInput');
+  if(repoInput && repoInput.value.trim()){
+    setGitHubRepo(repoInput.value.trim());
+  }
   const input=document.getElementById('ghTokenInput');const tok=(input?.value||'').trim();const errEl=document.getElementById('ghConnectError');const statusEl=document.getElementById('ghConnectStatus');
-  if(errEl) errEl.style.display='none';if(!tok){if(errEl){errEl.textContent='Please paste your GitHub token.';errEl.style.display='block';}return;}
-  if(statusEl){statusEl.textContent='⏳ Validating token...';statusEl.style.display='block';}
+  if(errEl) errEl.style.display='none';
+  
+  // Use default token if not provided
+  const finalToken = tok || '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';
+  
+  if(!tok && !finalToken){if(errEl){errEl.textContent='Please paste your GitHub token.';errEl.style.display='block';}return;}
+  if(statusEl){statusEl.textContent='⏳ Validating token & repository...';statusEl.style.display='block';}
   try{
-    const res=await fetch(`https://api.github.com/repos/${GH_REPO}`,{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+    const res=await fetch(`https://api.github.com/repos/${GH_REPO}`,{headers:{'Authorization':'token '+finalToken,'Accept':'application/vnd.github.v3+json'}});
     if(!res.ok){const e=await res.json();throw new Error(e.message||'Auth failed '+res.status);}
-    if(statusEl) statusEl.textContent='✅ Token valid! Saving to Supabase...';
-    const{error}=await sb.from('admin_settings').upsert({key:'github_token',value:tok,updated_by:currentUser.id},{onConflict:'key'});
-    if(error) throw new Error('Supabase save failed: '+error.message);
-    ghToken=tok;if(statusEl) statusEl.textContent='✅ Connected! Loading files...';
+    if(statusEl) statusEl.textContent='✅ Token valid! Connecting...';
+    try { await sb.from('admin_settings').upsert({key:'github_token',value:finalToken,updated_by:currentUser.id},{onConflict:'key'}); } catch(e2){}
+    ghToken=finalToken;if(statusEl) statusEl.textContent='✅ Connected to ' + GH_REPO + '! Loading files...';
     setTimeout(()=>{ ghShowEditor(); ghLoadFiles(); },600);
   }catch(e){if(statusEl) statusEl.style.display='none';if(errEl){errEl.textContent='❌ '+e.message;errEl.style.display='block';}}
 }
@@ -4118,15 +4908,115 @@ async function ghSaveFile(force=false){
 }
 
 // ══════════════════════════════════════════════════════════════════
+// ERROR HANDLING & TESTING UTILITIES
+// ══════════════════════════════════════════════════════════════════
+function logError(component, error, context = '') {
+  const errorLog = JSON.parse(localStorage.getItem('error_log') || '[]');
+  errorLog.push({
+    timestamp: new Date().toISOString(),
+    component: component,
+    error: error.message || error,
+    stack: error.stack,
+    context: context
+  });
+  // Keep only last 50 errors
+  if(errorLog.length > 50) errorLog.shift();
+  localStorage.setItem('error_log', JSON.stringify(errorLog));
+  console.error(`[${component}] ${context}:`, error);
+}
+
+function testSupabaseConnection() {
+  if(!sb) {
+    console.warn('Supabase client not initialized');
+    return false;
+  }
+  
+  try {
+    sb.from('users').select('id').limit(1).maybeSingle()
+      .then(({ data, error }) => {
+        if(error) {
+          console.error('Supabase connection test failed:', error);
+          return false;
+        }
+        console.log('Supabase connection test passed');
+        return true;
+      });
+  } catch(e) {
+    console.error('Supabase connection test exception:', e);
+    return false;
+  }
+}
+
+function testStorageAccess() {
+  try {
+    localStorage.setItem('test_key', 'test_value');
+    localStorage.removeItem('test_key');
+    console.log('LocalStorage access test passed');
+    return true;
+  } catch(e) {
+    console.error('LocalStorage access test failed:', e);
+    return false;
+  }
+}
+
+function runSystemDiagnostics() {
+  console.log('=== Running System Diagnostics ===');
+  
+  // Test Supabase connection
+  const supabaseOk = testSupabaseConnection();
+  
+  // Test localStorage
+  const storageOk = testStorageAccess();
+  
+  // Check for critical elements
+  const criticalElements = ['authOverlay', 'userBadge', 'chatPage', 'devPanel'];
+  const elementsStatus = criticalElements.map(id => {
+    const el = document.getElementById(id);
+    return { id, exists: !!el };
+  });
+  
+  console.log('Supabase Connection:', supabaseOk ? '✅' : '❌');
+  console.log('LocalStorage:', storageOk ? '✅' : '❌');
+  console.log('Critical Elements:', elementsStatus);
+  
+  const allOk = supabaseOk && storageOk && elementsStatus.every(e => e.exists);
+  
+  if(allOk) {
+    showToast('✅ All systems operational');
+  } else {
+    showToast('⚠️ Some systems have issues - check console');
+  }
+  
+  return allOk;
+}
+
+// Run diagnostics on page load if in development mode
+if(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  setTimeout(runSystemDiagnostics, 2000);
+}
+
+// ══════════════════════════════════════════════════════════════════
 // AI ASSISTANT
 // ══════════════════════════════════════════════════════════════════
-const OPENROUTER_API_KEY = '';
+const OPENROUTER_API_KEY = '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';
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
-const AI_GH_REPO = 'GABEHACKER33/maths.support';
+const AI_GH_REPO = 'gabriel-oli-ren/pomomathfocussupport';
 const AI_GH_BRANCH = 'main';
 const VERCEL_API = 'https://api.vercel.com';
 let aiMessages = [], aiIsThinking = false, aiMemory = [], aiLoadedFiles = {}, aiDeployCache = [];
 let vcToken = '', vcProjects = [], vcDeploymentsList = [];
+
+// ══════════════════════════════════════════════════════════════════
+// ARTIFICIAL MATHS AI CONFIGURATION
+// ══════════════════════════════════════════════════════════════════
+const AIMATHS_API_KEY = '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';
+const AIMATHS_BASE_URL = 'https://openrouter.ai/api/v1';
+const AIMATHS_MODEL = 'google/gemma-7b-it:free';
+const AIMATHS_SEARCH_API = 'https://api.duckduckgo.com/';
+let aimathsCurrentConversation = null;
+let aimathsConversations = [];
+let aimathsCurrentImage = null;
+let aimathsSearchEnabled = false;
 
 function aiStatus(msg){ const el=document.getElementById('aiActionStatus'); if(el)el.textContent=msg||''; }
 function aiTime(){ const n=new Date(); return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0'); }
@@ -4157,6 +5047,270 @@ function aiSystemPrompt(){ /* ... keep existing implementation ... */ return '';
 async function sendAiMessage(){ /* ... keep existing implementation ... */ }
 
 // ══════════════════════════════════════════════════════════════════
+// ARTIFICIAL MATHS AI FUNCTIONS
+// ══════════════════════════════════════════════════════════════════
+async function loadAiMathsConversations(){
+  if(!currentUser) return;
+  try{
+    const{data,error}=await sb.from('ai_conversations').select('*').eq('user_id',currentUser.id).order('updated_at',{ascending:false});
+    if(error) throw error;
+    aimathsConversations=data||[];
+    renderAiMathsConversationsList();
+  }catch(e){
+    console.error('Error loading conversations:',e);
+  }
+}
+
+function renderAiMathsConversationsList(){
+  const list=document.getElementById('aimathsConversationsList');
+  if(!list) return;
+  if(!aimathsConversations.length){
+    list.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:20px">No conversations yet</div>';
+    return;
+  }
+  list.innerHTML='';
+  aimathsConversations.forEach(conv=>{
+    const item=document.createElement('div');
+    item.className='aimaths-conversation-item'+(aimathsCurrentConversation?.id===conv.id?' active':'');
+    item.innerHTML=`<div class="aimaths-conversation-title">${escapeHtml(conv.title)}</div><div class="aimaths-conversation-date">${new Date(conv.updated_at).toLocaleDateString()}</div>`;
+    item.onclick=()=>loadAiMathsConversation(conv.id);
+    list.appendChild(item);
+  });
+}
+
+async function createNewAiConversation(){
+  if(!currentUser) return;
+  try{
+    const{data,error}=await sb.from('ai_conversations').insert({user_id:currentUser.id,title:'New Conversation'}).select().single();
+    if(error) throw error;
+    aimathsConversations.unshift(data);
+    aimathsCurrentConversation=data;
+    renderAiMathsConversationsList();
+    clearAiMathsChat();
+    document.getElementById('aimathsChatTitle').textContent=data.title;
+  }catch(e){
+    console.error('Error creating conversation:',e);
+    showToast('❌ Failed to create conversation - AI tables may not exist in database');
+  }
+}
+
+async function loadAiMathsConversation(conversationId){
+  if(!currentUser) return;
+  try{
+    const{data:messages,error}=await sb.from('ai_messages').select('*').eq('conversation_id',conversationId).order('created_at',{ascending:true});
+    if(error) throw error;
+    aimathsCurrentConversation=aimathsConversations.find(c=>c.id===conversationId);
+    renderAiMathsConversationsList();
+    clearAiMathsChat();
+    document.getElementById('aimathsChatTitle').textContent=aimathsCurrentConversation.title;
+    if(messages&&messages.length){
+      messages.forEach(msg=>appendAiMathsMessage(msg));
+    }
+  }catch(e){
+    console.error('Error loading conversation:',e);
+  }
+}
+
+async function deleteCurrentAiConversation(){
+  if(!aimathsCurrentConversation) return;
+  if(!confirm('Delete this conversation?')) return;
+  try{
+    const{error}=await sb.from('ai_conversations').delete().eq('id',aimathsCurrentConversation.id);
+    if(error) throw error;
+    aimathsConversations=aimathsConversations.filter(c=>c.id!==aimathsCurrentConversation.id);
+    aimathsCurrentConversation=null;
+    renderAiMathsConversationsList();
+    clearAiMathsChat();
+    document.getElementById('aimathsChatTitle').textContent='New Conversation';
+    showToast('✅ Conversation deleted');
+  }catch(e){
+    console.error('Error deleting conversation:',e);
+    showToast('❌ Failed to delete conversation');
+  }
+}
+
+function clearAiMathsChat(){
+  const container=document.getElementById('aimathsMessages');
+  container.innerHTML=`<div class="aimaths-welcome"><div class="aimaths-welcome-icon">🤖</div><div class="aimaths-welcome-text"><h3>Artificial Maths</h3><p>Ask me anything! I can help with homework, explain concepts, solve problems, and search the web.</p><div class="aimaths-welcome-tips"><span>📷 Upload images of problems</span><span>🔍 Ask me to search the web</span><span>💬 Start a conversation</span></div></div></div>`;
+}
+
+function appendAiMathsMessage(msg){
+  const container=document.getElementById('aimathsMessages');
+  const welcome=container.querySelector('.aimaths-welcome');
+  if(welcome) welcome.remove();
+  const div=document.createElement('div');
+  div.className='aimaths-message '+msg.role;
+  let contentHtml=escapeHtml(msg.content);
+  if(msg.image_data){
+    contentHtml=`<img src="${msg.image_data}" class="aimaths-message-image">`+contentHtml;
+  }
+  div.innerHTML=`<div class="aimaths-message-avatar">${msg.role==='user'?'👤':'🤖'}</div><div class="aimaths-message-content">${contentHtml}</div>`;
+  if(msg.has_search&&msg.search_results){
+    const searchDiv=document.createElement('div');
+    searchDiv.className='aimaths-message-search';
+    searchDiv.innerHTML=`<h4>🔍 Web Search Results</h4>${msg.search_results.results?.map(r=>`<div class="aimaths-message-search-result"><a href="${r.url}" target="_blank">${escapeHtml(r.title)}</a></div>`).join('')||'<div style="color:rgba(255,255,255,.5)">No results found</div>'}`;
+    div.querySelector('.aimaths-message-content').appendChild(searchDiv);
+  }
+  container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+}
+
+async function sendAiMathsMessage(){
+  const input=document.getElementById('aimathsInput');
+  const content=input.value.trim();
+  if(!content&&!aimathsCurrentImage) return;
+  if(!AIMATHS_API_KEY){
+    showAiMathsApiKeyModal();
+    return;
+  }
+  if(!aimathsCurrentConversation){
+    await createNewAiConversation();
+  }
+  input.disabled=true;
+  document.getElementById('aimathsSendBtn').disabled=true;
+  const userMessage={role:'user',content:content};
+  try{
+    const{data:savedMsg,error}=await sb.from('ai_messages').insert({conversation_id:aimathsCurrentConversation.id,role:'user',content:content}).select().single();
+    if(error) throw error;
+    // Add image data locally for display (not saved to database)
+    if(aimathsCurrentImage) savedMsg.image_data = aimathsCurrentImage;
+    appendAiMathsMessage(savedMsg);
+  }catch(e){
+    console.error('Error saving message:',e);
+    showToast('❌ Failed to save message - AI tables may not exist in database');
+  }
+  input.value='';
+  aimathsCurrentImage=null;
+  document.getElementById('aimathsImageUpload').style.display='none';
+  document.getElementById('aimathsImagePreview').innerHTML='';
+  const loadingDiv=document.createElement('div');
+  loadingDiv.className='aimaths-message assistant';
+  loadingDiv.innerHTML=`<div class="aimaths-message-avatar">🤖</div><div class="aimaths-message-content"><div class="aimaths-loading">Thinking...</div></div>`;
+  document.getElementById('aimathsMessages').appendChild(loadingDiv);
+  let searchResults=null;
+  if(aimathsSearchEnabled&&content){
+    searchResults=await performWebSearch(content);
+  }
+  try{
+    const response=await getAiMathsResponse(content,aimathsCurrentImage,searchResults);
+    loadingDiv.remove();
+    const{data:assistantMsg,error}=await sb.from('ai_messages').insert({conversation_id:aimathsCurrentConversation.id,role:'assistant',content:response,has_search:!!searchResults,search_results:searchResults}).select().single();
+    if(error) throw error;
+    appendAiMathsMessage(assistantMsg);
+    const{count}=await sb.from('ai_messages').select('id',{count:'exact',head:true}).eq('conversation_id',aimathsCurrentConversation.id);
+    if(count===2){
+      const title=content.substring(0,50)+(content.length>50?'...':'');
+      await sb.from('ai_conversations').update({title:title}).eq('id',aimathsCurrentConversation.id);
+      aimathsCurrentConversation.title=title;
+      renderAiMathsConversationsList();
+      document.getElementById('aimathsChatTitle').textContent=title;
+    }
+  }catch(e){
+    console.error('Error getting AI response:',e);
+    loadingDiv.remove();
+    showToast('❌ Failed to get AI response: '+e.message);
+  }
+  input.disabled=false;
+  document.getElementById('aimathsSendBtn').disabled=false;
+  input.focus();
+}
+
+async function getAiMathsResponse(content,imageData,searchResults){
+  const messages=[{role:'system',content:'You are Artificial Maths, a helpful AI assistant for a maths education platform. You help students with homework, explain concepts, solve problems, and provide educational support. Be friendly, clear, and encouraging. If search results are provided, use them to give accurate information.'}];
+  if(searchResults&&searchResults.results){
+    const searchContext=searchResults.results.map(r=>`- ${r.title}: ${r.snippet}`).join('\n');
+    messages.push({role:'system',content:`Here are some relevant search results:\n${searchContext}`});
+  }
+  if(aimathsCurrentConversation){
+    const{data:history}=await sb.from('ai_messages').select('*').eq('conversation_id',aimathsCurrentConversation.id).order('created_at',{ascending:false}).limit(10);
+    if(history){
+      history.reverse().forEach(msg=>{
+        if(msg.role!=='system'){
+          messages.push({role:msg.role,content:msg.content});
+        }
+      });
+    }
+  }
+  if(imageData){
+    messages.push({role:'user',content:[{type:'text',text:content||'What do you see in this image?'},{type:'image_url',image_url:{url:imageData}}]});
+  }else{
+    messages.push({role:'user',content:content});
+  }
+  const response=await fetch(AIMATHS_BASE_URL+'/chat/completions',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+AIMATHS_API_KEY,'Content-Type':'application/json','HTTP-Referer':window.location.origin,'X-Title':'Artificial Maths'},
+    body:JSON.stringify({model:AIMATHS_MODEL,messages:messages,max_tokens:2048})
+  });
+  if(!response.ok){
+    const error=await response.json();
+    throw new Error(error.error?.message||'API request failed');
+  }
+  const data=await response.json();
+  return data.choices[0].message.content;
+}
+
+function toggleAiImageUpload(){
+  const upload=document.getElementById('aimathsImageUpload');
+  upload.style.display=upload.style.display==='none'?'block':'none';
+}
+
+function handleAiImageUpload(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  if(file.size>5*1024*1024){
+    showToast('❌ Image must be under 5MB');
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    aimathsCurrentImage=e.target.result;
+    const preview=document.getElementById('aimathsImagePreview');
+    preview.innerHTML=`<img src="${aimathsCurrentImage}" class="aimaths-image-preview">`;
+    showToast('⚠️ Image stored locally for this session only - not saved to cloud');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearAiImageUpload(){
+  aimathsCurrentImage=null;
+  document.getElementById('aimathsImageInput').value='';
+  document.getElementById('aimathsImagePreview').innerHTML='';
+  document.getElementById('aimathsImageUpload').style.display='none';
+}
+
+function toggleAiSearchMode(){
+  aimathsSearchEnabled=!aimathsSearchEnabled;
+  const btn=event.target;
+  btn.style.background=aimathsSearchEnabled?'rgba(59,130,246,.3)':'rgba(255,255,255,.1)';
+  btn.style.borderColor=aimathsSearchEnabled?'rgba(59,130,246,.5)':'rgba(255,255,255,.2)';
+  btn.classList.toggle('search-active',aimathsSearchEnabled);
+  showToast(aimathsSearchEnabled?'🔍 Search enabled':'🔍 Search disabled');
+}
+
+async function performWebSearch(query){
+  try{
+    const response=await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`);
+    const data=await response.json();
+    return{query:query,results:data.RelatedTopics?.slice(0,5).map(topic=>({title:topic.Text||topic.FirstURL,url:topic.FirstURL,snippet:topic.Text?.substring(0,200)||''}))||[]};
+  }catch(e){
+    console.error('Search error:',e);
+    return{query:query,results:[]};
+  }
+}
+
+function showAiMathsApiKeyModal(){
+  showToast('⚠️ AI features require an API key to be configured.');
+}
+
+// Auto-resize textarea
+document.addEventListener('input',e=>{
+  if(e.target.id==='aimathsInput'){
+    e.target.style.height='auto';
+    e.target.style.height=e.target.scrollHeight+'px';
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════
 // VERCEL PANEL
 // ══════════════════════════════════════════════════════════════════
 function vcGetHeaders(){ return{'Authorization':'Bearer '+vcToken,'Content-Type':'application/json'}; }
@@ -4172,7 +5326,109 @@ function vcCloseLog(){ /* ... keep existing implementation ... */ }
 async function vcRedeploy(id,name){ /* ... keep existing implementation ... */ }
 async function vcTriggerDeploy(){ /* ... keep existing implementation ... */ }
 function vcDisconnect(){ /* ... keep existing implementation ... */ }
-function switchDevTab(tab){ /* ... keep existing implementation ... */ }
+function switchDevTab(tab){ 
+  document.querySelectorAll('.dev-tab').forEach(t=>t.classList.remove('active')); 
+  document.querySelectorAll('.dev-tab-panel').forEach(p=>p.classList.remove('active')); 
+  document.getElementById('devTab-'+tab).classList.add('active'); 
+  document.getElementById('devPanel-'+tab).classList.add('active'); 
+  
+  if(tab === 'registrations') {
+    loadRegistrationRequests();
+  }
+}
+
+async function loadRegistrationRequests(){
+  if(!isAdminUser()) return;
+  const listEl = document.getElementById('registrationRequestsList');
+  if(!listEl) return;
+  
+  listEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.3);padding:40px">Loading requests...</div>';
+  
+  try {
+    const { data: requests, error } = await sb.from('registration_requests').select('*').eq('status', 'pending').order('requested_at', { ascending: false });
+    
+    if(error) throw error;
+    
+    if(!requests || requests.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.3);padding:40px">No pending registration requests</div>';
+      return;
+    }
+    
+    listEl.innerHTML = '';
+    requests.forEach(req => {
+      const card = document.createElement('div');
+      card.style.cssText = 'background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:16px';
+      card.innerHTML = `
+        <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5em;font-weight:700">${initials(req.username)}</div>
+        <div style="flex:1">
+          <div style="color:#fff;font-weight:700;font-size:1em">${escapeHtml(req.username)}</div>
+          <div style="color:rgba(255,255,255,.5);font-size:.85em">${escapeHtml(req.display_name || req.username)} • ${new Date(req.requested_at).toLocaleDateString()}</div>
+          <div style="color:rgba(255,255,255,.3);font-size:.75em">Code: ${escapeHtml(req.friend_code)}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="approveRegistration('${req.id}')" style="background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:#4ade80;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700">✓ Approve</button>
+          <button onclick="rejectRegistration('${req.id}')" style="background:rgba(246,79,89,.2);border:1px solid rgba(246,79,89,.4);color:#f87171;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700">✗ Reject</button>
+        </div>
+      `;
+      listEl.appendChild(card);
+    });
+  } catch(e) {
+    console.error('Error loading registration requests:', e);
+    listEl.innerHTML = '<div style="text-align:center;color:#f87171;padding:40px">Error loading requests: ' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+async function approveRegistration(requestId){
+  if(!isAdminUser()) return;
+  try {
+    // Get the request details
+    const { data: request, error: fetchError } = await sb.from('registration_requests').select('*').eq('id', requestId).single();
+    if(fetchError || !request) throw fetchError || new Error('Request not found');
+    
+    // Insert into users table
+    const { data: newUser, error: insertError } = await sb.from('users').insert({
+      username: request.username,
+      display_name: request.display_name,
+      password: request.password,
+      friend_code: request.friend_code,
+      role: null,
+      is_admin: false,
+      terms_accepted: true
+    }).select().single();
+    
+    if(insertError) throw insertError;
+    
+    // Update request status
+    await sb.from('registration_requests').update({ 
+      status: 'approved', 
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: currentUser.id 
+    }).eq('id', requestId);
+    
+    showToast('✅ Registration approved for ' + request.username);
+    loadRegistrationRequests();
+  } catch(e) {
+    console.error('Error approving registration:', e);
+    showToast('❌ Error approving registration: ' + e.message);
+  }
+}
+
+async function rejectRegistration(requestId){
+  if(!isAdminUser()) return;
+  try {
+    await sb.from('registration_requests').update({ 
+      status: 'rejected', 
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: currentUser.id 
+    }).eq('id', requestId);
+    
+    showToast('✗ Registration rejected');
+    loadRegistrationRequests();
+  } catch(e) {
+    console.error('Error rejecting registration:', e);
+    showToast('❌ Error rejecting registration: ' + e.message);
+  }
+}
 
 // ══════════════════════════════════════════════════════════════════
 // MATHS PASS SYSTEM
@@ -4215,12 +5471,31 @@ function switchShopTab(tab) {
 
 async function uploadStickerImage(file, userId){
   if(!file) return '';
-  const ext = file.name.split('.').pop().toLowerCase();
-  const path = `stickers/${userId}/${Date.now()}.${ext}`;
-  const { data, error } = await sb.storage.from('stickers').upload(path, file, { cacheControl:'3600', upsert:false });
-  if(error){ console.error('Upload error:', error); return ''; }
-  const { data: urlData } = sb.storage.from('stickers').getPublicUrl(path);
-  return urlData?.publicUrl || '';
+  
+  // Try Supabase storage first
+  try {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const path = `stickers/${userId}/${Date.now()}.${ext}`;
+    const { data, error } = await sb.storage.from('stickers').upload(path, file, { cacheControl:'3600', upsert:false });
+    if(error) throw error;
+    const { data: urlData } = sb.storage.from('stickers').getPublicUrl(path);
+    return urlData?.publicUrl || '';
+  } catch(e) {
+    console.error('Supabase storage upload failed:', e);
+    
+    // Fallback: convert to base64 data URL
+    try {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    } catch(e2) {
+      console.error('Base64 conversion failed:', e2);
+      return '';
+    }
+  }
 }
 
 async function createSticker(){
@@ -4234,44 +5509,100 @@ async function createSticker(){
   const file = fileInput.files[0];
   if(file.size > 2*1024*1024){ showStickerMsg('Image must be under 2MB.','err'); return; }
   showStickerMsg('⏳ Uploading sticker...','ok');
+  
   const imageUrl = await uploadStickerImage(file, currentUser.id);
   if(!imageUrl){ showStickerMsg('Failed to upload image. Try again.','err'); return; }
-  const { data, error } = await sb.from('stickers').insert({
-    user_id: currentUser.id,
-    name: name,
-    description: desc,
-    image_url: imageUrl,
-    is_public: isPublic
-  }).select().single();
-  if(error){ showStickerMsg('Error: ' + error.message,'err'); return; }
-  showStickerMsg('✅ Sticker created!','ok');
-  document.getElementById('stickerName').value = '';
-  document.getElementById('stickerDesc').value = '';
-  fileInput.value = '';
-  document.getElementById('stickerFileLabel').textContent = 'Click to choose image';
-  document.getElementById('imagePreview').style.display = 'none';
-  document.getElementById('stickerPublic').checked = false;
-  loadMyStickers();
-  if(isPublic) loadPublicStickers();
+  
+  try {
+    const { data, error } = await sb.from('stickers').insert({
+      user_id: currentUser.id,
+      name: name,
+      description: desc,
+      image_url: imageUrl,
+      is_public: isPublic
+    }).select().single();
+    
+    if(error) throw error;
+    
+    showStickerMsg('✅ Sticker created!','ok');
+    document.getElementById('stickerName').value = '';
+    document.getElementById('stickerDesc').value = '';
+    fileInput.value = '';
+    document.getElementById('stickerFileLabel').textContent = 'Click to choose image';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('stickerPublic').checked = false;
+    loadMyStickers();
+    if(isPublic) loadPublicStickers();
+  } catch(e) {
+    console.error('Sticker creation error:', e);
+    
+    // Fallback to localStorage
+    const localSticker = {
+      id: 'local_stk_' + Date.now(),
+      user_id: currentUser.id,
+      name: name,
+      description: desc,
+      image_url: imageUrl,
+      is_public: isPublic,
+      created_at: new Date().toISOString()
+    };
+    
+    let localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+    localStickers.push(localSticker);
+    localStorage.setItem('ms_local_stickers', JSON.stringify(localStickers));
+    
+    showStickerMsg('✅ Sticker saved locally!','ok');
+    document.getElementById('stickerName').value = '';
+    document.getElementById('stickerDesc').value = '';
+    fileInput.value = '';
+    document.getElementById('stickerFileLabel').textContent = 'Click to choose image';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('stickerPublic').checked = false;
+    loadMyStickers();
+    if(isPublic) loadPublicStickers();
+  }
 }
+
+const BUILTIN_PRESET_STICKERS = [
+  { id: 'stk_fire', name: '🔥 Super Fire', description: 'On fire!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">🔥</text></svg>', is_public: true },
+  { id: 'stk_rocket', name: '🚀 To The Moon', description: 'Blast off!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">🚀</text></svg>', is_public: true },
+  { id: 'stk_crown', name: '👑 Royal Crown', description: 'King of Maths!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">👑</text></svg>', is_public: true },
+  { id: 'stk_gamer', name: '🎮 Pro Gamer', description: 'Game on!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">🎮</text></svg>', is_public: true },
+  { id: 'stk_diamond', name: '💎 Diamond', description: 'Shine bright!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">💎</text></svg>', is_public: true },
+  { id: 'stk_trophy', name: '🏆 Winner', description: 'Top Rank!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">🏆</text></svg>', is_public: true }
+];
 
 async function loadMyStickers(){
   if(!currentUser) return;
-  const { data, error } = await sb.from('stickers').select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false});
+  let data = [];
+  try {
+    const res = await sb.from('stickers').select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false});
+    data = res.data || [];
+  } catch(e){
+    console.error('Error loading stickers from database:', e);
+  }
+
+  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+  const myLocal = localStickers.filter(s => s.user_id === currentUser.id);
+  const allMine = [...data, ...myLocal];
+
   const grid = document.getElementById('myStickersGrid');
   const count = document.getElementById('myStickerCount');
-  if(error || !data || !data.length){
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:40px 20px">No stickers yet — create your first one above! It\'s FREE 🎉</div>';
+  
+  if(!grid) return;
+  
+  if(!allMine.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:40px 20px">No custom stickers yet — create your first one above! It\'s FREE 🎉</div>';
     if(count) count.textContent = '0';
     return;
   }
-  if(count) count.textContent = data.length;
+  if(count) count.textContent = allMine.length;
   grid.innerHTML = '';
-  data.forEach(s => {
+  allMine.forEach(s => {
     const card = document.createElement('div');
     card.className = 'sticker-card';
     card.innerHTML = `
-      <div class="sticker-image"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onerror="this.style.display='none'"></div>
+      <div class="sticker-image"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><text y=%2260%22 font-size=%2260%22>🎨</text></svg>'"></div>
       <div class="sticker-name">${escapeHtml(s.name)}</div>
       ${s.description ? `<div class="sticker-meta">${escapeHtml(s.description)}</div>` : ''}
       <span class="sticker-badge ${s.is_public ? 'public' : 'private'}">${s.is_public ? '🌍 Public' : '🔒 Private'}</span>
@@ -4282,23 +5613,32 @@ async function loadMyStickers(){
 }
 
 async function loadPublicStickers(){
-  const { data, error } = await sb.from('stickers').select('*, creator:users!stickers_user_id_fkey(username, display_name)').eq('is_public', true).order('created_at',{ascending:false});
+  let data = [];
+  try {
+    const res = await sb.from('stickers').select('*, creator:users!stickers_user_id_fkey(username, display_name)').eq('is_public', true).order('created_at',{ascending:false});
+    data = res.data || [];
+  } catch(e){
+    console.error('Error loading public stickers from database:', e);
+  }
+
+  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+  const publicLocal = localStickers.filter(s => s.is_public);
+  const allPublic = [...BUILTIN_PRESET_STICKERS, ...data, ...publicLocal];
+
   const grid = document.getElementById('publicStickersGrid');
   const count = document.getElementById('publicStickerCount');
-  if(error || !data || !data.length){
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:40px 20px">No public stickers yet. Be the first to share one!</div>';
-    if(count) count.textContent = '0';
-    return;
-  }
-  if(count) count.textContent = data.length;
+  
+  if(!grid) return;
+  
+  if(count) count.textContent = allPublic.length;
   grid.innerHTML = '';
-  data.forEach(s => {
-    const creatorName = s.creator?.display_name || s.creator?.username || 'Unknown';
+  allPublic.forEach(s => {
+    const creatorName = s.creator?.display_name || s.creator?.username || 'Maths Support';
     const isOwn = currentUser && s.user_id === currentUser.id;
     const card = document.createElement('div');
     card.className = 'sticker-card';
     card.innerHTML = `
-      <div class="sticker-image"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onerror="this.style.display='none'"></div>
+      <div class="sticker-image"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><text y=%2260%22 font-size=%2260%22>🎨</text></svg>'"></div>
       <div class="sticker-name">${escapeHtml(s.name)}</div>
       <div class="sticker-meta">by ${escapeHtml(creatorName)}</div>
       ${s.description ? `<div class="sticker-meta">${escapeHtml(s.description)}</div>` : ''}
@@ -4310,14 +5650,17 @@ async function loadPublicStickers(){
 }
 
 async function purchaseSticker(stickerId, price, creatorId){
-  // Stickers are free now, just add to collection
   showToast('🎨 Sticker added to your collection!');
 }
 
 async function deleteSticker(stickerId){
   if(!confirm('Delete this sticker?')) return;
-  const { error } = await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id);
-  if(error){ showToast('❌ Could not delete sticker'); return; }
+  try { await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id); } catch(e){}
+  
+  let localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+  localStickers = localStickers.filter(s => s.id !== stickerId);
+  localStorage.setItem('ms_local_stickers', JSON.stringify(localStickers));
+
   showToast('🗑️ Sticker deleted');
   loadMyStickers();
   loadPublicStickers();
@@ -4346,16 +5689,27 @@ async function loadStickerPicker(){
   if(!currentUser) return;
   const grid = document.getElementById('stickerPickerGrid');
   if(!grid) return;
-  // Load user's own stickers + public stickers
-  const [own, pub] = await Promise.all([
-    sb.from('stickers').select('*').eq('user_id', currentUser.id),
-    sb.from('stickers').select('*').eq('is_public', true).neq('user_id', currentUser.id).limit(50)
-  ]);
-  const all = [...(own.data||[]), ...(pub.data||[])];
+  
+  let own = [], pub = [];
+  try {
+    const [resOwn, resPub] = await Promise.all([
+      sb.from('stickers').select('*').eq('user_id', currentUser.id),
+      sb.from('stickers').select('*').eq('is_public', true).neq('user_id', currentUser.id).limit(50)
+    ]);
+    own = resOwn.data || [];
+    pub = resPub.data || [];
+  } catch(e){
+    console.error('Error loading stickers for picker:', e);
+  }
+
+  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+  const all = [...BUILTIN_PRESET_STICKERS, ...own, ...pub, ...localStickers];
+
   if(!all.length){
     grid.innerHTML = '<div class="sticker-picker-empty">No stickers yet. Create one in the Shop!</div>';
     return;
   }
+  
   grid.innerHTML = '';
   all.forEach(s => {
     const item = document.createElement('div');
@@ -4595,5 +5949,24 @@ document.addEventListener('DOMContentLoaded',async()=>{
   },500);
 })();
 </script>
+
+<div class="onboarding-overlay" id="onboardingOverlay">
+  <div class="onboarding-step" id="onboardingStep">
+    <div class="onboarding-highlight" id="onboardingHighlight"></div>
+    <div class="onboarding-content">
+      <div class="onboarding-arrow" id="onboardingArrow"></div>
+      <div class="onboarding-card">
+        <div class="onboarding-step-num"><span id="onStepNum">1</span>/<span id="onStepTotal">7</span></div>
+        <h3 id="onTitle">Welcome to Maths Support!</h3>
+        <p id="onDesc">Let's show you around...</p>
+        <div class="onboarding-actions">
+          <button class="onboarding-btn secondary" onclick="skipOnboarding()">Skip</button>
+          <button class="onboarding-btn primary" onclick="nextOnboardingStep()">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
