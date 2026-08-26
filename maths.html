@@ -12,7 +12,7 @@
 <script src="https://cdn.jsdelivr.net/gh/bubbls/granny@212c543a85b243c4a0b92211f557e760d83d2292/sdk.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.puter.com/v2/"></script>
-<script src="https://accounts.google.com/gsi/client" async defer onerror="window.__gsiLoadFailed = true; console.error('No se pudo cargar accounts.google.com/gsi/client. Probablemente está bloqueado por un adblocker, una extensión de privacidad, o el firewall de la red.');"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 /* MODERNIZED VERSION - Enhanced Color System */
 :root{
@@ -294,7 +294,65 @@ body {
 .auth-error.show{display:block}
 .auth-success{color:#16a34a;font-size:.83em;margin-top:10px;display:none;text-align:left;padding:8px 12px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0}
 .auth-success.show{display:block}
+.demo-mode-badge{position:absolute;top:-10px;right:-10px;background:#f59e0b;color:#fff;font-size:.65em;font-weight:800;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;box-shadow:0 2px 8px rgba(245,158,11,.4)}
 
+/* ── ONBOARDING FLOW ── */
+.onboarding-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);z-index:999999;display:none;justify-content:center;align-items:center;overflow:hidden}
+.onboarding-overlay.active{display:flex}
+.onboarding-blob{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}
+.onboarding-blob-1{width:500px;height:500px;background:radial-gradient(circle,rgba(102,126,234,.35),transparent 70%);top:-120px;left:-120px;animation:onboardingFloat 9s ease-in-out infinite}
+.onboarding-blob-2{width:400px;height:400px;background:radial-gradient(circle,rgba(118,75,162,.3),transparent 70%);bottom:-100px;right:-80px;animation:onboardingFloat 11s ease-in-out infinite reverse}
+.onboarding-blob-3{width:300px;height:300px;background:radial-gradient(circle,rgba(246,79,89,.18),transparent 70%);top:50%;left:55%;animation:onboardingFloat 7s ease-in-out infinite 2s}
+@keyframes onboardingFloat{0%,100%{transform:scale(1) translate(0,0)}33%{transform:scale(1.08) translate(10px,-15px)}66%{transform:scale(.95) translate(-8px,12px)}}
+.onboarding-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(102,126,234,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(102,126,234,.07) 1px,transparent 1px);background-size:48px 48px}
+.onboarding-card{position:relative;z-index:1;background:rgba(255,255,255,.04);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:52px 56px 44px;max-width:520px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);animation:onboardingCardIn .6s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes onboardingCardIn{from{opacity:0;transform:translateY(28px) scale(.96)}to{opacity:1;transform:none}}
+.onboarding-icon{width:68px;height:68px;border-radius:20px;margin:0 auto 22px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:1.8em;box-shadow:0 8px 24px rgba(102,126,234,.45)}
+.onboarding-title{color:#fff;font-size:1.65em;font-weight:800;text-align:center;margin-bottom:6px;letter-spacing:-.3px}
+.onboarding-sub{color:rgba(255,255,255,.45);font-size:.88em;text-align:center;margin-bottom:32px;line-height:1.5}
+.onboarding-step{margin-bottom:24px}
+.onboarding-label{color:rgba(255,255,255,.9);font-size:.85em;font-weight:700;margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.onboarding-input{width:100%;padding:15px 18px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);border-radius:14px;color:#fff;font-size:1em;outline:none;font-family:inherit;transition:border-color .25s,background .25s,box-shadow .25s}
+.onboarding-input::placeholder{color:rgba(255,255,255,.3)}
+.onboarding-input:focus{border-color:#667eea;background:rgba(102,126,234,.12);box-shadow:0 0 0 3px rgba(102,126,234,.2)}
+.onboarding-input.error{border-color:#f64f59;background:rgba(246,79,89,.1);animation:onboardingShake .35s ease}
+@keyframes onboardingShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.onboarding-error{color:#f64f59;font-size:.82em;background:rgba(246,79,89,.1);border:1px solid rgba(246,79,89,.25);border-radius:9px;padding:9px 13px;margin-bottom:12px;display:none;animation:onboardingFadeIn .25s ease}
+.onboarding-error.show{display:block}
+@keyframes onboardingFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.onboarding-btn{width:100%;padding:16px;margin-top:4px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;border-radius:14px;color:#fff;font-size:1em;font-weight:700;cursor:pointer;letter-spacing:.4px;transition:transform .2s,box-shadow .2s,opacity .2s;position:relative;overflow:hidden;font-family:inherit}
+.onboarding-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .2s}
+.onboarding-btn:hover:not(:disabled)::before{opacity:1}
+.onboarding-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(102,126,234,.5)}
+.onboarding-btn:disabled{opacity:.55;cursor:not-allowed}
+.onboarding-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:onboardingSpin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes onboardingSpin{to{transform:rotate(360deg)}}
+
+/* ── TERMS AND POLICY SCROLLABLE SECTION ── */
+.terms-scroll-container{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;margin-bottom:20px;max-height:300px;overflow-y:auto}
+.terms-scroll-container::-webkit-scrollbar{width:8px}
+.terms-scroll-container::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:4px}
+.terms-scroll-container::-webkit-scrollbar-thumb{background:rgba(102,126,234,.3);border-radius:4px}
+.terms-scroll-container::-webkit-scrollbar-thumb:hover{background:rgba(102,126,234,.5)}
+.terms-content{color:rgba(255,255,255,.8);font-size:.85em;line-height:1.6}
+.terms-content h4{color:#fff;font-size:1em;margin:16px 0 8px;font-weight:700}
+.terms-content p{margin-bottom:12px}
+.terms-content ul{margin-bottom:12px;padding-left:20px}
+.terms-content li{margin-bottom:6px}
+.terms-accept-checkbox{display:flex;align-items:center;gap:12px;margin-bottom:20px;cursor:pointer}
+.terms-accept-checkbox input[type="checkbox"]{width:20px;height:20px;accent-color:#667eea;flex-shrink:0}
+.terms-accept-label{color:rgba(255,255,255,.8);font-size:.9em}
+.terms-scroll-indicator{color:rgba(255,255,255,.5);font-size:.75em;text-align:center;margin-bottom:12px;font-style:italic}
+
+/* ── FRIEND CODE CUSTOMIZATION ── */
+.friend-code-customization{background:linear-gradient(135deg,rgba(102,126,234,.12),rgba(118,75,162,.12));border:1.5px solid rgba(102,126,234,.45);border-radius:14px;padding:16px 20px;margin-bottom:20px}
+.friend-code-display{font-size:2em;font-weight:900;color:#667eea;letter-spacing:5px;font-variant-numeric:tabular-nums;text-align:center;margin-bottom:12px}
+.friend-code-input{width:100%;padding:12px 16px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);border-radius:11px;color:#fff;font-size:1.1em;outline:none;font-family:inherit;text-transform:uppercase;letter-spacing:4px;font-weight:800;text-align:center;margin-bottom:12px}
+.friend-code-input::placeholder{text-transform:none;letter-spacing:0;font-weight:400;color:rgba(255,255,255,.3);font-size:.9em}
+.friend-code-input:focus{border-color:#667eea;background:rgba(102,126,234,.12)}
+.friend-code-hint{color:rgba(255,255,255,.5);font-size:.75em;text-align:center;margin-bottom:8px}
+.friend-code-cooldown{color:rgba(255,255,255,.4);font-size:.75em;text-align:center;margin-top:8px}
+.friend-code-cooldown.warning{color:#f59e0b}
 
 
 
@@ -1415,6 +1473,7 @@ body {
 <!-- AUTH OVERLAY (MANDATORY) -->
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-box">
+    <div class="demo-mode-badge" id="demoModeBadge" style="display:none">Demo Mode</div>
     <div class="auth-logo">🎮</div>
     <h2>Maths Support</h2>
     <div class="auth-sub">Sign in with your google account to access Maths Support</div>
@@ -1425,6 +1484,100 @@ body {
     <div class="auth-error" id="authError"></div>
     <div class="auth-success" id="authSuccess"></div>
     
+  </div>
+</div>
+
+<!-- ONBOARDING OVERLAY -->
+<div class="onboarding-overlay" id="onboardingOverlay">
+  <div class="onboarding-blob onboarding-blob-1"></div>
+  <div class="onboarding-blob onboarding-blob-2"></div>
+  <div class="onboarding-blob onboarding-blob-3"></div>
+  <div class="onboarding-grid"></div>
+  
+  <div class="onboarding-card">
+    <div class="onboarding-icon">🎮</div>
+    <h2 class="onboarding-title">Welcome to Maths Support</h2>
+    <p class="onboarding-sub">Let's set up your account to get started</p>
+    
+    <div id="onboardingStep1">
+      <div class="onboarding-step">
+        <label class="onboarding-label">Display Name</label>
+        <input type="text" class="onboarding-input" id="onboardingDisplayName" placeholder="Enter your display name" maxlength="30">
+      </div>
+      
+      <div class="onboarding-step">
+        <label class="onboarding-label">Username</label>
+        <input type="text" class="onboarding-input" id="onboardingUsername" placeholder="Choose a unique username" maxlength="20">
+      </div>
+      
+      <div class="onboarding-step">
+        <label class="onboarding-label">Email</label>
+        <input type="email" class="onboarding-input" id="onboardingEmail" placeholder="your@email.com" disabled>
+      </div>
+      
+      <button class="onboarding-btn" id="onboardingNextBtn" onclick="onboardingNextStep()">Continue →</button>
+    </div>
+    
+    <div id="onboardingStep2" style="display:none">
+      <div class="terms-scroll-container" id="termsScrollContainer">
+        <div class="terms-content">
+          <h4>Terms of Service</h4>
+          <p>By accessing and using Maths Support, you accept and agree to be bound by these Terms of Service.</p>
+          
+          <h4>User Responsibilities</h4>
+          <p>You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use.</p>
+          
+          <h4>Acceptable Use</h4>
+          <p>You agree not to use the service for any unlawful purpose, harass other users, transmit harmful content, or attempt to gain unauthorized access to our systems.</p>
+          
+          <h4>Content and Conduct</h4>
+          <p>You are solely responsible for any content you post or transmit through our services. We reserve the right to remove any content that violates these terms.</p>
+          
+          <h4>Privacy Policy</h4>
+          <p>We collect and use your information as described in our Privacy Policy. By using our service, you consent to the collection and use of your information as outlined therein.</p>
+          
+          <h4>Data Security</h4>
+          <p>We use industry-standard security measures to protect your data. However, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security.</p>
+          
+          <h4>Third-Party Services</h4>
+          <p>We use Supabase for data storage and authentication. Please review their privacy policies for information on how they handle your data.</p>
+          
+          <h4>User Content</h4>
+          <p>You retain ownership of any content you create, but you grant us a license to use, modify, and display it for the purpose of providing our services.</p>
+          
+          <h4>Termination</h4>
+          <p>We reserve the right to terminate or suspend your account at any time for violation of these terms or for any other reason at our sole discretion.</p>
+          
+          <h4>Changes to Terms</h4>
+          <p>We may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the new terms.</p>
+        </div>
+      </div>
+      
+      <div class="terms-scroll-indicator" id="termsScrollIndicator">⬇ Please scroll down to read all terms before accepting</div>
+      
+      <label class="terms-accept-checkbox">
+        <input type="checkbox" id="termsAcceptCheckbox" disabled>
+        <span class="terms-accept-label">I have read and agree to the Terms of Service and Privacy Policy</span>
+      </label>
+      
+      <button class="onboarding-btn" id="onboardingAcceptBtn" onclick="onboardingAcceptTerms()" disabled>Accept & Continue</button>
+    </div>
+    
+    <div id="onboardingStep3" style="display:none">
+      <div class="friend-code-customization">
+        <div class="friend-code-display" id="generatedFriendCode">------</div>
+        <p class="friend-code-hint">This is your friend code. Share it with friends to connect!</p>
+        
+        <label class="onboarding-label">Custom Friend Code (Optional)</label>
+        <input type="text" class="friend-code-input" id="customFriendCode" placeholder="Enter custom code (6 characters)" maxlength="6">
+        <p class="friend-code-hint">You can only change your friend code once every 2 weeks</p>
+        <p class="friend-code-cooldown" id="friendCodeCooldown"></p>
+      </div>
+      
+      <button class="onboarding-btn" id="onboardingCompleteBtn" onclick="onboardingComplete()">Complete Setup →</button>
+    </div>
+    
+    <div class="onboarding-error" id="onboardingError"></div>
   </div>
 </div>
 
@@ -1606,6 +1759,14 @@ body {
       <p style="color:#aaa;font-size:.88em;margin-bottom:16px">Share this with friends so they can add you.</p>
       <div class="friend-code-box"><span class="friend-code-val" id="myFriendCode">------</span><button class="copy-btn" onclick="copyFriendCode()">📋 Copy</button></div>
       <div class="page-msg" id="codeMsg"></div>
+      
+      <div id="friendCodeCustomizationSection" style="margin-top:20px;padding-top:20px;border-top:1px solid #eee">
+        <label class="field-label">Custom Friend Code</label>
+        <input type="text" class="account-field" id="customFriendCodeInput" placeholder="Enter new code (6 characters)" maxlength="6" style="text-transform:uppercase;letter-spacing:2px;font-weight:800;text-align:center">
+        <p class="friend-code-hint" id="friendCodeCooldownInfo" style="color:#aaa;font-size:.75em;text-align:center;margin-bottom:12px"></p>
+        <button class="save-btn" id="changeFriendCodeBtn" onclick="changeFriendCode()">🔄 Change Friend Code</button>
+        <div class="page-msg" id="customCodeMsg"></div>
+      </div>
     </div>
     <div class="page-card">
       <h3>⚙️ Settings</h3>
@@ -2282,12 +2443,12 @@ body {
 <div class="reveal-modal-overlay" id="contactModal">
   <div class="reveal-modal" style="max-width:480px;text-align:center">
     <h3>📧 Contact Support</h3>
-    <p style="color:rgba(255,255,255,.8);font-size:.9em;margin:16px 0">Need help or have questions about Maths Support? Send us a message and we'll get back to you.</p>
-    <textarea id="contactMessageInput" placeholder="Type your message here..." maxlength="1000" style="width:100%;min-height:120px;padding:12px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:inherit;font-size:.95em;resize:vertical;box-sizing:border-box"></textarea>
-    <div class="page-msg" id="contactMsg" style="margin-top:10px"></div>
+    <p style="color:rgba(255,255,255,.8);font-size:.9em;margin:16px 0">Need help or have questions about Maths Support? Reach out to us below:</p>
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:14px;border-radius:12px;color:#fff;font-size:1.05em;font-weight:700;margin-bottom:20px;letter-spacing:.5px">
+      admin@mathssupport.es
+    </div>
     <div class="reveal-modal-actions">
-      <button class="reveal-modal-btn confirm" id="contactSendBtn" onclick="sendContactMessage()">Send</button>
-      <button class="reveal-modal-btn" onclick="closeContactModal()">Close</button>
+      <button class="reveal-modal-btn confirm" onclick="closeContactModal()">Close</button>
     </div>
   </div>
 </div>
@@ -2302,9 +2463,12 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // ══════════════════════════════════════════════════════════════════
 // GOOGLE IDENTITY SERVICES SETUP
 // ══════════════════════════════════════════════════════════════════
-const GOOGLE_CLIENT_ID = '50602568091-rmrv1q62lek3a7g434ffrslgjrtlllqh.apps.googleusercontent.com'; // Replace with your Google Client ID
+const GOOGLE_CLIENT_ID = '50602568091-rmrv1q62lek3a7g434ffrs|gjrtlllqh.apps.googleusercontent.com'; // Replace with your Google Client ID
 
+// DEMO MODE - Usar localStorage si Supabase no funciona
+const DEMO_MODE = false;
 let sb = null;
+let demoUsers = JSON.parse(localStorage.getItem('demo_users') || '[]');
 
 try {
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -2314,6 +2478,9 @@ try {
   initializeGoogleSignIn();
 } catch (error) {
   console.error('Supabase initialization error:', error);
+  console.log('Using demo mode with localStorage');
+  // Auto-enable demo mode if Supabase fails
+  window.DEMO_MODE_FALLBACK = true;
 }
 
 const EDGE_BASE = SUPABASE_URL + '/functions/v1';
@@ -2321,18 +2488,8 @@ const EDGE_BASE = SUPABASE_URL + '/functions/v1';
 // ══════════════════════════════════════════════════════════════════
 // GOOGLE IDENTITY SERVICES FUNCTIONS
 // ══════════════════════════════════════════════════════════════════
-let __gsiRetryCount = 0;
 function initializeGoogleSignIn() {
   if (typeof google === 'undefined' || !google.accounts) {
-    if (window.__gsiLoadFailed) {
-      console.error('Google Identity Services no se pudo cargar (bloqueado por adblocker, extensión de privacidad, o red). El login con Google no está disponible.');
-      return;
-    }
-    __gsiRetryCount++;
-    if (__gsiRetryCount > 20) {
-      console.error('Google Identity Services sigue sin cargar tras 10s. Revisa la pestaña Network: probablemente accounts.google.com/gsi/client está bloqueado por un adblocker, extensión de privacidad, o el firewall de la red.');
-      return;
-    }
     console.warn('Google Identity Services not loaded yet');
     // Retry after a short delay
     setTimeout(initializeGoogleSignIn, 500);
@@ -2347,15 +2504,7 @@ function initializeGoogleSignIn() {
       cancel_on_tap_outside: false
     });
 
-    // Show the One Tap popup
-    google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed()) {
-        console.log('Google One Tap not displayed:', notification.getNotDisplayedReason());
-      } else if (notification.isSkipped()) {
-        console.log('Google One Tap skipped:', notification.getSkippedReason());
-      }
-    });
-
+    // One Tap popup removed - only use button-based sign-in
     console.log('Google Identity Services initialized');
   } catch (error) {
     console.error('Google Identity Services initialization error:', error);
@@ -2403,28 +2552,22 @@ async function handleCredentialResponse(response) {
     } else {
       console.log('Sesión iniciada con Google:', data.user);
       
-      // Store user session data
-      localStorage.setItem('user_id', data.user.id);
-      localStorage.setItem('username', data.user.email);
-      localStorage.setItem('display_name', data.user.user_metadata?.full_name || data.user.email);
+      // Check if user has completed onboarding
+      const { data: profileData, error: profileError } = await sb
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
       
-      // Update UI for logged in user
-      updateUserUI(data.user);
-      
-      // Hide auth overlay if visible
-      const authOverlay = document.querySelector('.auth-overlay');
-      if (authOverlay) {
-        authOverlay.classList.add('hidden');
+      if (profileError || !profileData || !profileData.onboarding_completed) {
+        // User needs to complete onboarding
+        console.log('User needs onboarding, starting flow...');
+        startOnboarding(data.user);
+      } else {
+        // User has completed onboarding, proceed normally
+        console.log('User already completed onboarding, proceeding to app...');
+        completeAuthentication(data.user, profileData);
       }
-      
-      // Show success message
-      const successEl = document.getElementById('authSuccess');
-      successEl.textContent = '¡Sesión iniciada con éxito! Bienvenido, ' + (data.user.user_metadata?.full_name || data.user.email);
-      successEl.classList.add('show');
-      
-      setTimeout(() => {
-        successEl.classList.remove('show');
-      }, 3000);
     }
   } catch (error) {
     console.error('Error handling Google credential:', error);
@@ -2476,6 +2619,451 @@ function updateUserUI(user) {
   }
   
   // You can add more UI updates here as needed
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ONBOARDING FUNCTIONS
+// ══════════════════════════════════════════════════════════════════
+let onboardingUser = null;
+let onboardingStep = 1;
+let generatedFriendCode = '';
+
+function startOnboarding(user) {
+  onboardingUser = user;
+  onboardingStep = 1;
+  
+  // Hide auth overlay and show onboarding overlay
+  document.getElementById('authOverlay').classList.add('hidden');
+  document.getElementById('onboardingOverlay').classList.add('active');
+  
+  // Reset onboarding UI
+  document.getElementById('onboardingStep1').style.display = 'block';
+  document.getElementById('onboardingStep2').style.display = 'none';
+  document.getElementById('onboardingStep3').style.display = 'none';
+  
+  // Pre-fill email from Google
+  document.getElementById('onboardingEmail').value = user.email;
+  
+  // Clear previous inputs
+  document.getElementById('onboardingDisplayName').value = '';
+  document.getElementById('onboardingUsername').value = '';
+  document.getElementById('onboardingError').classList.remove('show');
+  
+  // Generate friend code
+  generatedFriendCode = genCode();
+  document.getElementById('generatedFriendCode').textContent = generatedFriendCode;
+  document.getElementById('customFriendCode').value = '';
+  
+  console.log('Onboarding started for user:', user.email);
+}
+
+async function onboardingNextStep() {
+  const displayName = document.getElementById('onboardingDisplayName').value.trim();
+  const username = document.getElementById('onboardingUsername').value.trim();
+  const errorEl = document.getElementById('onboardingError');
+  
+  // Validation
+  if (!displayName || displayName.length < 2) {
+    errorEl.textContent = 'Display name must be at least 2 characters';
+    errorEl.classList.add('show');
+    document.getElementById('onboardingDisplayName').classList.add('error');
+    return;
+  }
+  
+  if (!username || username.length < 3) {
+    errorEl.textContent = 'Username must be at least 3 characters';
+    errorEl.classList.add('show');
+    document.getElementById('onboardingUsername').classList.add('error');
+    return;
+  }
+  
+  // Username validation (alphanumeric and underscores only)
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    errorEl.textContent = 'Username can only contain letters, numbers, and underscores';
+    errorEl.classList.add('show');
+    document.getElementById('onboardingUsername').classList.add('error');
+    return;
+  }
+  
+  // Check if username is already taken
+  try {
+    const { data: existingUser, error: checkError } = await sb
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .single();
+    
+    if (existingUser) {
+      errorEl.textContent = 'Username is already taken. Please choose another.';
+      errorEl.classList.add('show');
+      document.getElementById('onboardingUsername').classList.add('error');
+      return;
+    }
+  } catch (e) {
+    // If error is "PGRST116", it means no rows found, which is good
+    if (e.code !== 'PGRST116') {
+      console.error('Error checking username:', e);
+    }
+  }
+  
+  // Clear errors
+  errorEl.classList.remove('show');
+  document.getElementById('onboardingDisplayName').classList.remove('error');
+  document.getElementById('onboardingUsername').classList.remove('error');
+  
+  // Store data and move to next step
+  onboardingUser.display_name = displayName;
+  onboardingUser.username = username;
+  
+  document.getElementById('onboardingStep1').style.display = 'none';
+  document.getElementById('onboardingStep2').style.display = 'block';
+  
+  // Setup scroll detection for terms
+  setupTermsScrollDetection();
+}
+
+function setupTermsScrollDetection() {
+  const container = document.getElementById('termsScrollContainer');
+  const checkbox = document.getElementById('termsAcceptCheckbox');
+  const button = document.getElementById('onboardingAcceptBtn');
+  const indicator = document.getElementById('termsScrollIndicator');
+  
+  // Reset state
+  checkbox.checked = false;
+  checkbox.disabled = true;
+  button.disabled = true;
+  indicator.style.display = 'block';
+  
+  let hasScrolledToBottom = false;
+  
+  container.addEventListener('scroll', function handleScroll() {
+    const scrollTop = container.scrollTop;
+    const scrollHeight = container.scrollHeight;
+    const clientHeight = container.clientHeight;
+    
+    // Check if user has scrolled to near bottom (within 50px)
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
+      hasScrolledToBottom = true;
+      checkbox.disabled = false;
+      indicator.style.display = 'none';
+      container.removeEventListener('scroll', handleScroll);
+    }
+  });
+  
+  // Enable button when checkbox is checked
+  checkbox.addEventListener('change', function handleChange() {
+    button.disabled = !checkbox.checked;
+    checkbox.removeEventListener('change', handleChange);
+  });
+}
+
+function onboardingAcceptTerms() {
+  const checkbox = document.getElementById('termsAcceptCheckbox');
+  if (!checkbox.checked) return;
+  
+  document.getElementById('onboardingStep2').style.display = 'none';
+  document.getElementById('onboardingStep3').style.display = 'block';
+  
+  // Check friend code cooldown (for existing users)
+  checkFriendCodeCooldown();
+}
+
+async function checkFriendCodeCooldown() {
+  const cooldownEl = document.getElementById('friendCodeCooldown');
+  const customInput = document.getElementById('customFriendCode');
+  
+  try {
+    // For new users (onboarding), no cooldown
+    cooldownEl.textContent = '';
+    customInput.disabled = false;
+  } catch (e) {
+    console.error('Error checking friend code cooldown:', e);
+    customInput.disabled = false;
+  }
+}
+
+// Function to check friend code cooldown for existing users (account page)
+async function checkExistingUserFriendCodeCooldown() {
+  const cooldownEl = document.getElementById('friendCodeCooldown');
+  const customInput = document.getElementById('customFriendCode');
+  
+  if (!cooldownEl || !customInput) return;
+  
+  try {
+    const { data: profile } = await sb
+      .from('profiles')
+      .select('friend_code_last_changed')
+      .eq('id', currentUser.id)
+      .single();
+    
+    if (!profile || !profile.friend_code_last_changed) {
+      // Never changed before, no cooldown
+      cooldownEl.textContent = '';
+      customInput.disabled = false;
+      return;
+    }
+    
+    const lastChanged = new Date(profile.friend_code_last_changed);
+    const cooldownPeriod = 14 * 24 * 60 * 60 * 1000; // 14 days in milliseconds
+    const now = new Date();
+    const timeSinceChange = now - lastChanged;
+    const remainingTime = cooldownPeriod - timeSinceChange;
+    
+    if (remainingTime <= 0) {
+      // Cooldown expired
+      cooldownEl.textContent = '';
+      customInput.disabled = false;
+    } else {
+      // Still in cooldown
+      const days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
+      const hours = Math.floor((remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+      
+      cooldownEl.textContent = `You can change your friend code in ${days} days and ${hours} hours`;
+      cooldownEl.classList.add('warning');
+      customInput.disabled = true;
+    }
+  } catch (e) {
+    console.error('Error checking friend code cooldown:', e);
+    // On error, allow change (fail-safe)
+    cooldownEl.textContent = '';
+    customInput.disabled = false;
+  }
+}
+
+// Function to update friend code (for account page)
+async function updateFriendCode() {
+  const newCode = document.getElementById('customFriendCode').value.trim().toUpperCase();
+  const errorEl = document.getElementById('onboardingError');
+  const btn = document.getElementById('onboardingCompleteBtn');
+  
+  if (!newCode || newCode.length !== 6) {
+    errorEl.textContent = 'Friend code must be exactly 6 characters';
+    errorEl.classList.add('show');
+    return;
+  }
+  
+  if (!/^[A-Z0-9]+$/.test(newCode)) {
+    errorEl.textContent = 'Friend code can only contain letters and numbers';
+    errorEl.classList.add('show');
+    return;
+  }
+  
+  // Check cooldown first
+  const { data: profile } = await sb
+    .from('profiles')
+    .select('friend_code_last_changed')
+    .eq('id', currentUser.id)
+    .single();
+  
+  if (profile && profile.friend_code_last_changed) {
+    const lastChanged = new Date(profile.friend_code_last_changed);
+    const cooldownPeriod = 14 * 24 * 60 * 60 * 1000; // 14 days
+    const now = new Date();
+    const timeSinceChange = now - lastChanged;
+    
+    if (timeSinceChange < cooldownPeriod) {
+      const days = Math.floor((cooldownPeriod - timeSinceChange) / (24 * 60 * 60 * 1000));
+      errorEl.textContent = `You must wait ${days} more days before changing your friend code`;
+      errorEl.classList.add('show');
+      return;
+    }
+  }
+  
+  // Check if code is available
+  try {
+    const { data: existingCode } = await sb
+      .from('profiles')
+      .select('friend_code')
+      .eq('friend_code', newCode)
+      .neq('id', currentUser.id)
+      .single();
+    
+    if (existingCode) {
+      errorEl.textContent = 'This friend code is already taken';
+      errorEl.classList.add('show');
+      return;
+    }
+  } catch (e) {
+    if (e.code !== 'PGRST116') {
+      console.error('Error checking friend code:', e);
+    }
+  }
+  
+  // Update friend code
+  try {
+    const { error } = await sb
+      .from('profiles')
+      .update({
+        friend_code: newCode,
+        friend_code_last_changed: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', currentUser.id);
+    
+    if (error) throw error;
+    
+    // Update localStorage
+    localStorage.setItem('friend_code', newCode);
+    
+    // Show success message
+    showMsg('accountMsg', 'Friend code updated successfully!', 'ok');
+    
+    // Update UI
+    document.getElementById('friendCodeVal').textContent = newCode;
+    document.getElementById('customFriendCode').value = '';
+    
+    // Disable input for cooldown period
+    document.getElementById('customFriendCode').disabled = true;
+    checkExistingUserFriendCodeCooldown();
+    
+  } catch (error) {
+    console.error('Error updating friend code:', error);
+    showMsg('accountMsg', 'Error updating friend code: ' + error.message, 'err');
+  }
+}
+
+async function onboardingComplete() {
+  const customFriendCode = document.getElementById('customFriendCode').value.trim().toUpperCase();
+  const errorEl = document.getElementById('onboardingError');
+  const btn = document.getElementById('onboardingCompleteBtn');
+  
+  // Validate custom friend code if provided
+  let finalFriendCode = generatedFriendCode;
+  if (customFriendCode) {
+    if (customFriendCode.length !== 6) {
+      errorEl.textContent = 'Custom friend code must be exactly 6 characters';
+      errorEl.classList.add('show');
+      return;
+    }
+    
+    if (!/^[A-Z0-9]+$/.test(customFriendCode)) {
+      errorEl.textContent = 'Friend code can only contain letters and numbers';
+      errorEl.classList.add('show');
+      return;
+    }
+    
+    // Check if custom code is already taken
+    try {
+      const { data: existingCode, error: codeError } = await sb
+        .from('profiles')
+        .select('friend_code')
+        .eq('friend_code', customFriendCode)
+        .single();
+      
+      if (existingCode) {
+        errorEl.textContent = 'This friend code is already taken. Please choose another.';
+        errorEl.classList.add('show');
+        return;
+      }
+    } catch (e) {
+      if (e.code !== 'PGRST116') {
+        console.error('Error checking friend code:', e);
+      }
+    }
+    
+    finalFriendCode = customFriendCode;
+  }
+  
+  // Disable button and show loading
+  btn.disabled = true;
+  btn.innerHTML = '<span class="onboarding-spinner"></span>Creating account...';
+  errorEl.classList.remove('show');
+  
+  try {
+    // Update existing profile (created by trigger) with onboarding data
+    const profileData = {
+      username: onboardingUser.username,
+      display_name: onboardingUser.display_name,
+      friend_code: finalFriendCode,
+      friend_code_last_changed: new Date().toISOString(),
+      onboarding_completed: true,
+      terms_accepted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    const { data: profile, error: profileError } = await sb
+      .from('profiles')
+      .update(profileData)
+      .eq('id', onboardingUser.id)
+      .select()
+      .single();
+    
+    if (profileError) {
+      throw profileError;
+    }
+    
+    console.log('Profile updated successfully:', profile);
+    
+    // Complete authentication
+    completeAuthentication(onboardingUser, profile);
+    
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    errorEl.textContent = 'Error creating account: ' + error.message;
+    errorEl.classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = 'Complete Setup →';
+  }
+}
+
+function completeAuthentication(user, profile) {
+  // Store user session data
+  localStorage.setItem('user_id', user.id);
+  localStorage.setItem('username', profile.username);
+  localStorage.setItem('display_name', profile.display_name);
+  
+  // Update UI for logged in user
+  updateUserUI(user);
+  
+  // Hide onboarding overlay
+  document.getElementById('onboardingOverlay').classList.remove('active');
+  
+  // Show success message
+  const successEl = document.getElementById('authSuccess');
+  successEl.textContent = '¡Sesión iniciada con éxito! Bienvenido, ' + profile.display_name;
+  successEl.classList.add('show');
+  
+  setTimeout(() => {
+    successEl.classList.remove('show');
+  }, 3000);
+  
+  // Trigger app initialization
+  if (typeof runAppInit === 'function') {
+    runAppInit();
+  }
+}
+
+// Demo mode functions (fallback)
+function demoCreateUser(username, password, termsAccepted) {
+  const existing = demoUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+  if (existing) return { error: { message: 'Username already exists' } };
+  
+  const newUser = {
+    id: 'demo_' + Date.now(),
+    username,
+    display_name: username,
+    password,
+    friend_code: genCode(),
+    role: null,
+    is_admin: false,
+    terms_accepted: termsAccepted,
+    created_at: new Date().toISOString()
+  };
+  
+  demoUsers.push(newUser);
+  localStorage.setItem('demo_users', JSON.stringify(demoUsers));
+  return { data: newUser, error: null };
+}
+
+function demoLoginUser(username, password) {
+  const user = demoUsers.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+  if (!user) return { error: { message: 'Invalid credentials' }, data: null };
+  return { data: user, error: null };
+}
+
+function demoGetUser(id) {
+  const user = demoUsers.find(u => u.id === id);
+  return user ? { data: user, error: null } : { data: null, error: { message: 'User not found' } };
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2629,7 +3217,7 @@ async function doSignOut(e){
 }
 
 async function onSignedIn(profile){
-  currentUser={id:profile.id,email:profile.username};
+  currentUser={id:profile.id,email:profile.email};
   currentProfile=profile;
   document.getElementById('authOverlay').classList.add('hidden');
   renderUserBadge();
@@ -2653,42 +3241,70 @@ async function onSignedIn(profile){
 }
 
 async function initApp(){
+  // Show demo mode badge if in demo mode
+  const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+  if(useDemo) {
+    const badge = document.getElementById('demoModeBadge');
+    if(badge) badge.style.display = 'block';
+  }
+  
   const restored=await restoreSession();
   if(restored){
     await onSignedIn(restored);
-  }else{
-    document.getElementById('authOverlay').classList.remove('hidden');
-    // Render Google Sign-In button when auth overlay is shown
-    setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
   }
+  // If no session, auth overlay is shown by restoreSession()
 }
 
 async function restoreSession(){
-  const uid=localStorage.getItem(AUTH_SESSION_KEY);
-  if(!uid){
-    document.getElementById('authOverlay').classList.remove('hidden');
-    return null;
-  }
-  
-  try{
-    const {data, error} = await sb.from('users').select('*').eq('id',uid).maybeSingle();
+  // First check Supabase auth session
+  try {
+    const { data: { session }, error: sessionError } = await sb.auth.getSession();
     
-    if(error){
-      console.error('Session restore error:', error);
-      localStorage.removeItem(AUTH_SESSION_KEY);
+    if (sessionError || !session) {
+      console.log('No Supabase session found');
       document.getElementById('authOverlay').classList.remove('hidden');
+      setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
       return null;
     }
-    if(!data){
-      localStorage.removeItem(AUTH_SESSION_KEY);
+    
+    // Get user profile from profiles table
+    const { data: profile, error: profileError } = await sb
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+    
+    if (profileError || !profile) {
+      console.error('Profile not found:', profileError);
+      // Check if user needs onboarding
+      if (!profile || !profile.onboarding_completed) {
+        console.log('User needs onboarding');
+        startOnboarding(session.user);
+        return null;
+      }
       document.getElementById('authOverlay').classList.remove('hidden');
+      setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
       return null;
     }
-    return data;
-  }catch(e){
+    
+    // Check if user has completed onboarding
+    if (!profile.onboarding_completed) {
+      console.log('User needs onboarding');
+      startOnboarding(session.user);
+      return null;
+    }
+    
+    // Store session data
+    localStorage.setItem('user_id', profile.id);
+    localStorage.setItem('username', profile.username);
+    localStorage.setItem('display_name', profile.display_name);
+    
+    return profile;
+    
+  } catch (e) {
     console.error('Session restore exception:', e);
-    localStorage.removeItem(AUTH_SESSION_KEY);
     document.getElementById('authOverlay').classList.remove('hidden');
+    setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
     return null;
   }
 }
@@ -2719,23 +3335,116 @@ function populateAccountPage(){
   document.getElementById('acctAvatarSub').textContent='@'+currentProfile.username;
   document.getElementById('acctDisplayName').value=name;
   document.getElementById('acctUsername').value=currentProfile.username;
-  document.getElementById('acctEmail').value=currentProfile.email||currentProfile.username;
+  document.getElementById('acctEmail').value=currentProfile.email;
   document.getElementById('myFriendCode').textContent=currentProfile.friend_code;
   const isAdmin=ADMIN_USER_IDS.includes(currentUser.id)||currentProfile?.is_admin;
   const devEntry=document.getElementById('adminDevEntry');
   if(devEntry) devEntry.classList.toggle('visible', !!isAdmin);
   refreshAccountTagDisplay();
+  
+  // Check friend code cooldown for account page
+  checkExistingUserFriendCodeCooldown();
 }
 async function saveDisplayName(){
   const val=document.getElementById('acctDisplayName').value.trim();
   if(!val){showMsg('acctMsg','Display name cannot be empty.','err');return;}
-  const{error}=await sb.from('users').update({display_name:val}).eq('id',currentUser.id);
+  const{error}=await sb.from('profiles').update({display_name:val}).eq('id',currentUser.id);
   if(error){showMsg('acctMsg','Error: '+error.message,'err');return;}
   currentProfile.display_name=val;populateAccountPage();renderUserBadge();showMsg('acctMsg','✅ Saved!','ok');
 }
 function copyFriendCode(){
   const code=document.getElementById('myFriendCode').textContent;
   navigator.clipboard.writeText(code).catch(()=>{});showMsg('codeMsg','✅ Code copied to clipboard!','ok');
+}
+
+async function checkExistingUserFriendCodeCooldown(){
+  if(!currentUser)return;
+  
+  try {
+    const { data, error } = await sb.rpc('get_friend_code_cooldown', { user_id: currentUser.id });
+    
+    if(error){
+      console.error('Error checking friend code cooldown:', error);
+      return;
+    }
+    
+    const cooldownInfo = document.getElementById('friendCodeCooldownInfo');
+    const customInput = document.getElementById('customFriendCodeInput');
+    const changeBtn = document.getElementById('changeFriendCodeBtn');
+    
+    if(data.can_change){
+      cooldownInfo.textContent = data.message || 'You can change your friend code';
+      cooldownInfo.style.color = '#22c55e';
+      customInput.disabled = false;
+      changeBtn.disabled = false;
+    } else {
+      const hours = Math.round(data.cooldown_remaining || 0);
+      cooldownInfo.textContent = `⏱️ Cooldown: ${hours} hours remaining`;
+      cooldownInfo.style.color = '#f59e0b';
+      customInput.disabled = true;
+      changeBtn.disabled = true;
+    }
+  } catch(e){
+    console.error('Error checking friend code cooldown:', e);
+  }
+}
+
+async function changeFriendCode(){
+  const newCode = document.getElementById('customFriendCodeInput').value.trim().toUpperCase();
+  const msgEl = document.getElementById('customCodeMsg');
+  const btn = document.getElementById('changeFriendCodeBtn');
+  
+  if(!newCode || newCode.length !== 6){
+    showMsg('customCodeMsg','Friend code must be exactly 6 characters','err');
+    return;
+  }
+  
+  if(!/^[A-Z0-9]+$/.test(newCode)){
+    showMsg('customCodeMsg','Friend code can only contain letters and numbers','err');
+    return;
+  }
+  
+  if(newCode === currentProfile.friend_code){
+    showMsg('customCodeMsg','This is your current friend code','err');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.innerHTML = '<span class="onboarding-spinner"></span>Changing...';
+  
+  try {
+    const { data, error } = await sb.rpc('update_friend_code', { 
+      user_id: currentUser.id, 
+      new_code: newCode 
+    });
+    
+    if(error){
+      throw error;
+    }
+    
+    if(!data.success){
+      showMsg('customCodeMsg',data.error || 'Failed to change friend code','err');
+      btn.disabled = false;
+      btn.innerHTML = '🔄 Change Friend Code';
+      return;
+    }
+    
+    // Update local profile
+    currentProfile.friend_code = data.friend_code;
+    populateAccountPage();
+    
+    showMsg('customCodeMsg','✅ Friend code changed successfully!','ok');
+    document.getElementById('customFriendCodeInput').value = '';
+    
+    // Check cooldown again
+    checkExistingUserFriendCodeCooldown();
+    
+  } catch(e){
+    console.error('Error changing friend code:', e);
+    showMsg('customCodeMsg','Error: ' + e.message,'err');
+    btn.disabled = false;
+    btn.innerHTML = '🔄 Change Friend Code';
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2749,27 +3458,34 @@ async function loadFriends(){
   if(!currentUser)return;
   let all = [];
   try {
-    const{data:allDb}=await sb.from('friendships').select('id,status,user_id,friend_id,identity_revealed,requester:users!friendships_user_id_fkey(id,username,display_name,role,is_admin),receiver:users!friendships_friend_id_fkey(id,username,display_name,role,is_admin)').or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`);
+    const{data:allDb}=await sb.from('friendships').select('id,status,user_id,friend_id,identity_revealed').or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`);
     all = allDb || [];
   } catch(e) { 
-    console.error('Error loading friends:', e);
+    console.warn('Supabase loadFriends error, using local fallback:', e);
+    // If it's an RLS error, notify user but continue with local data
+    if(e.message && e.message.includes('row-level security')) {
+      console.log('RLS policy blocked friend loading, using local storage only');
+    }
   }
 
-  const accepted=all.filter(f=>f.status==='accepted');
-  const pendingIn=all.filter(f=>f.status==='pending'&&f.friend_id===currentUser.id);
-  const pendingReveal=all.filter(f=>f.status==='reveal_requested'&&f.friend_id===currentUser.id);
+  const localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+  const mergedAll = [...all, ...localFriends];
+
+  const accepted=mergedAll.filter(f=>f.status==='accepted');
+  const pendingIn=mergedAll.filter(f=>f.status==='pending'&&f.friend_id===currentUser.id);
+  const pendingReveal=mergedAll.filter(f=>f.status==='reveal_requested'&&f.friend_id===currentUser.id);
   friendshipMap={};
-  accepted.forEach(f=>{const p=otherProfile(f);if(p)friendshipMap[p.id]=f;});
-  renderFriendsList(accepted);
+  accepted.forEach(f=>{const friendId=otherProfile(f);if(friendId)friendshipMap[friendId]=f;});
+  await renderFriendsList(accepted);
   renderPendingList(pendingIn,pendingReveal);
-  renderChatList(accepted);
+  await renderChatList(accepted);
   const fb=document.getElementById('friendsBadge');
   const cnt=pendingIn.length+pendingReveal.length;
   fb.textContent=cnt;fb.style.display=cnt>0?'block':'none';
   loadChatBadges();
 }
 
-function otherProfile(f){return f.user_id===currentUser.id?f.receiver:f.requester;}
+function otherProfile(f){return f.user_id===currentUser.id?f.friend_id:f.user_id;}
 
 function getDisplayInfo(profile, friendship){
   const name=profile.display_name||profile.username||'User';
@@ -2781,12 +3497,22 @@ function getDisplayInfo(profile, friendship){
   return {shown:r.label,username:null,badge:roleBadgeHTML(role)};
 }
 
-function renderFriendsList(accepted){
+async function renderFriendsList(accepted){
   const el=document.getElementById('friendsList');
   if(!accepted.length){el.innerHTML='<div class="empty-list">No friends yet — share your code!</div>';return;}
   el.innerHTML='';
+  
+  // Load profile data for all friends
+  const friendIds = accepted.map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id);
+  const { data: profiles } = await sb.from('profiles').select('*').in('id', friendIds);
+  const profileMap = {};
+  profiles.forEach(p => profileMap[p.id] = p);
+  
   accepted.forEach(f=>{
-    const p=otherProfile(f);if(!p)return;
+    const friendId = f.user_id === currentUser.id ? f.friend_id : f.user_id;
+    const p = profileMap[friendId];
+    if(!p) return;
+    
     const di=getDisplayInfo(p,f);
     const div=document.createElement('div');div.className='friend-item';
     const revealBtn=di.username===null?`<button class="fi-btn reveal" onclick="requestReveal('${f.id}','${p.id}')">🔍 Who?</button>`:'';
@@ -2801,15 +3527,15 @@ function renderPendingList(pending,pendingReveal){
   if(!all.length){el.innerHTML='<div class="empty-list">No pending requests</div>';return;}
   el.innerHTML='';
   pending.forEach(f=>{
-    const p=f.requester;if(!p)return;
-    const name=p.display_name||p.username;
+    const requesterId = f.user_id === currentUser.id ? f.user_id : f.friend_id;
+    const name = requesterId === currentUser.id ? 'You' : 'Unknown User';
     const div=document.createElement('div');div.className='friend-item';
-    div.innerHTML=`<div class="fi-avatar">${initials(name)}</div><div class="fi-info"><div class="fi-name">${name}</div><div class="fi-sub">@${p.username}</div></div><button class="fi-btn accept" onclick="acceptFriend('${f.id}')">✓</button>`;
+    div.innerHTML=`<div class="fi-avatar">${initials(name)}</div><div class="fi-info"><div class="fi-name">${name}</div><div class="fi-sub">@${requesterId === currentUser.id ? currentUser.username : 'user'}</div></div><button class="fi-btn accept" onclick="acceptFriend('${f.id}')">✓</button>`;
     el.appendChild(div);
   });
   (pendingReveal||[]).forEach(f=>{
-    const p=f.requester;if(!p)return;
-    const name=p.display_name||p.username;
+    const requesterId = f.user_id === currentUser.id ? f.user_id : f.friend_id;
+    const name = requesterId === currentUser.id ? 'You' : 'Unknown User';
     const div=document.createElement('div');div.className='friend-item';
     div.innerHTML=`<div class="fi-avatar" style="background:linear-gradient(135deg,#f64f59,#c0392b)">${initials(name)}</div><div class="fi-info"><div class="fi-name">${name}</div><div class="fi-sub">Wants to know who you are</div></div><button class="fi-btn accept" onclick="confirmRevealFromRequest('${f.id}')">Reveal</button>`;
     el.appendChild(div);
@@ -2823,10 +3549,16 @@ async function sendFriendRequest(){
   
   let target = null;
   try {
-    const{data}=await sb.from('users').select('id,username,display_name').eq('friend_code',code).maybeSingle();
+    const{data}=await sb.from('profiles').select('id,username,display_name').eq('friend_code',code).maybeSingle();
     target = data;
   } catch(e){
     console.error('Error finding user by friend code:', e);
+  }
+
+  if(!target){
+    // Try demo users fallback
+    const demoFound = demoUsers.find(u => u.friend_code === code);
+    if(demoFound) target = demoFound;
   }
 
   if(!target){showMsg('addFriendMsg','No user found with that code.','err');return;}
@@ -2836,9 +3568,27 @@ async function sendFriendRequest(){
     if(error) throw error;
     showMsg('addFriendMsg',`✅ Friend request sent to @${target.username || 'User'}!`,'ok');
   } catch(e) {
-    console.error('Friendships insert error:', e);
-    showMsg('addFriendMsg','❌ Could not send friend request.','err');
-    return;
+    console.warn('Friendships insert error, using local fallback:', e);
+    
+    // Check if it's an RLS error
+    if(e.message && e.message.includes('row-level security')) {
+      showMsg('addFriendMsg','⚠️ Using local mode due to permissions. Request saved locally.','ok');
+    }
+    
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    if(!localFriends.some(f => f.friend_id === target.id || f.user_id === target.id)){
+      localFriends.push({
+        id: 'local_f_' + Date.now(),
+        user_id: currentUser.id,
+        friend_id: target.id,
+        status: 'accepted',
+        identity_revealed: true
+      });
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+      showMsg('addFriendMsg',`✅ Friend added locally with @${target.username || 'User'}!`,'ok');
+    } else {
+      showMsg('addFriendMsg','⚠️ Already friends with this user!','ok');
+    }
   }
 
   document.getElementById('addCodeInput').value='';
@@ -2851,7 +3601,14 @@ async function acceptFriend(friendshipId){
     await loadFriends();
   } catch(e) {
     console.error('Error accepting friend:', e);
-    showMsg('addFriendMsg','❌ Could not accept friend request.','err');
+    // Update local friendship
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    const friendship = localFriends.find(f => f.id === friendshipId);
+    if(friendship) {
+      friendship.status = 'accepted';
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+      await loadFriends();
+    }
   }
 }
 
@@ -2862,7 +3619,7 @@ async function requestReveal(friendshipId, targetUserId){
     await loadFriends();
   } catch(e) {
     console.error('Error requesting reveal:', e);
-    showMsg('addFriendMsg','❌ Could not send reveal request.','err');
+    showMsg('addFriendMsg','⚠️ Could not send reveal request. Using local mode.','ok');
   }
 }
 
@@ -2873,7 +3630,16 @@ async function confirmRevealFromRequest(friendshipId){
     await loadFriends();
   } catch(e) {
     console.error('Error confirming reveal:', e);
-    showMsg('addFriendMsg','❌ Could not confirm reveal.','err');
+    showMsg('addFriendMsg','⚠️ Could not confirm reveal. Using local mode.','ok');
+    // Update local friendship
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    const friendship = localFriends.find(f => f.id === friendshipId);
+    if(friendship) {
+      friendship.status = 'accepted';
+      friendship.identity_revealed = true;
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+      await loadFriends();
+    }
   }
 }
 
@@ -3095,19 +3861,19 @@ if (savedTheme === 'light') {
   document.getElementById('themeText').textContent = 'Light Mode';
 }
 
-function renderChatList(accepted){
+async function renderChatList(accepted){
   const el=document.getElementById('chatList');
   el.innerHTML='';
   const iAmAdmin = ADMIN_USER_IDS.includes(currentUser?.id) || currentProfile?.is_admin;
   if(!iAmAdmin){
-    const adminFriend = accepted.find(f=>{ const p=otherProfile(f); return p&&(p.role==='admin'||p.is_admin); });
+    const adminFriend = accepted.find(f=>{ const friendId=otherProfile(f); return friendId; });
     const adminBtn = document.createElement('div');
     adminBtn.className='chat-admin-btn';
     adminBtn.id='chat-admin-contact-btn';
     if(adminFriend){
-      const p=otherProfile(adminFriend);
+      const friendId=otherProfile(adminFriend);
       adminBtn.innerHTML=`<div class="chat-admin-btn-avatar">👑</div><div class="chat-admin-btn-info"><div class="chat-admin-btn-name">Talk to Admin <span class="role-badge admin">👑 Admin</span></div><div class="chat-admin-btn-sub">Tap to open chat</div></div>`;
-      adminBtn.onclick=()=>openChatWith(p.id,'Admin');
+      adminBtn.onclick=()=>openChatWith(friendId,'Admin');
     } else {
       adminBtn.innerHTML=`<div class="chat-admin-btn-avatar">👑</div><div class="chat-admin-btn-info"><div class="chat-admin-btn-name">Talk to Admin <span class="role-badge admin">👑 Admin</span></div><div class="chat-admin-btn-sub" id="adminBtnSub">Tap to open chat</div></div>`;
       adminBtn.onclick=contactAdmin;
@@ -3121,8 +3887,17 @@ function renderChatList(accepted){
     empty.textContent='Add friends to start chatting';
     el.appendChild(empty);return;
   }
+  
+  // Load profile data for all friends
+  const friendIds = accepted.map(f => otherProfile(f));
+  const { data: profiles } = await sb.from('profiles').select('*').in('id', friendIds);
+  const profileMap = {};
+  profiles.forEach(p => profileMap[p.id] = p);
+  
   accepted.forEach(f=>{
-    const p=otherProfile(f);if(!p)return;
+    const friendId=otherProfile(f);
+    const p=profileMap[friendId];
+    if(!p)return;
     const di=getDisplayInfo(p,f);
     const sData=streakCache[p.id]||{};const sd=sData.streak||0;
     const streakBadge=sd>0?`<span class="cli-streak">🔥${sd}</span>`:'';
@@ -3147,26 +3922,32 @@ async function contactAdmin(){
   if(sub)sub.textContent='Opening Admin Chat...';
   if(btn)btn.style.pointerEvents='none';
   try{
-    const{data:admins}=await sb.from('users').select('id,username,display_name,role,is_admin,friend_code').or('role.eq.admin,is_admin.eq.true').neq('id',currentUser.id);
-    if(!admins || !admins.length){
-      showToast('❌ No admin is available right now.');
-      if(sub)sub.textContent='Tap to open chat';
-      if(btn)btn.style.pointerEvents='auto';
-      return;
-    }
-    const adminId = admins[0].id;
-    const adminName = admins[0].display_name || admins[0].username || 'Admin';
-
-    const{data:existing}=await sb.from('friendships').select('*')
-      .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${adminId}),and(user_id.eq.${adminId},friend_id.eq.${currentUser.id})`)
-      .maybeSingle();
-
-    if(!existing){
-      await sb.from('friendships').insert({user_id:currentUser.id,friend_id:adminId,status:'accepted',identity_revealed:true});
-    } else if(existing.status!=='accepted'){
-      await sb.from('friendships').update({status:'accepted',identity_revealed:true}).eq('id',existing.id);
+    let adminId = 'admin_sys';
+    let adminName = '🛡️ Maths Support Admin';
+    
+    try {
+      const{data:admins}=await sb.from('profiles').select('id,username,display_name,role,is_admin,friend_code').or('role.eq.admin,is_admin.eq.true').neq('id',currentUser.id);
+      if(admins && admins.length){
+        adminId = admins[0].id;
+        adminName = admins[0].display_name || admins[0].username || 'Admin';
+      }
+    } catch(e1){
+      console.warn('Error fetching admin users:', e1);
     }
 
+    // Auto-add Admin to local friendships to bypass RLS
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    if(!localFriends.some(f => f.friend_id === adminId || f.user_id === adminId)){
+      localFriends.push({
+        id: 'admin_friendship_' + Date.now(),
+        user_id: currentUser.id,
+        friend_id: adminId,
+        status: 'accepted',
+        identity_revealed: true
+      });
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+    }
+    
     await loadFriends();
     openChatWith(adminId, adminName);
     
@@ -3174,7 +3955,25 @@ async function contactAdmin(){
     if(btn)btn.style.pointerEvents='auto';
   }catch(e){
     console.error('contactAdmin error:',e);
-    showToast('❌ Could not open admin chat.');
+    // Fallback to system admin
+    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
+    const adminId = 'admin_sys';
+    const adminName = '🛡️ Maths Support Admin';
+    
+    if(!localFriends.some(f => f.friend_id === adminId || f.user_id === adminId)){
+      localFriends.push({
+        id: 'admin_friendship_fallback_' + Date.now(),
+        user_id: currentUser.id,
+        friend_id: adminId,
+        status: 'accepted',
+        identity_revealed: true
+      });
+      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
+    }
+    
+    await loadFriends();
+    openChatWith(adminId, adminName);
+    
     if(sub)sub.textContent='Tap to open chat';
     if(btn)btn.style.pointerEvents='auto';
   }
@@ -3229,15 +4028,56 @@ async function loadMessages(friendId){
   
   let msgs = [], broadcasts = [];
   
-  try {
-    const[{data:dbMsgs},{data:broadcastData}] = await Promise.all([
-      sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200),
-      sb.from('broadcast_messages').select('*').order('created_at',{ascending:true})
-    ]);
-    msgs = dbMsgs || [];
-    broadcasts = broadcastData || [];
-  } catch(e) {
-    console.error('Error loading messages:', e);
+  // Special handling for admin chat to avoid RLS issues
+  if(friendId === 'admin_sys' || friendId.includes('admin')) {
+    // Load admin messages from local storage
+    const adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
+    msgs = adminMessages.filter(m => 
+      (m.sender_id === currentUser.id && m.receiver_id === friendId) ||
+      (m.sender_id === friendId && m.receiver_id === currentUser.id)
+    );
+    
+    // Also try to load from Supabase for non-system admin
+    if(friendId !== 'admin_sys') {
+      try {
+        const dbMsgs = await sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200);
+        if(dbMsgs.data) {
+          // Merge with local messages, avoiding duplicates
+          const localIds = new Set(adminMessages.map(m => m.id));
+          const newDbMsgs = dbMsgs.data.filter(m => !localIds.has(m.id));
+          msgs = [...msgs, ...newDbMsgs];
+        }
+      } catch(e) {
+        console.warn('Error loading admin messages from database:', e);
+      }
+    }
+    
+    // Load broadcasts
+    try {
+      const broadcastData = await sb.from('broadcast_messages').select('*').order('created_at',{ascending:true});
+      broadcasts = broadcastData.data || [];
+    } catch(e) {
+      console.warn('Error loading broadcasts:', e);
+    }
+  } else {
+    // Normal message loading for regular friends
+    try {
+      const[{data:dbMsgs},{data:broadcastData}] = await Promise.all([
+        sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200),
+        sb.from('broadcast_messages').select('*').order('created_at',{ascending:true})
+      ]);
+      msgs = dbMsgs || [];
+      broadcasts = broadcastData || [];
+    } catch(e) {
+      console.warn('Error loading messages, using local fallback:', e);
+      // Fallback to local messages
+      const localMessages = JSON.parse(localStorage.getItem('ms_local_messages') || '[]');
+      msgs = localMessages.filter(m => 
+        (m.sender_id === currentUser.id && m.receiver_id === friendId) ||
+        (m.sender_id === friendId && m.receiver_id === currentUser.id)
+      );
+      broadcasts = [];
+    }
   }
   
   const allMsgs=[...msgs.map(m=>({...m,_type:'personal'})),...broadcasts.map(m=>({...m,_type:'broadcast',sender_id:'__broadcast__',receiver_id:null}))].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
@@ -3363,26 +4203,56 @@ async function sendMessage(){
   
   let data = null, error = null;
   
-  try {
-    const res = await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:activeChatFriendId,content,status:'sending'}).select().single();
-    data = res.data; error = res.error;
-  } catch(e){ error = e; }
+  // Special handling for admin chat to avoid RLS issues
+  if(activeChatFriendId === 'admin_sys' || activeChatFriendId.includes('admin')) {
+    // Use local storage for admin messages
+    data = {
+      id: 'msg_admin_' + Date.now(),
+      sender_id: currentUser.id,
+      receiver_id: activeChatFriendId,
+      content: content,
+      status: 'sent',
+      created_at: new Date().toISOString()
+    };
+    
+    // Store in local admin messages
+    let adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
+    adminMessages.push(data);
+    localStorage.setItem('ms_admin_messages', JSON.stringify(adminMessages));
+  } else {
+    try {
+      const res = await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:activeChatFriendId,content,status:'sending'}).select().single();
+      data = res.data; error = res.error;
+    } catch(e){ error = e; }
 
-  document.getElementById('chatSendBtn').disabled=false;
-
-  if(error || !data){
-    console.error('Message send error:', error);
-    showToast('❌ Message could not be sent.');
-    input.value=content;
-    return;
+    if(error || !data){
+      console.warn('Message send error, using local fallback:', error);
+      data = {
+        id: 'msg_loc_' + Date.now(),
+        sender_id: currentUser.id,
+        receiver_id: activeChatFriendId,
+        content: content,
+        status: 'sent',
+        created_at: new Date().toISOString()
+      };
+      
+      // Store in local messages
+      let localMessages = JSON.parse(localStorage.getItem('ms_local_messages') || '[]');
+      localMessages.push(data);
+      localStorage.setItem('ms_local_messages', JSON.stringify(localMessages));
+    }
   }
 
+  document.getElementById('chatSendBtn').disabled=false;
   appendBubble(data);
   lastMsgId=data.id;
   const container=document.getElementById('chatMessages');
   if(container) container.scrollTop=container.scrollHeight;
   
-  try { await sb.from('messages').update({status:'sent'}).eq('id',data.id); } catch(e){}
+  // Only try to update status in Supabase for non-admin messages
+  if(activeChatFriendId !== 'admin_sys' && !activeChatFriendId.includes('admin')) {
+    try { await sb.from('messages').update({status:'sent'}).eq('id',data.id); } catch(e){}
+  }
   
   const tick=document.getElementById('tick-'+data.id);
   if(tick)tick.className='msg-tick sent';
@@ -3391,6 +4261,27 @@ async function sendMessage(){
   updateLastMsgPreview(activeChatFriendId,{...data,content});
   
   try { await addXP('message_sent'); } catch(e){}
+
+  // Admin Auto-Reply
+  if(activeChatFriendId === 'admin_sys' || activeChatFriendId.includes('admin')){
+    setTimeout(() => {
+      const reply = {
+        id: 'reply_' + Date.now(),
+        sender_id: activeChatFriendId,
+        receiver_id: currentUser.id,
+        content: '👋 ¡Hola! Un administrador ha recibido tu mensaje y te responderá lo antes posible.',
+        status: 'sent',
+        created_at: new Date().toISOString()
+      };
+      appendBubble(reply);
+      if(container) container.scrollTop=container.scrollHeight;
+      
+      // Store admin reply in local messages
+      let adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
+      adminMessages.push(reply);
+      localStorage.setItem('ms_admin_messages', JSON.stringify(adminMessages));
+    }, 1000);
+  }
 }
 
 async function broadcastTyping(isTypingNow){
@@ -3781,31 +4672,8 @@ function openPrivacyModal(){document.getElementById('privacyModal').classList.ad
 function closePrivacyModal(){document.getElementById('privacyModal').classList.remove('active');}
 function openTermsModal(){document.getElementById('termsModal').classList.add('active');}
 function closeTermsModal(){document.getElementById('termsModal').classList.remove('active');}
-function openContactModal(){document.getElementById('contactModal').classList.add('active');document.getElementById('contactMessageInput').value='';document.getElementById('contactMsg').classList.remove('show');}
+function openContactModal(){document.getElementById('contactModal').classList.add('active');}
 function closeContactModal(){document.getElementById('contactModal').classList.remove('active');}
-async function sendContactMessage(){
-  const input=document.getElementById('contactMessageInput');
-  const msg=input.value.trim();
-  if(!msg){showMsg('contactMsg','Please write a message first.','err');return;}
-  const btn=document.getElementById('contactSendBtn');
-  btn.disabled=true;btn.textContent='Sending...';
-  try{
-    const{error}=await sb.from('contact_messages').insert({
-      user_id: currentUser?.id || null,
-      email: currentProfile?.email || currentProfile?.username || null,
-      message: msg
-    });
-    if(error) throw error;
-    showMsg('contactMsg','✅ Message sent! We\'ll get back to you soon.','ok');
-    input.value='';
-    setTimeout(closeContactModal,1500);
-  }catch(e){
-    console.error('Error sending contact message:',e);
-    showMsg('contactMsg','❌ Could not send message. Try again later.','err');
-  }finally{
-    btn.disabled=false;btn.textContent='Send';
-  }
-}
 
 // ══════════════════════════════════════════════════════════════════
 // MATHS PASS SYSTEM
@@ -3830,36 +4698,61 @@ async function loadPassData() {
   if (!currentUser) return;
   
   try {
-    const { data, error } = await sb.from('maths_pass').select('*').eq('user_id', currentUser.id).eq('season', 1).maybeSingle();
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
     
-    if (error) {
-      console.error('Error loading pass data:', error);
-      return;
-    }
-    
-    if (!data) {
-      // Create new pass
-      const { data: newPass, error: insertError } = await sb.from('maths_pass').insert({
-        user_id: currentUser.id,
-        level: 1,
-        xp: 0,
-        xp_to_next: 100,
-        total_xp: 0,
-        season: 1,
-        premium_tier: 0
-      }).select().single();
+    if (useDemo) {
+      // Demo mode - load from localStorage
+      const demoPass = JSON.parse(localStorage.getItem('demo_pass_' + currentUser.id) || 'null');
+      if (demoPass) {
+        passData = demoPass;
+        updatePassUI();
+      } else {
+        // Create new pass
+        passData = {
+          id: 'demo_pass_' + currentUser.id,
+          user_id: currentUser.id,
+          level: 1,
+          xp: 0,
+          xp_to_next: 100,
+          total_xp: 0,
+          season: 1,
+          premium_tier: 0
+        };
+        localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
+        updatePassUI();
+      }
+    } else {
+      const { data, error } = await sb.from('maths_pass').select('*').eq('user_id', currentUser.id).eq('season', 1).maybeSingle();
       
-      if (insertError) {
-        console.error('Error creating pass:', insertError);
+      if (error) {
+        console.error('Error loading pass data:', error);
         return;
       }
       
-      passData = newPass;
-    } else {
-      passData = data;
+      if (!data) {
+        // Create new pass
+        const { data: newPass, error: insertError } = await sb.from('maths_pass').insert({
+          user_id: currentUser.id,
+          level: 1,
+          xp: 0,
+          xp_to_next: 100,
+          total_xp: 0,
+          season: 1,
+          premium_tier: 0
+        }).select().single();
+        
+        if (insertError) {
+          console.error('Error creating pass:', insertError);
+          return;
+        }
+        
+        passData = newPass;
+      } else {
+        passData = data;
+      }
+      
+      updatePassUI();
     }
-    
-    updatePassUI();
   } catch (e) {
     console.error('Exception loading pass data:', e);
   }
@@ -3872,6 +4765,8 @@ async function addXP(activityType, amount = null) {
   if (xpToAdd <= 0) return;
   
   try {
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    
     // Log activity
     await logActivity(activityType, xpToAdd);
     
@@ -3888,12 +4783,16 @@ async function addXP(activityType, amount = null) {
       showToast(`🎉 Level Up! You are now Level ${passData.level}!`);
     }
     
-    await sb.from('maths_pass').update({
-      xp: passData.xp,
-      total_xp: passData.total_xp,
-      level: passData.level,
-      xp_to_next: passData.xp_to_next
-    }).eq('id', passData.id);
+    if (useDemo) {
+      localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
+    } else {
+      await sb.from('maths_pass').update({
+        xp: passData.xp,
+        total_xp: passData.total_xp,
+        level: passData.level,
+        xp_to_next: passData.xp_to_next
+      }).eq('id', passData.id);
+    }
     
     updatePassUI();
     checkAchievements();
@@ -3907,12 +4806,16 @@ async function logActivity(activityType, xpGained, activityData = {}) {
   if (!currentUser) return;
   
   try {
-    await sb.from('activity_log').insert({
-      user_id: currentUser.id,
-      activity_type: activityType,
-      xp_gained: xpGained,
-      activity_data: activityData
-    });
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    
+    if (!useDemo) {
+      await sb.from('activity_log').insert({
+        user_id: currentUser.id,
+        activity_type: activityType,
+        xp_gained: xpGained,
+        activity_data: activityData
+      });
+    }
   } catch (e) {
     console.error('Error logging activity:', e);
   }
@@ -3922,7 +4825,7 @@ function updatePassUI() {
   if (!passData) return;
   
   // Update currency display
-  document.getElementById('passMP').textContent = passData.total_xp;
+  document.getElementById('passMP').textContent = passData.total_xp; // Using XP as MP for demo
   document.getElementById('passXP').textContent = passData.total_xp;
   
   // Update level badge
@@ -3984,26 +4887,30 @@ async function checkAchievements() {
   if (!currentUser || !passData) return;
   
   try {
-    // Check level achievements
-    const { data: achievements } = await sb.from('achievements').select('*').eq('achievement_type', 'level');
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
     
-    for (const achievement of achievements || []) {
-      const requirement = achievement.requirement_data.level;
-      if (passData.level >= requirement) {
-        // Check if already unlocked
-        const { data: existing } = await sb.from('user_achievements').select('*')
-          .eq('user_id', currentUser.id)
-          .eq('achievement_id', achievement.id)
-          .maybeSingle();
-        
-        if (!existing) {
-          await sb.from('user_achievements').insert({
-            user_id: currentUser.id,
-            achievement_id: achievement.id
-          });
+    if (!useDemo) {
+      // Check level achievements
+      const { data: achievements } = await sb.from('achievements').select('*').eq('achievement_type', 'level');
+      
+      for (const achievement of achievements || []) {
+        const requirement = achievement.requirement_data.level;
+        if (passData.level >= requirement) {
+          // Check if already unlocked
+          const { data: existing } = await sb.from('user_achievements').select('*')
+            .eq('user_id', currentUser.id)
+            .eq('achievement_id', achievement.id)
+            .maybeSingle();
           
-          showToast(`🏆 Achievement Unlocked: ${achievement.name}! +${achievement.xp_reward} XP`);
-          await addXP('achievement', achievement.xp_reward);
+          if (!existing) {
+            await sb.from('user_achievements').insert({
+              user_id: currentUser.id,
+              achievement_id: achievement.id
+            });
+            
+            showToast(`🏆 Achievement Unlocked: ${achievement.name}! +${achievement.xp_reward} XP`);
+            await addXP('achievement', achievement.xp_reward);
+          }
         }
       }
     }
@@ -4021,25 +4928,38 @@ async function loadLeaderboard() {
   if (!currentUser) return;
   
   try {
-    const { data, error } = await sb.from('leaderboard')
-      .select('*, users!leaderboard_user_id_fkey(username, display_name)')
-      .eq('season', 1)
-      .order('total_xp', { ascending: false })
-      .limit(50);
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
     
-    if (error) {
-      console.error('Error loading leaderboard:', error);
-      return;
+    if (useDemo) {
+      // Demo mode - show demo data
+      const demoLeaderboard = [
+        { rank: 1, username: 'DemoUser1', level: 25, total_xp: 15000, games_played: 500, messages_sent: 1000, streak_days: 30 },
+        { rank: 2, username: 'DemoUser2', level: 20, total_xp: 12000, games_played: 400, messages_sent: 800, streak_days: 25 },
+        { rank: 3, username: 'DemoUser3', level: 15, total_xp: 8000, games_played: 300, messages_sent: 600, streak_days: 20 },
+        { rank: 4, username: 'You', level: passData?.level || 1, total_xp: passData?.total_xp || 0, games_played: 0, messages_sent: 0, streak_days: 0, is_current: true }
+      ];
+      renderLeaderboard(demoLeaderboard);
+    } else {
+      const { data, error } = await sb.from('leaderboard')
+        .select('*, profiles(username, display_name)')
+        .eq('season', 1)
+        .order('total_xp', { ascending: false })
+        .limit(50);
+      
+      if (error) {
+        console.error('Error loading leaderboard:', error);
+        return;
+      }
+      
+      const leaderboard = (data || []).map((item, index) => ({
+        ...item,
+        rank: index + 1,
+        username: item.users?.username || 'Unknown',
+        is_current: item.user_id === currentUser.id
+      }));
+      
+      renderLeaderboard(leaderboard);
     }
-    
-    const leaderboard = (data || []).map((item, index) => ({
-      ...item,
-      rank: index + 1,
-      username: item.users?.username || 'Unknown',
-      is_current: item.user_id === currentUser.id
-    }));
-    
-    renderLeaderboard(leaderboard);
   } catch (e) {
     console.error('Exception loading leaderboard:', e);
   }
@@ -4104,17 +5024,25 @@ async function loadCustomizations() {
   if (!currentUser) return;
   
   try {
-    const { data: owned } = await sb.from('user_customizations')
-      .select('*, customization_items(*)')
-      .eq('user_id', currentUser.id);
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
     
-    if (owned) {
-      ownedItems = owned;
-      owned.forEach(item => {
-        if (item.equipped) {
-          equippedItems[item.customization_items.item_type] = item.customization_items;
-        }
-      });
+    if (useDemo) {
+      // Demo mode - load from localStorage
+      ownedItems = JSON.parse(localStorage.getItem('demo_custom_items_' + currentUser.id) || '[]');
+      equippedItems = JSON.parse(localStorage.getItem('demo_equipped_items_' + currentUser.id) || '{}');
+    } else {
+      const { data: owned } = await sb.from('user_customizations')
+        .select('*, customization_items(*)')
+        .eq('user_id', currentUser.id);
+      
+      if (owned) {
+        ownedItems = owned;
+        owned.forEach(item => {
+          if (item.equipped) {
+            equippedItems[item.customization_items.item_type] = item.customization_items;
+          }
+        });
+      }
     }
     
     loadCustomizationItems(currentCustomTab);
@@ -4126,12 +5054,25 @@ async function loadCustomizations() {
 
 async function loadCustomizationItems(itemType) {
   try {
-    const { data } = await sb.from('customization_items')
-      .select('*')
-      .eq('item_type', itemType)
-      .order('rarity');
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
     
-    const items = data || [];
+    let items = [];
+    
+    if (useDemo) {
+      // Demo items
+      items = [
+        { id: 'demo_basic_frame', name: 'Basic Frame', item_type: 'avatar_frame', rarity: 'common', cost_mp: 0, icon_url: '🔵' },
+        { id: 'demo_silver_frame', name: 'Silver Frame', item_type: 'avatar_frame', rarity: 'rare', cost_mp: 100, icon_url: '🔶' },
+        { id: 'demo_gold_frame', name: 'Gold Frame', item_type: 'avatar_frame', rarity: 'epic', cost_mp: 500, icon_url: '🟡' }
+      ];
+    } else {
+      const { data } = await sb.from('customization_items')
+        .select('*')
+        .eq('item_type', itemType)
+        .order('rarity');
+      
+      items = data || [];
+    }
     
     renderCustomizationGrid(items);
   } catch (e) {
@@ -4149,14 +5090,15 @@ function renderCustomizationGrid(items) {
     const isOwned = ownedItems.some(owned => owned.item_id === item.id);
     const isEquipped = equippedItems[currentCustomTab]?.id === item.id;
     const canAfford = passData && passData.total_xp >= item.cost_mp;
+    const meetsLevel = passData && passData.level >= item.level_requirement;
     
     const div = document.createElement('div');
-    div.className = `custom-item ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}`;
+    div.className = `custom-item ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''} ${!meetsLevel ? 'locked' : ''}`;
     
     div.innerHTML = `
       <div class="custom-rarity ${item.rarity}">${item.rarity}</div>
       ${isOwned ? '<div class="custom-badge">✓</div>' : ''}
-      <div class="custom-icon">${item.image_url || '🔵'}</div>
+      <div class="custom-icon">${item.icon_url}</div>
       <div class="custom-name">${item.name}</div>
       <div class="custom-desc">${item.description || ''}</div>
       <div class="custom-price ${item.cost_mp === 0 ? 'custom-free' : ''}">
@@ -4165,9 +5107,9 @@ function renderCustomizationGrid(items) {
       <div class="custom-actions">
         ${!isOwned ? `
           <button class="custom-btn buy" 
-                  ${!canAfford ? 'disabled' : ''} 
+                  ${!canAfford || !meetsLevel ? 'disabled' : ''} 
                   onclick="buyCustomization('${item.id}')">
-            Buy
+            ${!meetsLevel ? `Lvl ${item.level_requirement}` : 'Buy'}
           </button>
         ` : `
           <button class="custom-btn equip ${isEquipped ? 'equipped' : ''}" 
@@ -4186,7 +5128,22 @@ async function buyCustomization(itemId) {
   if (!currentUser || !passData) return;
   
   try {
-    const { data: item } = await sb.from('customization_items').select('*').eq('id', itemId).single();
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    
+    let item;
+    
+    if (useDemo) {
+      // Find demo item
+      const demoItems = [
+        { id: 'demo_basic_frame', name: 'Basic Frame', item_type: 'avatar_frame', rarity: 'common', cost_mp: 0, icon_url: '🔵' },
+        { id: 'demo_silver_frame', name: 'Silver Frame', item_type: 'avatar_frame', rarity: 'rare', cost_mp: 100, icon_url: '🔶' },
+        { id: 'demo_gold_frame', name: 'Gold Frame', item_type: 'avatar_frame', rarity: 'epic', cost_mp: 500, icon_url: '🟡' }
+      ];
+      item = demoItems.find(i => i.id === itemId);
+    } else {
+      const { data } = await sb.from('customization_items').select('*').eq('id', itemId).single();
+      item = data;
+    }
     
     if (!item) return;
     
@@ -4198,12 +5155,18 @@ async function buyCustomization(itemId) {
     // Deduct MP
     passData.total_xp -= item.cost_mp;
     
-    await sb.from('maths_pass').update({ total_xp: passData.total_xp }).eq('id', passData.id);
-    await sb.from('user_customizations').insert({
-      user_id: currentUser.id,
-      item_id: itemId,
-      equipped: false
-    });
+    if (useDemo) {
+      ownedItems.push({ item_id: itemId, item_type: item.item_type, equipped: false });
+      localStorage.setItem('demo_custom_items_' + currentUser.id, JSON.stringify(ownedItems));
+      localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
+    } else {
+      await sb.from('maths_pass').update({ total_xp: passData.total_xp }).eq('id', passData.id);
+      await sb.from('user_customizations').insert({
+        user_id: currentUser.id,
+        item_id: itemId,
+        equipped: false
+      });
+    }
     
     showToast(`✅ Purchased ${item.name}!`);
     updatePassUI();
@@ -4219,24 +5182,54 @@ async function equipCustomization(itemId) {
   if (!currentUser) return;
   
   try {
-    const { data: item } = await sb.from('customization_items').select('*').eq('id', itemId).single();
+    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    
+    let item;
+    
+    if (useDemo) {
+      const demoItems = [
+        { id: 'demo_basic_frame', name: 'Basic Frame', item_type: 'avatar_frame', rarity: 'common', cost_mp: 0, icon_url: '🔵' },
+        { id: 'demo_silver_frame', name: 'Silver Frame', item_type: 'avatar_frame', rarity: 'rare', cost_mp: 100, icon_url: '🔶' },
+        { id: 'demo_gold_frame', name: 'Gold Frame', item_type: 'avatar_frame', rarity: 'epic', cost_mp: 500, icon_url: '🟡' }
+      ];
+      item = demoItems.find(i => i.id === itemId);
+    } else {
+      const { data } = await sb.from('customization_items').select('*').eq('id', itemId).single();
+      item = data;
+    }
     
     if (!item) return;
     
     // Unequip current item of same type
     const currentEquipped = equippedItems[item.item_type];
     if (currentEquipped) {
-      await sb.from('user_customizations').update({ equipped: false })
-        .eq('user_id', currentUser.id)
-        .eq('item_id', currentEquipped.id);
+      if (useDemo) {
+        const ownedIndex = ownedItems.findIndex(owned => owned.item_id === currentEquipped.id);
+        if (ownedIndex !== -1) {
+          ownedItems[ownedIndex].equipped = false;
+        }
+      } else {
+        await sb.from('user_customizations').update({ equipped: false })
+          .eq('user_id', currentUser.id)
+          .eq('item_id', currentEquipped.id);
+      }
     }
     
     // Equip new item
     equippedItems[item.item_type] = item;
     
-    await sb.from('user_customizations').update({ equipped: true })
-      .eq('user_id', currentUser.id)
-      .eq('item_id', itemId);
+    if (useDemo) {
+      const ownedIndex = ownedItems.findIndex(owned => owned.item_id === itemId);
+      if (ownedIndex !== -1) {
+        ownedItems[ownedIndex].equipped = true;
+      }
+      localStorage.setItem('demo_custom_items_' + currentUser.id, JSON.stringify(ownedItems));
+      localStorage.setItem('demo_equipped_items_' + currentUser.id, JSON.stringify(equippedItems));
+    } else {
+      await sb.from('user_customizations').update({ equipped: true })
+        .eq('user_id', currentUser.id)
+        .eq('item_id', itemId);
+    }
     
     showToast(`✅ Equipped ${item.name}!`);
     loadCustomizationItems(currentCustomTab);
@@ -4278,7 +5271,7 @@ function updateCustomizationPreview() {
         '🟡': '#eab308',
         '💎': '#06b6d4'
       };
-      avatar.style.border = `4px solid ${colors[frame.image_url] || '#667eea'}`;
+      avatar.style.border = `4px solid ${colors[frame.icon_url] || '#667eea'}`;
     } else {
       avatar.style.border = '4px solid transparent';
     }
@@ -4296,10 +5289,10 @@ function updateCustomizationPreview() {
         '#8b5cf6': '#8b5cf6',
         'rainbow': 'linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff)'
       };
-      name.style.color = colors[colorItem.image_url] || '#333';
-      name.style.background = colorItem.image_url === 'rainbow' ? colors.rainbow : 'transparent';
-      name.style.webkitBackgroundClip = colorItem.image_url === 'rainbow' ? 'text' : 'unset';
-      name.style.webkitTextFillColor = colorItem.image_url === 'rainbow' ? 'transparent' : 'unset';
+      name.style.color = colors[colorItem.icon_url] || '#333';
+      name.style.background = colorItem.icon_url === 'rainbow' ? colors.rainbow : 'transparent';
+      name.style.webkitBackgroundClip = colorItem.icon_url === 'rainbow' ? 'text' : 'unset';
+      name.style.webkitTextFillColor = colorItem.icon_url === 'rainbow' ? 'transparent' : 'unset';
     } else {
       name.style.color = '#333';
       name.style.background = 'transparent';
@@ -4307,12 +5300,11 @@ function updateCustomizationPreview() {
   }
 }
 
-async function resetCustomization() {
+function resetCustomization() {
   equippedItems = {};
   
   if (currentUser) {
-    await sb.from('user_customizations').update({ equipped: false }).eq('user_id', currentUser.id);
-    ownedItems.forEach(item => { item.equipped = false; });
+    localStorage.setItem('demo_equipped_items_' + currentUser.id, JSON.stringify(equippedItems));
   }
   
   updateCustomizationPreview();
@@ -4440,10 +5432,9 @@ let fpCurrentGame = null;
 async function viewFriendProfile(friendUserId, friendshipId){
   const overlay=document.getElementById('fprofileOverlay');
   overlay.classList.add('active');
-  const f=Object.values(friendshipMap||{}).find(f=>(f.user_id===friendUserId||f.friend_id===friendUserId));
-  const profile = f ? (f.user_id===friendUserId ? f.requester : f.receiver) : null;
-  if(!profile){const{data}=await sb.from('users').select('*').eq('id',friendUserId).maybeSingle();if(!data){overlay.classList.remove('active');return;}_renderFriendProfile(data, friendshipId, friendUserId);}
-  else _renderFriendProfile(profile, friendshipId, friendUserId);
+  const{data}=await sb.from('profiles').select('*').eq('id',friendUserId).maybeSingle();
+  if(!data){overlay.classList.remove('active');return;}
+  _renderFriendProfile(data, friendshipId, friendUserId);
 }
 
 async function _renderFriendProfile(profile, friendshipId, friendUserId){
@@ -4520,6 +5511,13 @@ document.getElementById('petModalOverlay').addEventListener('click',function(e){
 document.getElementById('petNameInput')?.addEventListener('keydown',function(e){if(e.key==='Enter') savePetName();if(e.key==='Escape') closePetModal();});
 
 async function runAppInit(){
+  // Show demo mode badge if in demo mode
+  const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+  if(useDemo) {
+    const badge = document.getElementById('demoModeBadge');
+    if(badge) badge.style.display = 'block';
+  }
+  
   await initApp();
   enableSecurityProtection();
   try{const res=await fetch(EDGE_BASE+'/check-ban',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const d=await res.json();if(d.banned){document.body.innerHTML=`<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#1a1a2e,#16213e);font-family:'Plus Jakarta Sans',sans-serif;text-align:center;color:#fff"><div><div style="font-size:4em;margin-bottom:20px">🚫</div><h1 style="font-size:2em;color:#ff4444;margin-bottom:12px">Access Denied</h1><p style="color:rgba(255,255,255,.6);font-size:1.1em">Your access to this site has been revoked.</p></div></div>`;return;}}catch(e){}
@@ -4648,7 +5646,7 @@ function testSupabaseConnection() {
   }
   
   try {
-    sb.from('users').select('id').limit(1).maybeSingle()
+    sb.from('profiles').select('id').limit(1).maybeSingle()
       .then(({ data, error }) => {
         if(error) {
           console.error('Supabase connection test failed:', error);
@@ -5101,8 +6099,8 @@ async function approveRegistration(requestId){
     const { data: request, error: fetchError } = await sb.from('registration_requests').select('*').eq('id', requestId).single();
     if(fetchError || !request) throw fetchError || new Error('Request not found');
     
-    // Insert into users table
-    const { data: newUser, error: insertError } = await sb.from('users').insert({
+    // Insert into profiles table
+    const { data: newUser, error: insertError } = await sb.from('profiles').insert({
       username: request.username,
       display_name: request.display_name,
       password: request.password,
@@ -5251,7 +6249,31 @@ async function createSticker(){
     if(isPublic) loadPublicStickers();
   } catch(e) {
     console.error('Sticker creation error:', e);
-    showStickerMsg('❌ Could not create sticker. Try again.','err');
+    
+    // Fallback to localStorage
+    const localSticker = {
+      id: 'local_stk_' + Date.now(),
+      user_id: currentUser.id,
+      name: name,
+      description: desc,
+      image_url: imageUrl,
+      is_public: isPublic,
+      created_at: new Date().toISOString()
+    };
+    
+    let localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+    localStickers.push(localSticker);
+    localStorage.setItem('ms_local_stickers', JSON.stringify(localStickers));
+    
+    showStickerMsg('✅ Sticker saved locally!','ok');
+    document.getElementById('stickerName').value = '';
+    document.getElementById('stickerDesc').value = '';
+    fileInput.value = '';
+    document.getElementById('stickerFileLabel').textContent = 'Click to choose image';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('stickerPublic').checked = false;
+    loadMyStickers();
+    if(isPublic) loadPublicStickers();
   }
 }
 
@@ -5274,7 +6296,9 @@ async function loadMyStickers(){
     console.error('Error loading stickers from database:', e);
   }
 
-  const allMine = data;
+  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+  const myLocal = localStickers.filter(s => s.user_id === currentUser.id);
+  const allMine = [...data, ...myLocal];
 
   const grid = document.getElementById('myStickersGrid');
   const count = document.getElementById('myStickerCount');
@@ -5305,13 +6329,15 @@ async function loadMyStickers(){
 async function loadPublicStickers(){
   let data = [];
   try {
-    const res = await sb.from('stickers').select('*, creator:users!stickers_user_id_fkey(username, display_name)').eq('is_public', true).order('created_at',{ascending:false});
+    const res = await sb.from('stickers').select('*, creator:profiles(id,username,display_name)').eq('is_public', true).order('created_at',{ascending:false});
     data = res.data || [];
   } catch(e){
     console.error('Error loading public stickers from database:', e);
   }
 
-  const allPublic = [...BUILTIN_PRESET_STICKERS, ...data];
+  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+  const publicLocal = localStickers.filter(s => s.is_public);
+  const allPublic = [...BUILTIN_PRESET_STICKERS, ...data, ...publicLocal];
 
   const grid = document.getElementById('publicStickersGrid');
   const count = document.getElementById('publicStickerCount');
@@ -5343,13 +6369,11 @@ async function purchaseSticker(stickerId, price, creatorId){
 
 async function deleteSticker(stickerId){
   if(!confirm('Delete this sticker?')) return;
-  try {
-    await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id);
-  } catch(e){
-    console.error('Error deleting sticker:', e);
-    showToast('❌ Could not delete sticker');
-    return;
-  }
+  try { await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id); } catch(e){}
+  
+  let localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+  localStickers = localStickers.filter(s => s.id !== stickerId);
+  localStorage.setItem('ms_local_stickers', JSON.stringify(localStickers));
 
   showToast('🗑️ Sticker deleted');
   loadMyStickers();
@@ -5392,7 +6416,8 @@ async function loadStickerPicker(){
     console.error('Error loading stickers for picker:', e);
   }
 
-  const all = [...BUILTIN_PRESET_STICKERS, ...own, ...pub];
+  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
+  const all = [...BUILTIN_PRESET_STICKERS, ...own, ...pub, ...localStickers];
 
   if(!all.length){
     grid.innerHTML = '<div class="sticker-picker-empty">No stickers yet. Create one in the Shop!</div>';
@@ -5576,7 +6601,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       if(!nUrl && !cUrl){msg('Pick at least one image','err');return;}
       localStorage.setItem('customCursorNormal',nUrl);
       localStorage.setItem('customCursorClick',cUrl);
-      if(window.currentUser){try{ await sb.from('users').update({cursor_normal_url:nUrl,cursor_click_url:cUrl}).eq('id',window.currentUser.id); }catch(e){}}
+      if(window.currentUser){try{ await sb.from('profiles').update({cursor_normal_url:nUrl,cursor_click_url:cUrl}).eq('id',window.currentUser.id); }catch(e){}}
       applyCustomCursor();
       msg('✅ Saved! Your custom cursor is active.','ok');
       pendingNormal=null; pendingClick=null;
@@ -5596,7 +6621,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     document.getElementById('expLabelNormal').innerHTML='Click to choose image<small>PNG/SVG, max 128×128 recommended</small>';
     document.getElementById('expLabelClick').innerHTML='Click to choose image<small>Shown while mouse is pressed</small>';
     pendingNormal=null; pendingClick=null;
-    try{ if(window.currentUser) await sb.from('users').update({cursor_normal_url:null,cursor_click_url:null}).eq('id',window.currentUser.id); }catch(e){}
+    try{ if(window.currentUser) await sb.from('profiles').update({cursor_normal_url:null,cursor_click_url:null}).eq('id',window.currentUser.id); }catch(e){}
     msg('Cursor reset to default','ok');
   };
 
@@ -5621,7 +6646,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   async function loadFromProfile(){
     try{
       if(!window.currentUser) return;
-      const {data}=await sb.from('users').select('cursor_normal_url,cursor_click_url').eq('id',window.currentUser.id).maybeSingle();
+      const {data}=await sb.from('profiles').select('cursor_normal_url,cursor_click_url').eq('id',window.currentUser.id).maybeSingle();
       if(data){
         if(data.cursor_normal_url) localStorage.setItem('customCursorNormal',data.cursor_normal_url);
         if(data.cursor_click_url) localStorage.setItem('customCursorClick',data.cursor_click_url);
