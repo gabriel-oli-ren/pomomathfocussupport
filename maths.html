@@ -3462,10 +3462,7 @@ async function loadFriends(){
     all = allDb || [];
   } catch(e) { 
     console.warn('Supabase loadFriends error, using local fallback:', e);
-    // If it's an RLS error, notify user but continue with local data
-    if(e.message && e.message.includes('row-level security')) {
-      console.log('RLS policy blocked friend loading, using local storage only');
-    }
+    all = [];
   }
 
   const localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
@@ -3476,9 +3473,9 @@ async function loadFriends(){
   const pendingReveal=mergedAll.filter(f=>f.status==='reveal_requested'&&f.friend_id===currentUser.id);
   friendshipMap={};
   accepted.forEach(f=>{const friendId=otherProfile(f);if(friendId)friendshipMap[friendId]=f;});
-  await renderFriendsList(accepted);
+  renderFriendsList(accepted);
   renderPendingList(pendingIn,pendingReveal);
-  await renderChatList(accepted);
+  renderChatList(accepted);
   const fb=document.getElementById('friendsBadge');
   const cnt=pendingIn.length+pendingReveal.length;
   fb.textContent=cnt;fb.style.display=cnt>0?'block':'none';
@@ -3497,27 +3494,28 @@ function getDisplayInfo(profile, friendship){
   return {shown:r.label,username:null,badge:roleBadgeHTML(role)};
 }
 
-async function renderFriendsList(accepted){
+function renderFriendsList(accepted){
   const el=document.getElementById('friendsList');
   if(!accepted.length){el.innerHTML='<div class="empty-list">No friends yet — share your code!</div>';return;}
   el.innerHTML='';
   
-  // Load profile data for all friends
-  const friendIds = accepted.map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id);
-  const { data: profiles } = await sb.from('profiles').select('*').in('id', friendIds);
-  const profileMap = {};
-  profiles.forEach(p => profileMap[p.id] = p);
-  
   accepted.forEach(f=>{
     const friendId = f.user_id === currentUser.id ? f.friend_id : f.user_id;
-    const p = profileMap[friendId];
-    if(!p) return;
-    
-    const di=getDisplayInfo(p,f);
     const div=document.createElement('div');div.className='friend-item';
-    const revealBtn=di.username===null?`<button class="fi-btn reveal" onclick="requestReveal('${f.id}','${p.id}')">🔍 Who?</button>`:'';
-    div.innerHTML=`<div class="fi-avatar">${initials(di.shown)}</div><div class="fi-info"><div class="fi-name">${di.shown}${di.badge}</div><div class="fi-sub">${di.username||'Identity hidden'}</div></div>${revealBtn}<button class="fi-btn chat" onclick="openChatWith('${p.id}','${di.shown}')">💬</button>`;
+    div.innerHTML=`<div class="fi-avatar">?</div><div class="fi-info"><div class="fi-name">Loading...</div><div class="fi-sub">@${friendId}</div></div><button class="fi-btn chat" onclick="openChatWith('${friendId}','User')">💬</button>`;
     el.appendChild(div);
+    
+    // Load profile data asynchronously
+    sb.from('profiles').select('*').eq('id', friendId).maybeSingle().then(({data: p}) => {
+      if(p){
+        const di=getDisplayInfo(p,f);
+        const revealBtn=di.username===null?`<button class="fi-btn reveal" onclick="requestReveal('${f.id}','${p.id}')">🔍 Who?</button>`:'';
+        div.innerHTML=`<div class="fi-avatar">${initials(di.shown)}</div><div class="fi-info"><div class="fi-name">${di.shown}${di.badge}</div><div class="fi-sub">${di.username||'Identity hidden'}</div></div>${revealBtn}<button class="fi-btn chat" onclick="openChatWith('${p.id}','${di.shown}')">💬</button>`;
+      }
+    }).catch(e => {
+      console.error('Error loading friend profile:', e);
+      div.innerHTML=`<div class="fi-avatar">?</div><div class="fi-info"><div class="fi-name">Error loading</div><div class="fi-sub">@${friendId}</div></div><button class="fi-btn chat" onclick="openChatWith('${friendId}','User')">💬</button>`;
+    });
   });
 }
 
@@ -3861,7 +3859,7 @@ if (savedTheme === 'light') {
   document.getElementById('themeText').textContent = 'Light Mode';
 }
 
-async function renderChatList(accepted){
+function renderChatList(accepted){
   const el=document.getElementById('chatList');
   el.innerHTML='';
   const iAmAdmin = ADMIN_USER_IDS.includes(currentUser?.id) || currentProfile?.is_admin;
@@ -3888,30 +3886,36 @@ async function renderChatList(accepted){
     el.appendChild(empty);return;
   }
   
-  // Load profile data for all friends
-  const friendIds = accepted.map(f => otherProfile(f));
-  const { data: profiles } = await sb.from('profiles').select('*').in('id', friendIds);
-  const profileMap = {};
-  profiles.forEach(p => profileMap[p.id] = p);
-  
   accepted.forEach(f=>{
     const friendId=otherProfile(f);
-    const p=profileMap[friendId];
-    if(!p)return;
-    const di=getDisplayInfo(p,f);
-    const sData=streakCache[p.id]||{};const sd=sData.streak||0;
-    const streakBadge=sd>0?`<span class="cli-streak">🔥${sd}</span>`:'';
     const div=document.createElement('div');
-    div.className='chat-list-item'+(activeChatFriendId===p.id?' active':'');
-    div.id='cli-'+p.id;
-    div.innerHTML=`<div class="cli-avatar">${initials(di.shown)}<div class="cli-online-dot" style="display:none" id="dot-${p.id}"></div></div><div class="cli-info"><div class="cli-name">${di.shown}${di.badge}${streakBadge}</div><div class="cli-last-msg" id="last-msg-${p.id}">Tap to chat</div></div><div class="cli-meta"><span class="cli-time" id="last-time-${p.id}"></span></div>`;
-    div.onclick=()=>openChatWith(p.id,di.shown);
+    div.className='chat-list-item';
+    div.id='cli-'+friendId;
+    div.innerHTML=`<div class="cli-avatar">?</div><div class="cli-info"><div class="cli-name">Loading...</div><div class="cli-sub">@${friendId}</div></div>`;
     el.appendChild(div);
-    getFriendPresence(p.id).then(presence=>{
-      if(presence&&presence.game_name){
-        const lmEl=document.getElementById('last-msg-'+p.id);
-        if(lmEl)lmEl.innerHTML='<span style="color:#4ade80;font-weight:700">🎮 '+escapeHtml(presence.game_name)+'</span>';
+    
+    // Load profile data asynchronously
+    sb.from('profiles').select('*').eq('id', friendId).maybeSingle().then(({data: p}) => {
+      if(p){
+        const di=getDisplayInfo(p,f);
+        const sData=streakCache[p.id]||{};const sd=sData.streak||0;
+        const streakBadge=sd>0?`<span class="cli-streak">🔥${sd}</span>`:'';
+        div.className='chat-list-item'+(activeChatFriendId===p.id?' active':'');
+        div.id='cli-'+p.id;
+        div.innerHTML=`<div class="cli-avatar">${initials(di.shown)}<div class="cli-online-dot" style="display:none" id="dot-${p.id}"></div></div><div class="cli-info"><div class="cli-name">${di.shown}${di.badge}${streakBadge}</div><div class="cli-last-msg" id="last-msg-${p.id}">Tap to chat</div></div><div class="cli-meta"><span class="cli-time" id="last-time-${p.id}"></span></div>`;
+        div.onclick=()=>openChatWith(p.id,di.shown);
+        
+        // Load friend presence
+        getFriendPresence(p.id).then(presence=>{
+          if(presence&&presence.game_name){
+            const lmEl=document.getElementById('last-msg-'+p.id);
+            if(lmEl)lmEl.innerHTML='<span style="color:#4ade80;font-weight:700">🎮 '+escapeHtml(presence.game_name)+'</span>';
+          }
+        });
       }
+    }).catch(e => {
+      console.error('Error loading chat friend profile:', e);
+      div.innerHTML=`<div class="cli-avatar">?</div><div class="cli-info"><div class="cli-name">Error loading</div><div class="cli-last-msg">@${friendId}</div></div>`;
     });
   });
 }
