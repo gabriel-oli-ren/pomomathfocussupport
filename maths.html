@@ -1582,7 +1582,7 @@ body {
         <p class="friend-code-hint">This is your friend code. Share it with friends to connect!</p>
         
         <label class="onboarding-label">Custom Friend Code (Optional)</label>
-        <input type="text" class="friend-code-input" id="customFriendCode" placeholder="Enter custom code (6 characters)" maxlength="6">
+        <input type="text" class="friend-code-input" id="customFriendCode" placeholder="Enter custom code (5 characters)" maxlength="5">
         <p class="friend-code-hint">You can only change your friend code once every 2 weeks</p>
         <p class="friend-code-cooldown" id="friendCodeCooldown"></p>
       </div>
@@ -1775,7 +1775,7 @@ body {
       
       <div id="friendCodeCustomizationSection" style="margin-top:20px;padding-top:20px;border-top:1px solid #eee">
         <label class="field-label">Custom Friend Code</label>
-        <input type="text" class="account-field" id="customFriendCodeInput" placeholder="Enter new code (6 characters)" maxlength="6" style="text-transform:uppercase;letter-spacing:2px;font-weight:800;text-align:center">
+        <input type="text" class="account-field" id="customFriendCodeInput" placeholder="Enter new code (5 characters)" maxlength="5" style="text-transform:uppercase;letter-spacing:2px;font-weight:800;text-align:center">
         <p class="friend-code-hint" id="friendCodeCooldownInfo" style="color:#aaa;font-size:.75em;text-align:center;margin-bottom:12px"></p>
         <button class="save-btn" id="changeFriendCodeBtn" onclick="changeFriendCode()">🔄 Change Friend Code</button>
         <div class="page-msg" id="customCodeMsg"></div>
@@ -2599,7 +2599,7 @@ async function handleCredentialResponse(response) {
         if (!existingProfile) {
           console.log('Profile does not exist, creating manually...');
           const tempUsername = 'temp_' + Math.random().toString(36).substring(2, 10);
-          const tempFriendCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+          const tempFriendCode = Math.random().toString(36).substring(2, 7).toUpperCase();
           
           // Try using RPC to bypass RLS
           try {
@@ -2974,8 +2974,8 @@ async function updateFriendCode() {
   const errorEl = document.getElementById('onboardingError');
   const btn = document.getElementById('onboardingCompleteBtn');
   
-  if (!newCode || newCode.length !== 6) {
-    errorEl.textContent = 'Friend code must be exactly 6 characters';
+  if (!newCode || newCode.length !== 5) {
+    errorEl.textContent = 'Friend code must be exactly 5 characters';
     errorEl.classList.add('show');
     return;
   }
@@ -3068,8 +3068,8 @@ async function onboardingComplete() {
   // Validate custom friend code if provided
   let finalFriendCode = generatedFriendCode;
   if (customFriendCode) {
-    if (customFriendCode.length !== 6) {
-      errorEl.textContent = 'Custom friend code must be exactly 6 characters';
+    if (customFriendCode.length !== 5) {
+      errorEl.textContent = 'Custom friend code must be exactly 5 characters';
       errorEl.classList.add('show');
       return;
     }
@@ -3284,7 +3284,7 @@ async function checkSitePassword(){
 // HELPERS
 // ══════════════════════════════════════════════════════════════════
 function initials(name){return(name||'?').charAt(0).toUpperCase();}
-function genCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';for(let i=0;i<6;i++)c+=chars[Math.floor(Math.random()*chars.length)];return c;}
+function genCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';for(let i=0;i<5;i++)c+=chars[Math.floor(Math.random()*chars.length)];return c;}
 function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className='page-msg show '+type;setTimeout(()=>el.classList.remove('show'),4000);}
 function escapeHtml(str){const d=document.createElement('div');d.appendChild(document.createTextNode(str));return d.innerHTML;}
 function formatTime(ts){return new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
@@ -3532,8 +3532,8 @@ async function changeFriendCode(){
   const msgEl = document.getElementById('customCodeMsg');
   const btn = document.getElementById('changeFriendCodeBtn');
   
-  if(!newCode || newCode.length !== 6){
-    showMsg('customCodeMsg','Friend code must be exactly 6 characters','err');
+  if(!newCode || newCode.length !== 5){
+    showMsg('customCodeMsg','Friend code must be exactly 5 characters','err');
     return;
   }
   
@@ -3680,7 +3680,7 @@ function renderPendingList(pending,pendingReveal){
 
 async function sendFriendRequest(){
   const code=document.getElementById('addCodeInput').value.trim().toUpperCase();
-  if(code.length!==6){showMsg('addFriendMsg','Please enter a valid 6-character code.','err');return;}
+  if(code.length!==5){showMsg('addFriendMsg','Please enter a valid 5-character code.','err');return;}
   if(currentProfile&&code===currentProfile.friend_code){showMsg('addFriendMsg',"That's your own code!",'err');return;}
   
   let target = null;
