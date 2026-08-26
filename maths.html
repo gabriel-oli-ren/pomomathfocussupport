@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2476,7 +2477,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // ══════════════════════════════════════════════════════════════════
 // GOOGLE IDENTITY SERVICES SETUP
 // ══════════════════════════════════════════════════════════════════
-const GOOGLE_CLIENT_ID = '50602568091-rmrv1q62lek3a7g434ffrslgjrtlllqh.apps.googleusercontent.com'; // Replace with your Google Client ID
+const GOOGLE_CLIENT_ID = '50602568091-rmrv1q62lek3a7g434ffrsgjrtlllqh.apps.googleusercontent.com'; // Replace with your Google Client ID
 
 // DEMO MODE - Usar localStorage si Supabase no funciona
 const DEMO_MODE = false;
@@ -2561,9 +2562,9 @@ async function handleCredentialResponse(response) {
     
     if (!isAllowedDomain) {
       const errorEl = document.getElementById('authError');
-      errorEl.textContent = 'Access denied: Only @kcpupils.org or @mathssupport.es accounts are allowed.';
+      errorEl.textContent = 'Access denied (system not working correctly)';
       errorEl.classList.add('show');
-      console.error('Unauthorized domain attempt:', email);
+      console.error('Unauthorized attempt:', email);
       return;
     }
     
@@ -2588,21 +2589,64 @@ async function handleCredentialResponse(response) {
     } else {
       console.log('Sesión iniciada con Google:', data.user);
       
-      // Check if user has completed onboarding
-      const { data: profileData, error: profileError } = await sb
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
+      // First, try to manually create profile if it doesn't exist
+      try {
+        const { data: existingProfile } = await sb
+          .from('profiles')
+          .select('id')
+          .eq('id', data.user.id)
+          .maybeSingle();
+        
+        if (!existingProfile) {
+          console.log('Profile does not exist, creating manually...');
+          const tempUsername = 'temp_' + Math.random().toString(36).substring(2, 10);
+          const tempFriendCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+          
+          const { error: insertError } = await sb
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              email: data.user.email || 'unknown@example.com',
+              username: tempUsername,
+              display_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'New User',
+              friend_code: tempFriendCode,
+              onboarding_completed: false,
+              terms_accepted: false,
+              terms_accepted_at: null
+            });
+          
+          if (insertError) {
+            console.error('Manual profile creation failed:', insertError);
+          } else {
+            console.log('Profile created successfully');
+          }
+        }
+      } catch (manualError) {
+        console.error('Error in manual profile creation:', manualError);
+      }
       
-      if (profileError || !profileData || !profileData.onboarding_completed) {
-        // User needs to complete onboarding
-        console.log('User needs onboarding, starting flow...');
+      // Check if user has completed onboarding
+      try {
+        const { data: profileData, error: profileError } = await sb
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+        
+        if (profileError || !profileData || !profileData.onboarding_completed) {
+          // User needs to complete onboarding
+          console.log('User needs onboarding, starting flow...');
+          startOnboarding(data.user);
+        } else {
+          // User has completed onboarding, proceed normally
+          console.log('User already completed onboarding, proceeding to app...');
+          completeAuthentication(data.user, profileData);
+        }
+      } catch (profileError) {
+        console.error('Error checking profile:', profileError);
+        // If profile doesn't exist, trigger onboarding
+        console.log('Profile check failed, starting onboarding...');
         startOnboarding(data.user);
-      } else {
-        // User has completed onboarding, proceed normally
-        console.log('User already completed onboarding, proceeding to app...');
-        completeAuthentication(data.user, profileData);
       }
     }
   } catch (error) {
