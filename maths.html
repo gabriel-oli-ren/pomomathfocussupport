@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3819,8 +3818,8 @@ function loadChatBadges() {
   }
 }
 
-let onboardingStep = 0;
-const onboardingSteps = [
+let tourStep = 0;
+const tourSteps = [
   { target: '.sidebar', title: 'Navigation Sidebar', desc: 'Access all features from here: Games, Apps, Friends, Chat, Shop, and your Account.', position: 'right' },
   { target: '.games-grid', title: 'Games Library', desc: 'Browse and play your favorite games! Use the search bar to find specific games.', position: 'top' },
   { target: '#chatBtn', title: 'Chat in Sidebar', desc: 'Message your friends, share stickers, and maintain conversation streaks!', position: 'right' },
@@ -3829,16 +3828,16 @@ const onboardingSteps = [
   { target: '#userBadge', title: 'Your Profile', desc: 'Access your account settings, view your profile, and sign out.', position: 'left' }
 ];
 
-function startOnboarding() {
+function startTour() {
   if(localStorage.getItem('onboarding_completed') === 'true') return;
-  onboardingStep = 0;
-  document.getElementById('onboardingOverlay').classList.add('active');
-  document.getElementById('onStepTotal').textContent = onboardingSteps.length;
-  showOnboardingStep(0);
+  tourStep = 0;
+  document.getElementById('tourOverlay').classList.add('active');
+  document.getElementById('onStepTotal').textContent = tourSteps.length;
+  showTourStep(0);
 }
 
-function showOnboardingStep(index) {
-  const step = onboardingSteps[index];
+function showTourStep(index) {
+  const step = tourSteps[index];
   const target = document.querySelector(step.target);
   const highlight = document.getElementById('onboardingHighlight');
   const card = document.querySelector('.onboarding-card');
@@ -3899,21 +3898,21 @@ function showOnboardingStep(index) {
   document.getElementById('onDesc').textContent = step.desc;
 }
 
-function nextOnboardingStep() {
-  onboardingStep++;
-  if(onboardingStep >= onboardingSteps.length) {
-    completeOnboarding();
+function nextTourStep() {
+  tourStep++;
+  if(tourStep >= tourSteps.length) {
+    completeTour();
   } else {
-    showOnboardingStep(onboardingStep);
+    showTourStep(tourStep);
   }
 }
 
-function skipOnboarding() {
-  completeOnboarding();
+function skipTour() {
+  completeTour();
 }
 
-function completeOnboarding() {
-  document.getElementById('onboardingOverlay').classList.remove('active');
+function completeTour() {
+  document.getElementById('tourOverlay').classList.remove('active');
   localStorage.setItem('onboarding_completed', 'true');
 }
 
@@ -6742,7 +6741,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 })();
 </script>
 
-<div class="onboarding-overlay" id="onboardingOverlay">
+<div class="onboarding-overlay" id="tourOverlay">
   <div class="onboarding-step" id="onboardingStep">
     <div class="onboarding-highlight" id="onboardingHighlight"></div>
     <div class="onboarding-content">
@@ -6752,8 +6751,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
         <h3 id="onTitle">Welcome to Maths Support!</h3>
         <p id="onDesc">Let's show you around...</p>
         <div class="onboarding-actions">
-          <button class="onboarding-btn secondary" onclick="skipOnboarding()">Skip</button>
-          <button class="onboarding-btn primary" onclick="nextOnboardingStep()">Next →</button>
+          <button class="onboarding-btn secondary" onclick="skipTour()">Skip</button>
+          <button class="onboarding-btn primary" onclick="nextTourStep()">Next →</button>
         </div>
       </div>
     </div>
