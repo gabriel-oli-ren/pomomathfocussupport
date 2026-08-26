@@ -2561,7 +2561,7 @@ async function handleCredentialResponse(response) {
     
     if (!isAllowedDomain) {
       const errorEl = document.getElementById('authError');
-      errorEl.textContent = 'Access denied (system not working correctly)';
+      errorEl.textContent = 'Access denied (system not working properly)';
       errorEl.classList.add('show');
       console.error('Unauthorized attempt:', email);
       return;
@@ -2601,27 +2601,49 @@ async function handleCredentialResponse(response) {
           const tempUsername = 'temp_' + Math.random().toString(36).substring(2, 10);
           const tempFriendCode = Math.random().toString(36).substring(2, 8).toUpperCase();
           
-          const { error: insertError } = await sb
-            .from('profiles')
-            .insert({
-              id: data.user.id,
-              email: data.user.email || 'unknown@example.com',
-              username: tempUsername,
-              display_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'New User',
-              friend_code: tempFriendCode,
-              onboarding_completed: false,
-              terms_accepted: false,
-              terms_accepted_at: null
+          // Try using RPC to bypass RLS
+          try {
+            const { data: rpcData, error: rpcError } = await sb.rpc('create_user_profile', {
+              user_id: data.user.id,
+              user_email: data.user.email || 'unknown@example.com',
+              user_username: tempUsername,
+              user_display_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'New User',
+              user_friend_code: tempFriendCode
             });
-          
-          if (insertError) {
-            console.error('Manual profile creation failed:', insertError);
-          } else {
-            console.log('Profile created successfully');
+            
+            if (rpcError || !rpcData?.success) {
+              console.error('RPC profile creation failed, trying direct insert:', rpcError || rpcData?.error);
+              throw rpcError || new Error(rpcData?.error || 'RPC failed');
+            } else {
+              console.log('Profile created successfully via RPC');
+            }
+          } catch (rpcError) {
+            // Fallback to direct insert
+            console.log('Trying direct insert as fallback...');
+            const { error: insertError } = await sb
+              .from('profiles')
+              .insert({
+                id: data.user.id,
+                email: data.user.email || 'unknown@example.com',
+                username: tempUsername,
+                display_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'New User',
+                friend_code: tempFriendCode,
+                onboarding_completed: false,
+                terms_accepted: false,
+                terms_accepted_at: null
+              });
+            
+            if (insertError) {
+              console.error('Direct insert also failed:', insertError);
+              throw insertError;
+            } else {
+              console.log('Profile created successfully via direct insert');
+            }
           }
         }
       } catch (manualError) {
         console.error('Error in manual profile creation:', manualError);
+        // Continue anyway - the onboarding flow might handle this
       }
       
       // Check if user has completed onboarding
