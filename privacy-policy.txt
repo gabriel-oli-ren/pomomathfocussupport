@@ -1,0 +1,24 @@
+PRIVACY POLICY
+
+Last Updated: August 21, 2026
+
+1. Information We Collect
+We collect information you provide directly, including username, display name, and any messages you send through our chat system. We also collect technical data such as IP addresses and device information for security purposes.
+
+2. How We Use Your Information
+Your information is used to provide and improve our services, enable chat functionality, manage user accounts, and ensure platform security. We do not sell your personal data to third parties.
+
+3. Data Storage and Security
+We use industry-standard security measures to protect your data. However, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security.
+
+4. Third-Party Services
+We use Supabase for data storage and authentication. Please review their privacy policies for information on how they handle your data.
+
+5. User Content
+You retain ownership of any content you create, but you grant us a license to use, modify, and display it for the purpose of providing our services.
+
+6. Disclaimer
+This platform is provided "as is" without any warranties. We are not responsible for any damages arising from the use of this service.
+
+7. Changes to This Policy
+We may update this policy from time to time. Continued use of the service constitutes acceptance of any changes.
