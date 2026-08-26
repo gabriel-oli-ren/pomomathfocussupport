@@ -294,7 +294,7 @@ body {
 .auth-error.show{display:block}
 .auth-success{color:#16a34a;font-size:.83em;margin-top:10px;display:none;text-align:left;padding:8px 12px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0}
 .auth-success.show{display:block}
-.demo-mode-badge{position:absolute;top:-10px;right:-10px;background:#f59e0b;color:#fff;font-size:.65em;font-weight:800;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;box-shadow:0 2px 8px rgba(245,158,11,.4)}
+
 
 
 
@@ -1415,7 +1415,6 @@ body {
 <!-- AUTH OVERLAY (MANDATORY) -->
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-box">
-    <div class="demo-mode-badge" id="demoModeBadge" style="display:none">Demo Mode</div>
     <div class="auth-logo">🎮</div>
     <h2>Maths Support</h2>
     <div class="auth-sub">Sign in with your google account to access Maths Support</div>
@@ -2305,10 +2304,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // ══════════════════════════════════════════════════════════════════
 const GOOGLE_CLIENT_ID = '50602568091-rmrv1q62lek3a7g434ffrslgjrtlllqh.apps.googleusercontent.com'; // Replace with your Google Client ID
 
-// DEMO MODE - Usar localStorage si Supabase no funciona
-const DEMO_MODE = false;
 let sb = null;
-let demoUsers = JSON.parse(localStorage.getItem('demo_users') || '[]');
 
 try {
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -2318,9 +2314,6 @@ try {
   initializeGoogleSignIn();
 } catch (error) {
   console.error('Supabase initialization error:', error);
-  console.log('Using demo mode with localStorage');
-  // Auto-enable demo mode if Supabase fails
-  window.DEMO_MODE_FALLBACK = true;
 }
 
 const EDGE_BASE = SUPABASE_URL + '/functions/v1';
@@ -2483,39 +2476,6 @@ function updateUserUI(user) {
   }
   
   // You can add more UI updates here as needed
-}
-
-// Demo mode functions (fallback)
-function demoCreateUser(username, password, termsAccepted) {
-  const existing = demoUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
-  if (existing) return { error: { message: 'Username already exists' } };
-  
-  const newUser = {
-    id: 'demo_' + Date.now(),
-    username,
-    display_name: username,
-    password,
-    friend_code: genCode(),
-    role: null,
-    is_admin: false,
-    terms_accepted: termsAccepted,
-    created_at: new Date().toISOString()
-  };
-  
-  demoUsers.push(newUser);
-  localStorage.setItem('demo_users', JSON.stringify(demoUsers));
-  return { data: newUser, error: null };
-}
-
-function demoLoginUser(username, password) {
-  const user = demoUsers.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
-  if (!user) return { error: { message: 'Invalid credentials' }, data: null };
-  return { data: user, error: null };
-}
-
-function demoGetUser(id) {
-  const user = demoUsers.find(u => u.id === id);
-  return user ? { data: user, error: null } : { data: null, error: { message: 'User not found' } };
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2693,13 +2653,6 @@ async function onSignedIn(profile){
 }
 
 async function initApp(){
-  // Show demo mode badge if in demo mode
-  const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-  if(useDemo) {
-    const badge = document.getElementById('demoModeBadge');
-    if(badge) badge.style.display = 'block';
-  }
-  
   const restored=await restoreSession();
   if(restored){
     await onSignedIn(restored);
@@ -2718,19 +2671,7 @@ async function restoreSession(){
   }
   
   try{
-    let data, error;
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    if(useDemo) {
-      console.log('Using demo mode for session restore');
-      const result = demoGetUser(uid);
-      data = result.data;
-      error = result.error;
-    } else {
-      const result=await sb.from('users').select('*').eq('id',uid).maybeSingle();
-      data = result.data;
-      error = result.error;
-    }
+    const {data, error} = await sb.from('users').select('*').eq('id',uid).maybeSingle();
     
     if(error){
       console.error('Session restore error:', error);
@@ -2811,19 +2752,12 @@ async function loadFriends(){
     const{data:allDb}=await sb.from('friendships').select('id,status,user_id,friend_id,identity_revealed,requester:users!friendships_user_id_fkey(id,username,display_name,role,is_admin),receiver:users!friendships_friend_id_fkey(id,username,display_name,role,is_admin)').or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`);
     all = allDb || [];
   } catch(e) { 
-    console.warn('Supabase loadFriends error, using local fallback:', e);
-    // If it's an RLS error, notify user but continue with local data
-    if(e.message && e.message.includes('row-level security')) {
-      console.log('RLS policy blocked friend loading, using local storage only');
-    }
+    console.error('Error loading friends:', e);
   }
 
-  const localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-  const mergedAll = [...all, ...localFriends];
-
-  const accepted=mergedAll.filter(f=>f.status==='accepted');
-  const pendingIn=mergedAll.filter(f=>f.status==='pending'&&f.friend_id===currentUser.id);
-  const pendingReveal=mergedAll.filter(f=>f.status==='reveal_requested'&&f.friend_id===currentUser.id);
+  const accepted=all.filter(f=>f.status==='accepted');
+  const pendingIn=all.filter(f=>f.status==='pending'&&f.friend_id===currentUser.id);
+  const pendingReveal=all.filter(f=>f.status==='reveal_requested'&&f.friend_id===currentUser.id);
   friendshipMap={};
   accepted.forEach(f=>{const p=otherProfile(f);if(p)friendshipMap[p.id]=f;});
   renderFriendsList(accepted);
@@ -2895,12 +2829,6 @@ async function sendFriendRequest(){
     console.error('Error finding user by friend code:', e);
   }
 
-  if(!target){
-    // Try demo users fallback
-    const demoFound = demoUsers.find(u => u.friend_code === code);
-    if(demoFound) target = demoFound;
-  }
-
   if(!target){showMsg('addFriendMsg','No user found with that code.','err');return;}
 
   try {
@@ -2908,29 +2836,9 @@ async function sendFriendRequest(){
     if(error) throw error;
     showMsg('addFriendMsg',`✅ Friend request sent to @${target.username || 'User'}!`,'ok');
   } catch(e) {
-    console.warn('Friendships insert error, using local fallback:', e);
-    
-    // Check if it's an RLS error
-    if(e.message && e.message.includes('row-level security')) {
-      showMsg('addFriendMsg','⚠️ Using local mode due to permissions. Request saved locally.','ok');
-    }
-    
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    if(!localFriends.some(f => f.friend_id === target.id || f.user_id === target.id)){
-      localFriends.push({
-        id: 'local_f_' + Date.now(),
-        user_id: currentUser.id,
-        friend_id: target.id,
-        status: 'accepted',
-        identity_revealed: true,
-        requester: { id: currentUser.id, username: currentUser.username, display_name: currentUser.display_name },
-        receiver: { id: target.id, username: target.username || 'Friend', display_name: target.display_name || target.username || 'Friend' }
-      });
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-      showMsg('addFriendMsg',`✅ Friend added locally with @${target.username || 'User'}!`,'ok');
-    } else {
-      showMsg('addFriendMsg','⚠️ Already friends with this user!','ok');
-    }
+    console.error('Friendships insert error:', e);
+    showMsg('addFriendMsg','❌ Could not send friend request.','err');
+    return;
   }
 
   document.getElementById('addCodeInput').value='';
@@ -2943,14 +2851,7 @@ async function acceptFriend(friendshipId){
     await loadFriends();
   } catch(e) {
     console.error('Error accepting friend:', e);
-    // Update local friendship
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    const friendship = localFriends.find(f => f.id === friendshipId);
-    if(friendship) {
-      friendship.status = 'accepted';
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-      await loadFriends();
-    }
+    showMsg('addFriendMsg','❌ Could not accept friend request.','err');
   }
 }
 
@@ -2961,7 +2862,7 @@ async function requestReveal(friendshipId, targetUserId){
     await loadFriends();
   } catch(e) {
     console.error('Error requesting reveal:', e);
-    showMsg('addFriendMsg','⚠️ Could not send reveal request. Using local mode.','ok');
+    showMsg('addFriendMsg','❌ Could not send reveal request.','err');
   }
 }
 
@@ -2972,16 +2873,7 @@ async function confirmRevealFromRequest(friendshipId){
     await loadFriends();
   } catch(e) {
     console.error('Error confirming reveal:', e);
-    showMsg('addFriendMsg','⚠️ Could not confirm reveal. Using local mode.','ok');
-    // Update local friendship
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    const friendship = localFriends.find(f => f.id === friendshipId);
-    if(friendship) {
-      friendship.status = 'accepted';
-      friendship.identity_revealed = true;
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-      await loadFriends();
-    }
+    showMsg('addFriendMsg','❌ Could not confirm reveal.','err');
   }
 }
 
@@ -3255,34 +3147,26 @@ async function contactAdmin(){
   if(sub)sub.textContent='Opening Admin Chat...';
   if(btn)btn.style.pointerEvents='none';
   try{
-    let adminId = 'admin_sys';
-    let adminName = '🛡️ Maths Support Admin';
-    
-    try {
-      const{data:admins}=await sb.from('users').select('id,username,display_name,role,is_admin,friend_code').or('role.eq.admin,is_admin.eq.true').neq('id',currentUser.id);
-      if(admins && admins.length){
-        adminId = admins[0].id;
-        adminName = admins[0].display_name || admins[0].username || 'Admin';
-      }
-    } catch(e1){
-      console.warn('Error fetching admin users:', e1);
+    const{data:admins}=await sb.from('users').select('id,username,display_name,role,is_admin,friend_code').or('role.eq.admin,is_admin.eq.true').neq('id',currentUser.id);
+    if(!admins || !admins.length){
+      showToast('❌ No admin is available right now.');
+      if(sub)sub.textContent='Tap to open chat';
+      if(btn)btn.style.pointerEvents='auto';
+      return;
+    }
+    const adminId = admins[0].id;
+    const adminName = admins[0].display_name || admins[0].username || 'Admin';
+
+    const{data:existing}=await sb.from('friendships').select('*')
+      .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${adminId}),and(user_id.eq.${adminId},friend_id.eq.${currentUser.id})`)
+      .maybeSingle();
+
+    if(!existing){
+      await sb.from('friendships').insert({user_id:currentUser.id,friend_id:adminId,status:'accepted',identity_revealed:true});
+    } else if(existing.status!=='accepted'){
+      await sb.from('friendships').update({status:'accepted',identity_revealed:true}).eq('id',existing.id);
     }
 
-    // Auto-add Admin to local friendships to bypass RLS
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    if(!localFriends.some(f => f.friend_id === adminId || f.user_id === adminId)){
-      localFriends.push({
-        id: 'admin_friendship_' + Date.now(),
-        user_id: currentUser.id,
-        friend_id: adminId,
-        status: 'accepted',
-        identity_revealed: true,
-        requester: { id: currentUser.id, username: currentUser.username, display_name: currentUser.display_name },
-        receiver: { id: adminId, username: 'admin', display_name: adminName, role: 'admin', is_admin: true }
-      });
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-    }
-    
     await loadFriends();
     openChatWith(adminId, adminName);
     
@@ -3290,27 +3174,7 @@ async function contactAdmin(){
     if(btn)btn.style.pointerEvents='auto';
   }catch(e){
     console.error('contactAdmin error:',e);
-    // Fallback to system admin
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    const adminId = 'admin_sys';
-    const adminName = '🛡️ Maths Support Admin';
-    
-    if(!localFriends.some(f => f.friend_id === adminId || f.user_id === adminId)){
-      localFriends.push({
-        id: 'admin_friendship_fallback_' + Date.now(),
-        user_id: currentUser.id,
-        friend_id: adminId,
-        status: 'accepted',
-        identity_revealed: true,
-        requester: { id: currentUser.id, username: currentUser.username, display_name: currentUser.display_name },
-        receiver: { id: adminId, username: 'admin', display_name: adminName, role: 'admin', is_admin: true }
-      });
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-    }
-    
-    await loadFriends();
-    openChatWith(adminId, adminName);
-    
+    showToast('❌ Could not open admin chat.');
     if(sub)sub.textContent='Tap to open chat';
     if(btn)btn.style.pointerEvents='auto';
   }
@@ -3365,56 +3229,15 @@ async function loadMessages(friendId){
   
   let msgs = [], broadcasts = [];
   
-  // Special handling for admin chat to avoid RLS issues
-  if(friendId === 'admin_sys' || friendId.includes('admin')) {
-    // Load admin messages from local storage
-    const adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
-    msgs = adminMessages.filter(m => 
-      (m.sender_id === currentUser.id && m.receiver_id === friendId) ||
-      (m.sender_id === friendId && m.receiver_id === currentUser.id)
-    );
-    
-    // Also try to load from Supabase for non-system admin
-    if(friendId !== 'admin_sys') {
-      try {
-        const dbMsgs = await sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200);
-        if(dbMsgs.data) {
-          // Merge with local messages, avoiding duplicates
-          const localIds = new Set(adminMessages.map(m => m.id));
-          const newDbMsgs = dbMsgs.data.filter(m => !localIds.has(m.id));
-          msgs = [...msgs, ...newDbMsgs];
-        }
-      } catch(e) {
-        console.warn('Error loading admin messages from database:', e);
-      }
-    }
-    
-    // Load broadcasts
-    try {
-      const broadcastData = await sb.from('broadcast_messages').select('*').order('created_at',{ascending:true});
-      broadcasts = broadcastData.data || [];
-    } catch(e) {
-      console.warn('Error loading broadcasts:', e);
-    }
-  } else {
-    // Normal message loading for regular friends
-    try {
-      const[{data:dbMsgs},{data:broadcastData}] = await Promise.all([
-        sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200),
-        sb.from('broadcast_messages').select('*').order('created_at',{ascending:true})
-      ]);
-      msgs = dbMsgs || [];
-      broadcasts = broadcastData || [];
-    } catch(e) {
-      console.warn('Error loading messages, using local fallback:', e);
-      // Fallback to local messages
-      const localMessages = JSON.parse(localStorage.getItem('ms_local_messages') || '[]');
-      msgs = localMessages.filter(m => 
-        (m.sender_id === currentUser.id && m.receiver_id === friendId) ||
-        (m.sender_id === friendId && m.receiver_id === currentUser.id)
-      );
-      broadcasts = [];
-    }
+  try {
+    const[{data:dbMsgs},{data:broadcastData}] = await Promise.all([
+      sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200),
+      sb.from('broadcast_messages').select('*').order('created_at',{ascending:true})
+    ]);
+    msgs = dbMsgs || [];
+    broadcasts = broadcastData || [];
+  } catch(e) {
+    console.error('Error loading messages:', e);
   }
   
   const allMsgs=[...msgs.map(m=>({...m,_type:'personal'})),...broadcasts.map(m=>({...m,_type:'broadcast',sender_id:'__broadcast__',receiver_id:null}))].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
@@ -3540,56 +3363,26 @@ async function sendMessage(){
   
   let data = null, error = null;
   
-  // Special handling for admin chat to avoid RLS issues
-  if(activeChatFriendId === 'admin_sys' || activeChatFriendId.includes('admin')) {
-    // Use local storage for admin messages
-    data = {
-      id: 'msg_admin_' + Date.now(),
-      sender_id: currentUser.id,
-      receiver_id: activeChatFriendId,
-      content: content,
-      status: 'sent',
-      created_at: new Date().toISOString()
-    };
-    
-    // Store in local admin messages
-    let adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
-    adminMessages.push(data);
-    localStorage.setItem('ms_admin_messages', JSON.stringify(adminMessages));
-  } else {
-    try {
-      const res = await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:activeChatFriendId,content,status:'sending'}).select().single();
-      data = res.data; error = res.error;
-    } catch(e){ error = e; }
-
-    if(error || !data){
-      console.warn('Message send error, using local fallback:', error);
-      data = {
-        id: 'msg_loc_' + Date.now(),
-        sender_id: currentUser.id,
-        receiver_id: activeChatFriendId,
-        content: content,
-        status: 'sent',
-        created_at: new Date().toISOString()
-      };
-      
-      // Store in local messages
-      let localMessages = JSON.parse(localStorage.getItem('ms_local_messages') || '[]');
-      localMessages.push(data);
-      localStorage.setItem('ms_local_messages', JSON.stringify(localMessages));
-    }
-  }
+  try {
+    const res = await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:activeChatFriendId,content,status:'sending'}).select().single();
+    data = res.data; error = res.error;
+  } catch(e){ error = e; }
 
   document.getElementById('chatSendBtn').disabled=false;
+
+  if(error || !data){
+    console.error('Message send error:', error);
+    showToast('❌ Message could not be sent.');
+    input.value=content;
+    return;
+  }
+
   appendBubble(data);
   lastMsgId=data.id;
   const container=document.getElementById('chatMessages');
   if(container) container.scrollTop=container.scrollHeight;
   
-  // Only try to update status in Supabase for non-admin messages
-  if(activeChatFriendId !== 'admin_sys' && !activeChatFriendId.includes('admin')) {
-    try { await sb.from('messages').update({status:'sent'}).eq('id',data.id); } catch(e){}
-  }
+  try { await sb.from('messages').update({status:'sent'}).eq('id',data.id); } catch(e){}
   
   const tick=document.getElementById('tick-'+data.id);
   if(tick)tick.className='msg-tick sent';
@@ -3598,27 +3391,6 @@ async function sendMessage(){
   updateLastMsgPreview(activeChatFriendId,{...data,content});
   
   try { await addXP('message_sent'); } catch(e){}
-
-  // Admin Auto-Reply
-  if(activeChatFriendId === 'admin_sys' || activeChatFriendId.includes('admin')){
-    setTimeout(() => {
-      const reply = {
-        id: 'reply_' + Date.now(),
-        sender_id: activeChatFriendId,
-        receiver_id: currentUser.id,
-        content: '👋 ¡Hola! Un administrador ha recibido tu mensaje y te responderá lo antes posible.',
-        status: 'sent',
-        created_at: new Date().toISOString()
-      };
-      appendBubble(reply);
-      if(container) container.scrollTop=container.scrollHeight;
-      
-      // Store admin reply in local messages
-      let adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
-      adminMessages.push(reply);
-      localStorage.setItem('ms_admin_messages', JSON.stringify(adminMessages));
-    }, 1000);
-  }
 }
 
 async function broadcastTyping(isTypingNow){
@@ -4058,61 +3830,36 @@ async function loadPassData() {
   if (!currentUser) return;
   
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    const { data, error } = await sb.from('maths_pass').select('*').eq('user_id', currentUser.id).eq('season', 1).maybeSingle();
     
-    if (useDemo) {
-      // Demo mode - load from localStorage
-      const demoPass = JSON.parse(localStorage.getItem('demo_pass_' + currentUser.id) || 'null');
-      if (demoPass) {
-        passData = demoPass;
-        updatePassUI();
-      } else {
-        // Create new pass
-        passData = {
-          id: 'demo_pass_' + currentUser.id,
-          user_id: currentUser.id,
-          level: 1,
-          xp: 0,
-          xp_to_next: 100,
-          total_xp: 0,
-          season: 1,
-          premium_tier: 0
-        };
-        localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
-        updatePassUI();
-      }
-    } else {
-      const { data, error } = await sb.from('maths_pass').select('*').eq('user_id', currentUser.id).eq('season', 1).maybeSingle();
+    if (error) {
+      console.error('Error loading pass data:', error);
+      return;
+    }
+    
+    if (!data) {
+      // Create new pass
+      const { data: newPass, error: insertError } = await sb.from('maths_pass').insert({
+        user_id: currentUser.id,
+        level: 1,
+        xp: 0,
+        xp_to_next: 100,
+        total_xp: 0,
+        season: 1,
+        premium_tier: 0
+      }).select().single();
       
-      if (error) {
-        console.error('Error loading pass data:', error);
+      if (insertError) {
+        console.error('Error creating pass:', insertError);
         return;
       }
       
-      if (!data) {
-        // Create new pass
-        const { data: newPass, error: insertError } = await sb.from('maths_pass').insert({
-          user_id: currentUser.id,
-          level: 1,
-          xp: 0,
-          xp_to_next: 100,
-          total_xp: 0,
-          season: 1,
-          premium_tier: 0
-        }).select().single();
-        
-        if (insertError) {
-          console.error('Error creating pass:', insertError);
-          return;
-        }
-        
-        passData = newPass;
-      } else {
-        passData = data;
-      }
-      
-      updatePassUI();
+      passData = newPass;
+    } else {
+      passData = data;
     }
+    
+    updatePassUI();
   } catch (e) {
     console.error('Exception loading pass data:', e);
   }
@@ -4125,8 +3872,6 @@ async function addXP(activityType, amount = null) {
   if (xpToAdd <= 0) return;
   
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
     // Log activity
     await logActivity(activityType, xpToAdd);
     
@@ -4143,16 +3888,12 @@ async function addXP(activityType, amount = null) {
       showToast(`🎉 Level Up! You are now Level ${passData.level}!`);
     }
     
-    if (useDemo) {
-      localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
-    } else {
-      await sb.from('maths_pass').update({
-        xp: passData.xp,
-        total_xp: passData.total_xp,
-        level: passData.level,
-        xp_to_next: passData.xp_to_next
-      }).eq('id', passData.id);
-    }
+    await sb.from('maths_pass').update({
+      xp: passData.xp,
+      total_xp: passData.total_xp,
+      level: passData.level,
+      xp_to_next: passData.xp_to_next
+    }).eq('id', passData.id);
     
     updatePassUI();
     checkAchievements();
@@ -4166,16 +3907,12 @@ async function logActivity(activityType, xpGained, activityData = {}) {
   if (!currentUser) return;
   
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    if (!useDemo) {
-      await sb.from('activity_log').insert({
-        user_id: currentUser.id,
-        activity_type: activityType,
-        xp_gained: xpGained,
-        activity_data: activityData
-      });
-    }
+    await sb.from('activity_log').insert({
+      user_id: currentUser.id,
+      activity_type: activityType,
+      xp_gained: xpGained,
+      activity_data: activityData
+    });
   } catch (e) {
     console.error('Error logging activity:', e);
   }
@@ -4185,7 +3922,7 @@ function updatePassUI() {
   if (!passData) return;
   
   // Update currency display
-  document.getElementById('passMP').textContent = passData.total_xp; // Using XP as MP for demo
+  document.getElementById('passMP').textContent = passData.total_xp;
   document.getElementById('passXP').textContent = passData.total_xp;
   
   // Update level badge
@@ -4247,30 +3984,26 @@ async function checkAchievements() {
   if (!currentUser || !passData) return;
   
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    // Check level achievements
+    const { data: achievements } = await sb.from('achievements').select('*').eq('achievement_type', 'level');
     
-    if (!useDemo) {
-      // Check level achievements
-      const { data: achievements } = await sb.from('achievements').select('*').eq('achievement_type', 'level');
-      
-      for (const achievement of achievements || []) {
-        const requirement = achievement.requirement_data.level;
-        if (passData.level >= requirement) {
-          // Check if already unlocked
-          const { data: existing } = await sb.from('user_achievements').select('*')
-            .eq('user_id', currentUser.id)
-            .eq('achievement_id', achievement.id)
-            .maybeSingle();
+    for (const achievement of achievements || []) {
+      const requirement = achievement.requirement_data.level;
+      if (passData.level >= requirement) {
+        // Check if already unlocked
+        const { data: existing } = await sb.from('user_achievements').select('*')
+          .eq('user_id', currentUser.id)
+          .eq('achievement_id', achievement.id)
+          .maybeSingle();
+        
+        if (!existing) {
+          await sb.from('user_achievements').insert({
+            user_id: currentUser.id,
+            achievement_id: achievement.id
+          });
           
-          if (!existing) {
-            await sb.from('user_achievements').insert({
-              user_id: currentUser.id,
-              achievement_id: achievement.id
-            });
-            
-            showToast(`🏆 Achievement Unlocked: ${achievement.name}! +${achievement.xp_reward} XP`);
-            await addXP('achievement', achievement.xp_reward);
-          }
+          showToast(`🏆 Achievement Unlocked: ${achievement.name}! +${achievement.xp_reward} XP`);
+          await addXP('achievement', achievement.xp_reward);
         }
       }
     }
@@ -4288,38 +4021,25 @@ async function loadLeaderboard() {
   if (!currentUser) return;
   
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    const { data, error } = await sb.from('leaderboard')
+      .select('*, users!leaderboard_user_id_fkey(username, display_name)')
+      .eq('season', 1)
+      .order('total_xp', { ascending: false })
+      .limit(50);
     
-    if (useDemo) {
-      // Demo mode - show demo data
-      const demoLeaderboard = [
-        { rank: 1, username: 'DemoUser1', level: 25, total_xp: 15000, games_played: 500, messages_sent: 1000, streak_days: 30 },
-        { rank: 2, username: 'DemoUser2', level: 20, total_xp: 12000, games_played: 400, messages_sent: 800, streak_days: 25 },
-        { rank: 3, username: 'DemoUser3', level: 15, total_xp: 8000, games_played: 300, messages_sent: 600, streak_days: 20 },
-        { rank: 4, username: 'You', level: passData?.level || 1, total_xp: passData?.total_xp || 0, games_played: 0, messages_sent: 0, streak_days: 0, is_current: true }
-      ];
-      renderLeaderboard(demoLeaderboard);
-    } else {
-      const { data, error } = await sb.from('leaderboard')
-        .select('*, users!leaderboard_user_id_fkey(username, display_name)')
-        .eq('season', 1)
-        .order('total_xp', { ascending: false })
-        .limit(50);
-      
-      if (error) {
-        console.error('Error loading leaderboard:', error);
-        return;
-      }
-      
-      const leaderboard = (data || []).map((item, index) => ({
-        ...item,
-        rank: index + 1,
-        username: item.users?.username || 'Unknown',
-        is_current: item.user_id === currentUser.id
-      }));
-      
-      renderLeaderboard(leaderboard);
+    if (error) {
+      console.error('Error loading leaderboard:', error);
+      return;
     }
+    
+    const leaderboard = (data || []).map((item, index) => ({
+      ...item,
+      rank: index + 1,
+      username: item.users?.username || 'Unknown',
+      is_current: item.user_id === currentUser.id
+    }));
+    
+    renderLeaderboard(leaderboard);
   } catch (e) {
     console.error('Exception loading leaderboard:', e);
   }
@@ -4384,25 +4104,17 @@ async function loadCustomizations() {
   if (!currentUser) return;
   
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    const { data: owned } = await sb.from('user_customizations')
+      .select('*, customization_items(*)')
+      .eq('user_id', currentUser.id);
     
-    if (useDemo) {
-      // Demo mode - load from localStorage
-      ownedItems = JSON.parse(localStorage.getItem('demo_custom_items_' + currentUser.id) || '[]');
-      equippedItems = JSON.parse(localStorage.getItem('demo_equipped_items_' + currentUser.id) || '{}');
-    } else {
-      const { data: owned } = await sb.from('user_customizations')
-        .select('*, customization_items(*)')
-        .eq('user_id', currentUser.id);
-      
-      if (owned) {
-        ownedItems = owned;
-        owned.forEach(item => {
-          if (item.equipped) {
-            equippedItems[item.customization_items.item_type] = item.customization_items;
-          }
-        });
-      }
+    if (owned) {
+      ownedItems = owned;
+      owned.forEach(item => {
+        if (item.equipped) {
+          equippedItems[item.customization_items.item_type] = item.customization_items;
+        }
+      });
     }
     
     loadCustomizationItems(currentCustomTab);
@@ -4414,25 +4126,12 @@ async function loadCustomizations() {
 
 async function loadCustomizationItems(itemType) {
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
+    const { data } = await sb.from('customization_items')
+      .select('*')
+      .eq('item_type', itemType)
+      .order('rarity');
     
-    let items = [];
-    
-    if (useDemo) {
-      // Demo items
-      items = [
-        { id: 'demo_basic_frame', name: 'Basic Frame', item_type: 'avatar_frame', rarity: 'common', cost_mp: 0, icon_url: '🔵' },
-        { id: 'demo_silver_frame', name: 'Silver Frame', item_type: 'avatar_frame', rarity: 'rare', cost_mp: 100, icon_url: '🔶' },
-        { id: 'demo_gold_frame', name: 'Gold Frame', item_type: 'avatar_frame', rarity: 'epic', cost_mp: 500, icon_url: '🟡' }
-      ];
-    } else {
-      const { data } = await sb.from('customization_items')
-        .select('*')
-        .eq('item_type', itemType)
-        .order('rarity');
-      
-      items = data || [];
-    }
+    const items = data || [];
     
     renderCustomizationGrid(items);
   } catch (e) {
@@ -4450,15 +4149,14 @@ function renderCustomizationGrid(items) {
     const isOwned = ownedItems.some(owned => owned.item_id === item.id);
     const isEquipped = equippedItems[currentCustomTab]?.id === item.id;
     const canAfford = passData && passData.total_xp >= item.cost_mp;
-    const meetsLevel = passData && passData.level >= item.level_requirement;
     
     const div = document.createElement('div');
-    div.className = `custom-item ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''} ${!meetsLevel ? 'locked' : ''}`;
+    div.className = `custom-item ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}`;
     
     div.innerHTML = `
       <div class="custom-rarity ${item.rarity}">${item.rarity}</div>
       ${isOwned ? '<div class="custom-badge">✓</div>' : ''}
-      <div class="custom-icon">${item.icon_url}</div>
+      <div class="custom-icon">${item.image_url || '🔵'}</div>
       <div class="custom-name">${item.name}</div>
       <div class="custom-desc">${item.description || ''}</div>
       <div class="custom-price ${item.cost_mp === 0 ? 'custom-free' : ''}">
@@ -4467,9 +4165,9 @@ function renderCustomizationGrid(items) {
       <div class="custom-actions">
         ${!isOwned ? `
           <button class="custom-btn buy" 
-                  ${!canAfford || !meetsLevel ? 'disabled' : ''} 
+                  ${!canAfford ? 'disabled' : ''} 
                   onclick="buyCustomization('${item.id}')">
-            ${!meetsLevel ? `Lvl ${item.level_requirement}` : 'Buy'}
+            Buy
           </button>
         ` : `
           <button class="custom-btn equip ${isEquipped ? 'equipped' : ''}" 
@@ -4488,22 +4186,7 @@ async function buyCustomization(itemId) {
   if (!currentUser || !passData) return;
   
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    let item;
-    
-    if (useDemo) {
-      // Find demo item
-      const demoItems = [
-        { id: 'demo_basic_frame', name: 'Basic Frame', item_type: 'avatar_frame', rarity: 'common', cost_mp: 0, icon_url: '🔵' },
-        { id: 'demo_silver_frame', name: 'Silver Frame', item_type: 'avatar_frame', rarity: 'rare', cost_mp: 100, icon_url: '🔶' },
-        { id: 'demo_gold_frame', name: 'Gold Frame', item_type: 'avatar_frame', rarity: 'epic', cost_mp: 500, icon_url: '🟡' }
-      ];
-      item = demoItems.find(i => i.id === itemId);
-    } else {
-      const { data } = await sb.from('customization_items').select('*').eq('id', itemId).single();
-      item = data;
-    }
+    const { data: item } = await sb.from('customization_items').select('*').eq('id', itemId).single();
     
     if (!item) return;
     
@@ -4515,18 +4198,12 @@ async function buyCustomization(itemId) {
     // Deduct MP
     passData.total_xp -= item.cost_mp;
     
-    if (useDemo) {
-      ownedItems.push({ item_id: itemId, item_type: item.item_type, equipped: false });
-      localStorage.setItem('demo_custom_items_' + currentUser.id, JSON.stringify(ownedItems));
-      localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
-    } else {
-      await sb.from('maths_pass').update({ total_xp: passData.total_xp }).eq('id', passData.id);
-      await sb.from('user_customizations').insert({
-        user_id: currentUser.id,
-        item_id: itemId,
-        equipped: false
-      });
-    }
+    await sb.from('maths_pass').update({ total_xp: passData.total_xp }).eq('id', passData.id);
+    await sb.from('user_customizations').insert({
+      user_id: currentUser.id,
+      item_id: itemId,
+      equipped: false
+    });
     
     showToast(`✅ Purchased ${item.name}!`);
     updatePassUI();
@@ -4542,54 +4219,24 @@ async function equipCustomization(itemId) {
   if (!currentUser) return;
   
   try {
-    const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    let item;
-    
-    if (useDemo) {
-      const demoItems = [
-        { id: 'demo_basic_frame', name: 'Basic Frame', item_type: 'avatar_frame', rarity: 'common', cost_mp: 0, icon_url: '🔵' },
-        { id: 'demo_silver_frame', name: 'Silver Frame', item_type: 'avatar_frame', rarity: 'rare', cost_mp: 100, icon_url: '🔶' },
-        { id: 'demo_gold_frame', name: 'Gold Frame', item_type: 'avatar_frame', rarity: 'epic', cost_mp: 500, icon_url: '🟡' }
-      ];
-      item = demoItems.find(i => i.id === itemId);
-    } else {
-      const { data } = await sb.from('customization_items').select('*').eq('id', itemId).single();
-      item = data;
-    }
+    const { data: item } = await sb.from('customization_items').select('*').eq('id', itemId).single();
     
     if (!item) return;
     
     // Unequip current item of same type
     const currentEquipped = equippedItems[item.item_type];
     if (currentEquipped) {
-      if (useDemo) {
-        const ownedIndex = ownedItems.findIndex(owned => owned.item_id === currentEquipped.id);
-        if (ownedIndex !== -1) {
-          ownedItems[ownedIndex].equipped = false;
-        }
-      } else {
-        await sb.from('user_customizations').update({ equipped: false })
-          .eq('user_id', currentUser.id)
-          .eq('item_id', currentEquipped.id);
-      }
+      await sb.from('user_customizations').update({ equipped: false })
+        .eq('user_id', currentUser.id)
+        .eq('item_id', currentEquipped.id);
     }
     
     // Equip new item
     equippedItems[item.item_type] = item;
     
-    if (useDemo) {
-      const ownedIndex = ownedItems.findIndex(owned => owned.item_id === itemId);
-      if (ownedIndex !== -1) {
-        ownedItems[ownedIndex].equipped = true;
-      }
-      localStorage.setItem('demo_custom_items_' + currentUser.id, JSON.stringify(ownedItems));
-      localStorage.setItem('demo_equipped_items_' + currentUser.id, JSON.stringify(equippedItems));
-    } else {
-      await sb.from('user_customizations').update({ equipped: true })
-        .eq('user_id', currentUser.id)
-        .eq('item_id', itemId);
-    }
+    await sb.from('user_customizations').update({ equipped: true })
+      .eq('user_id', currentUser.id)
+      .eq('item_id', itemId);
     
     showToast(`✅ Equipped ${item.name}!`);
     loadCustomizationItems(currentCustomTab);
@@ -4631,7 +4278,7 @@ function updateCustomizationPreview() {
         '🟡': '#eab308',
         '💎': '#06b6d4'
       };
-      avatar.style.border = `4px solid ${colors[frame.icon_url] || '#667eea'}`;
+      avatar.style.border = `4px solid ${colors[frame.image_url] || '#667eea'}`;
     } else {
       avatar.style.border = '4px solid transparent';
     }
@@ -4649,10 +4296,10 @@ function updateCustomizationPreview() {
         '#8b5cf6': '#8b5cf6',
         'rainbow': 'linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff)'
       };
-      name.style.color = colors[colorItem.icon_url] || '#333';
-      name.style.background = colorItem.icon_url === 'rainbow' ? colors.rainbow : 'transparent';
-      name.style.webkitBackgroundClip = colorItem.icon_url === 'rainbow' ? 'text' : 'unset';
-      name.style.webkitTextFillColor = colorItem.icon_url === 'rainbow' ? 'transparent' : 'unset';
+      name.style.color = colors[colorItem.image_url] || '#333';
+      name.style.background = colorItem.image_url === 'rainbow' ? colors.rainbow : 'transparent';
+      name.style.webkitBackgroundClip = colorItem.image_url === 'rainbow' ? 'text' : 'unset';
+      name.style.webkitTextFillColor = colorItem.image_url === 'rainbow' ? 'transparent' : 'unset';
     } else {
       name.style.color = '#333';
       name.style.background = 'transparent';
@@ -4660,11 +4307,12 @@ function updateCustomizationPreview() {
   }
 }
 
-function resetCustomization() {
+async function resetCustomization() {
   equippedItems = {};
   
   if (currentUser) {
-    localStorage.setItem('demo_equipped_items_' + currentUser.id, JSON.stringify(equippedItems));
+    await sb.from('user_customizations').update({ equipped: false }).eq('user_id', currentUser.id);
+    ownedItems.forEach(item => { item.equipped = false; });
   }
   
   updateCustomizationPreview();
@@ -4872,13 +4520,6 @@ document.getElementById('petModalOverlay').addEventListener('click',function(e){
 document.getElementById('petNameInput')?.addEventListener('keydown',function(e){if(e.key==='Enter') savePetName();if(e.key==='Escape') closePetModal();});
 
 async function runAppInit(){
-  // Show demo mode badge if in demo mode
-  const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-  if(useDemo) {
-    const badge = document.getElementById('demoModeBadge');
-    if(badge) badge.style.display = 'block';
-  }
-  
   await initApp();
   enableSecurityProtection();
   try{const res=await fetch(EDGE_BASE+'/check-ban',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const d=await res.json();if(d.banned){document.body.innerHTML=`<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#1a1a2e,#16213e);font-family:'Plus Jakarta Sans',sans-serif;text-align:center;color:#fff"><div><div style="font-size:4em;margin-bottom:20px">🚫</div><h1 style="font-size:2em;color:#ff4444;margin-bottom:12px">Access Denied</h1><p style="color:rgba(255,255,255,.6);font-size:1.1em">Your access to this site has been revoked.</p></div></div>`;return;}}catch(e){}
@@ -5610,31 +5251,7 @@ async function createSticker(){
     if(isPublic) loadPublicStickers();
   } catch(e) {
     console.error('Sticker creation error:', e);
-    
-    // Fallback to localStorage
-    const localSticker = {
-      id: 'local_stk_' + Date.now(),
-      user_id: currentUser.id,
-      name: name,
-      description: desc,
-      image_url: imageUrl,
-      is_public: isPublic,
-      created_at: new Date().toISOString()
-    };
-    
-    let localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-    localStickers.push(localSticker);
-    localStorage.setItem('ms_local_stickers', JSON.stringify(localStickers));
-    
-    showStickerMsg('✅ Sticker saved locally!','ok');
-    document.getElementById('stickerName').value = '';
-    document.getElementById('stickerDesc').value = '';
-    fileInput.value = '';
-    document.getElementById('stickerFileLabel').textContent = 'Click to choose image';
-    document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('stickerPublic').checked = false;
-    loadMyStickers();
-    if(isPublic) loadPublicStickers();
+    showStickerMsg('❌ Could not create sticker. Try again.','err');
   }
 }
 
@@ -5657,9 +5274,7 @@ async function loadMyStickers(){
     console.error('Error loading stickers from database:', e);
   }
 
-  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-  const myLocal = localStickers.filter(s => s.user_id === currentUser.id);
-  const allMine = [...data, ...myLocal];
+  const allMine = data;
 
   const grid = document.getElementById('myStickersGrid');
   const count = document.getElementById('myStickerCount');
@@ -5696,9 +5311,7 @@ async function loadPublicStickers(){
     console.error('Error loading public stickers from database:', e);
   }
 
-  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-  const publicLocal = localStickers.filter(s => s.is_public);
-  const allPublic = [...BUILTIN_PRESET_STICKERS, ...data, ...publicLocal];
+  const allPublic = [...BUILTIN_PRESET_STICKERS, ...data];
 
   const grid = document.getElementById('publicStickersGrid');
   const count = document.getElementById('publicStickerCount');
@@ -5730,11 +5343,13 @@ async function purchaseSticker(stickerId, price, creatorId){
 
 async function deleteSticker(stickerId){
   if(!confirm('Delete this sticker?')) return;
-  try { await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id); } catch(e){}
-  
-  let localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-  localStickers = localStickers.filter(s => s.id !== stickerId);
-  localStorage.setItem('ms_local_stickers', JSON.stringify(localStickers));
+  try {
+    await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id);
+  } catch(e){
+    console.error('Error deleting sticker:', e);
+    showToast('❌ Could not delete sticker');
+    return;
+  }
 
   showToast('🗑️ Sticker deleted');
   loadMyStickers();
@@ -5777,8 +5392,7 @@ async function loadStickerPicker(){
     console.error('Error loading stickers for picker:', e);
   }
 
-  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-  const all = [...BUILTIN_PRESET_STICKERS, ...own, ...pub, ...localStickers];
+  const all = [...BUILTIN_PRESET_STICKERS, ...own, ...pub];
 
   if(!all.length){
     grid.innerHTML = '<div class="sticker-picker-empty">No stickers yet. Create one in the Shop!</div>';
