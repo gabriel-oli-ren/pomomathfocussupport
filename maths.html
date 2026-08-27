@@ -6255,7 +6255,7 @@ let vcToken = '', vcProjects = [], vcDeploymentsList = [];
 // ══════════════════════════════════════════════════════════════════
 const AIMATHS_API_KEY = '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';
 const AIMATHS_BASE_URL = 'https://openrouter.ai/api/v1';
-const AIMATHS_MODEL = 'google/gemma-7b-it:free';
+const AIMATHS_MODEL = 'meta-llama/llama-3-8b-instruct:free';
 const AIMATHS_SEARCH_API = 'https://api.duckduckgo.com/';
 let aimathsCurrentConversation = null;
 let aimathsConversations = [];
@@ -6439,7 +6439,8 @@ async function sendAiMathsMessage(){
     const{data:savedMsg,error}=await sb.from('ai_chat_messages').insert({
       conversation_id:aimathsCurrentConversation.id,
       user_id:currentUser.id,
-      content:content
+      content:content,
+      message_type:'text'
     }).select().single();
     if(error) throw error;
     // Add role and image data locally for display (not saved to database)
@@ -6468,7 +6469,8 @@ async function sendAiMathsMessage(){
     const{data:assistantMsg,error}=await sb.from('ai_chat_messages').insert({
       conversation_id:aimathsCurrentConversation.id,
       user_id:currentUser.id,
-      content:response
+      content:response,
+      message_type:'text'
     }).select().single();
     if(error) throw error;
     // Add role and search data locally for display (not saved to database)
