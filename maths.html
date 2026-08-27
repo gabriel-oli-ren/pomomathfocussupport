@@ -6296,7 +6296,7 @@ async function sendAiMessage(){ /* ... keep existing implementation ... */ }
 async function loadAiMathsConversations(){
   if(!currentUser) return;
   try{
-    const{data,error}=await sb.from('ai_conversations').select('*').eq('user_id',currentUser.id).order('updated_at',{ascending:false});
+    const{data,error}=await sb.from('ai_conversations').select('*').eq('user_id',currentUser.id).order('started_at',{ascending:false});
     if(error) throw error;
     aimathsConversations=data||[];
     renderAiMathsConversationsList();
@@ -6325,7 +6325,14 @@ function renderAiMathsConversationsList(){
 async function createNewAiConversation(){
   if(!currentUser) return;
   try{
-    const{data,error}=await sb.from('ai_conversations').insert({user_id:currentUser.id,title:'New Conversation'}).select().single();
+    const{data,error}=await sb.from('ai_conversations').insert({
+      user_id:currentUser.id,
+      title:'New Conversation',
+      status:'active',
+      started_at:new Date().toISOString(),
+      message_count:0,
+      total_tokens:0
+    }).select().single();
     if(error) throw error;
     aimathsConversations.unshift(data);
     aimathsCurrentConversation=data;
@@ -6341,14 +6348,18 @@ async function createNewAiConversation(){
 async function loadAiMathsConversation(conversationId){
   if(!currentUser) return;
   try{
-    const{data:messages,error}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',conversationId).order('created_at',{ascending:true});
+    const{data:messages,error}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',conversationId);
     if(error) throw error;
     aimathsCurrentConversation=aimathsConversations.find(c=>c.id===conversationId);
     renderAiMathsConversationsList();
     clearAiMathsChat();
     document.getElementById('aimathsChatTitle').textContent=aimathsCurrentConversation.title;
     if(messages&&messages.length){
-      messages.forEach(msg=>appendAiMathsMessage(msg));
+      messages.forEach(msg=>{
+        // Add role field based on mode for display
+        msg.role = msg.mode === 'assistant' ? 'assistant' : 'user';
+        appendAiMathsMessage(msg);
+      });
     }
   }catch(e){
     console.error('Error loading conversation:',e);
@@ -6414,9 +6425,15 @@ async function sendAiMathsMessage(){
   document.getElementById('aimathsSendBtn').disabled=true;
   const userMessage={role:'user',content:content};
   try{
-    const{data:savedMsg,error}=await sb.from('ai_chat_messages').insert({conversation_id:aimathsCurrentConversation.id,role:'user',content:content}).select().single();
+    const{data:savedMsg,error}=await sb.from('ai_chat_messages').insert({
+      conversation_id:aimathsCurrentConversation.id,
+      user_id:currentUser.id,
+      content:content,
+      mode:'text'
+    }).select().single();
     if(error) throw error;
-    // Add image data locally for display (not saved to database)
+    // Add role and image data locally for display (not saved to database)
+    savedMsg.role = 'user';
     if(aimathsCurrentImage) savedMsg.image_data = aimathsCurrentImage;
     appendAiMathsMessage(savedMsg);
   }catch(e){
@@ -6438,11 +6455,20 @@ async function sendAiMathsMessage(){
   try{
     const response=await getAiMathsResponse(content,aimathsCurrentImage,searchResults);
     loadingDiv.remove();
-    const{data:assistantMsg,error}=await sb.from('ai_chat_messages').insert({conversation_id:aimathsCurrentConversation.id,role:'assistant',content:response,has_search:!!searchResults,search_results:searchResults}).select().single();
+    const{data:assistantMsg,error}=await sb.from('ai_chat_messages').insert({
+      conversation_id:aimathsCurrentConversation.id,
+      user_id:currentUser.id,
+      content:response,
+      mode:'assistant'
+    }).select().single();
     if(error) throw error;
+    // Add role and search data locally for display (not saved to database)
+    assistantMsg.role = 'assistant';
+    assistantMsg.has_search = !!searchResults;
+    assistantMsg.search_results = searchResults;
     appendAiMathsMessage(assistantMsg);
-    const{count}=await sb.from('ai_chat_messages').select('id',{count:'exact',head:true}).eq('conversation_id',aimathsCurrentConversation.id);
-    if(count===2){
+    const{data:allMessages}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',aimathsCurrentConversation.id);
+    if(allMessages && allMessages.length===2){
       const title=content.substring(0,50)+(content.length>50?'...':'');
       await sb.from('ai_conversations').update({title:title}).eq('id',aimathsCurrentConversation.id);
       aimathsCurrentConversation.title=title;
@@ -6466,12 +6492,12 @@ async function getAiMathsResponse(content,imageData,searchResults){
     messages.push({role:'system',content:`Here are some relevant search results:\n${searchContext}`});
   }
   if(aimathsCurrentConversation){
-    const{data:history}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',aimathsCurrentConversation.id).order('created_at',{ascending:false}).limit(10);
+    const{data:history}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',aimathsCurrentConversation.id).limit(10);
     if(history){
-      history.reverse().forEach(msg=>{
-        if(msg.role!=='system'){
-          messages.push({role:msg.role,content:msg.content});
-        }
+      // Since the table doesn't have role field, we'll use mode field to determine role
+      history.forEach(msg=>{
+        const role = msg.mode === 'assistant' ? 'assistant' : 'user';
+        messages.push({role:role,content:msg.content});
       });
     }
   }
