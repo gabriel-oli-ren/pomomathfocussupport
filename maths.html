@@ -268,13 +268,21 @@ body.authenticated .timetable-alert-overlay.active {
   opacity: 1 !important;
 }
 
-/* SECURITY: Always show auth overlay when not authenticated */
-body:not(.authenticated) .auth-overlay {
+/* SECURITY: Auth overlay visibility based on authentication state */
+.auth-overlay {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
 
+/* When authenticated, allow the overlay to be hidden via the hidden class */
+body.authenticated .auth-overlay.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* When not authenticated, always show the overlay even if it has hidden class */
 body:not(.authenticated) .auth-overlay.hidden {
   display: flex !important;
   visibility: visible !important;
@@ -1515,36 +1523,9 @@ body:not(.authenticated) .auth-overlay.hidden {
 (function() {
   'use strict';
   
-  // Security check function
-  function validateSession() {
-    try {
-      // Check for valid session token
-      const sessionToken = localStorage.getItem('sb-access-token') || sessionStorage.getItem('sb-access-token');
-      const userId = localStorage.getItem('user_id'); // Direct access for initial validation
-      
-      if (!sessionToken || !userId) {
-        // No valid session - don't add authenticated class
-        console.log('Security: No valid session found');
-        return false;
-      }
-      
-      // Additional validation could be added here
-      return true;
-    } catch (e) {
-      console.error('Security validation error:', e);
-      return false;
-    }
-  }
+  console.log('Security: Initial protection active, waiting for Supabase validation');
   
-  // Only add authenticated class if session is valid
-  if (validateSession()) {
-    document.body.classList.add('authenticated');
-    console.log('Security: Valid session found, content will be visible');
-  } else {
-    console.log('Security: No valid session, only auth overlay will be visible');
-  }
-  
-  // Prevent DOM manipulation attempts on auth overlay
+  // Prevent DOM manipulation attempts on auth overlay when not authenticated
   const originalRemove = Element.prototype.remove;
   Element.prototype.remove = function() {
     if (this.id === 'authOverlay' && !document.body.classList.contains('authenticated')) {
@@ -1570,13 +1551,13 @@ body:not(.authenticated) .auth-overlay.hidden {
     originalSetAttribute.call(this, name, value);
   };
   
-  // Prevent classList manipulation of auth overlay when not authenticated
-  // Set up a MutationObserver to catch any attempts to hide the auth overlay
-  if (!document.body.classList.contains('authenticated')) {
-    setTimeout(() => {
-      const authEl = document.getElementById('authOverlay');
-      if (authEl) {
-        const observer = new MutationObserver(function(mutations) {
+  // Set up MutationObserver to catch attempts to hide auth overlay when not authenticated
+  setTimeout(() => {
+    const authEl = document.getElementById('authOverlay');
+    if (authEl && !document.body.classList.contains('authenticated')) {
+      const observer = new MutationObserver(function(mutations) {
+        // Only block changes if still not authenticated
+        if (!document.body.classList.contains('authenticated')) {
           mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
               if (authEl.classList.contains('hidden')) {
@@ -1592,15 +1573,15 @@ body:not(.authenticated) .auth-overlay.hidden {
               }
             }
           });
-        });
-        
-        observer.observe(authEl, {
-          attributes: true,
-          attributeFilter: ['class', 'style']
-        });
-      }
-    }, 100);
-  }
+        }
+      });
+      
+      observer.observe(authEl, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+      });
+    }
+  }, 100);
 })();
 </script>
 
@@ -2618,8 +2599,15 @@ let sb = null;
 let demoUsers = JSON.parse(localStorage.getItem('demo_users') || '[]');
 
 try {
-  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  console.log('Supabase client initialized');
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      storage: window.localStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
+  });
+  console.log('Supabase client initialized with session persistence');
   
   // Initialize Google Identity Services after Supabase is ready
   // Wait for window load to ensure Google script is loaded
@@ -3259,10 +3247,10 @@ async function onboardingComplete() {
 }
 
 function completeAuthentication(user, profile) {
-  // Store user session data using secure storage
-  secureSetItem('user_id', user.id);
-  secureSetItem('username', profile.username);
-  secureSetItem('display_name', profile.display_name);
+  // Store user session data using regular localStorage for compatibility
+  localStorage.setItem('user_id', user.id);
+  localStorage.setItem('username', profile.username);
+  localStorage.setItem('display_name', profile.display_name);
   
   // SECURITY: Add authenticated class to body to reveal content
   document.body.classList.add('authenticated');
@@ -3275,6 +3263,9 @@ function completeAuthentication(user, profile) {
   
   // Hide onboarding overlay
   document.getElementById('onboardingOverlay').classList.remove('active');
+  
+  // SECURITY: Hide auth overlay and show main content
+  document.getElementById('authOverlay').classList.add('hidden');
   
   // Show success message
   const successEl = document.getElementById('authSuccess');
@@ -3456,9 +3447,10 @@ async function doSignOut(e){
   if(chatRealtime){sb.removeChannel(chatRealtime);chatRealtime=null;}
   if(typingRealtime){sb.removeChannel(typingRealtime);typingRealtime=null;}
   
-  // Sign out from Supabase auth
+  // Sign out from Supabase auth to clear session from localStorage
   try {
     await sb.auth.signOut();
+    console.log('User signed out, session cleared from localStorage');
   } catch (error) {
     console.error('Error signing out from Supabase:', error);
   }
@@ -3528,18 +3520,35 @@ async function initApp(){
 }
 
 async function restoreSession(){
-  // First check Supabase auth session
+  // First check Supabase auth session with improved persistence
   try {
+    // Try to get session from Supabase (it will check localStorage automatically)
     const { data: { session }, error: sessionError } = await sb.auth.getSession();
     
     if (sessionError || !session) {
-      console.log('No Supabase session found');
+      console.log('No Supabase session found, user needs to sign in');
       // SECURITY: Ensure body doesn't have authenticated class
       document.body.classList.remove('authenticated');
       document.getElementById('authOverlay').classList.remove('hidden');
       setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
       return null;
     }
+    
+    console.log('Session restored successfully for user:', session.user.email);
+    
+    // Set up automatic token refresh
+    sb.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
+      if (event === 'SIGNED_IN') {
+        console.log('User signed in automatically');
+      } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out');
+        document.body.classList.remove('authenticated');
+        document.getElementById('authOverlay').classList.remove('hidden');
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed successfully');
+      }
+    });
     
     // Get user profile from profiles table
     const { data: profile, error: profileError } = await sb
@@ -3570,10 +3579,10 @@ async function restoreSession(){
       return null;
     }
     
-    // Store session data using secure storage
-    secureSetItem('user_id', profile.id);
-    secureSetItem('username', profile.username);
-    secureSetItem('display_name', profile.display_name);
+    // Store session data using regular localStorage for compatibility
+    localStorage.setItem('user_id', profile.id);
+    localStorage.setItem('username', profile.username);
+    localStorage.setItem('display_name', profile.display_name);
     
     // SECURITY: Add authenticated class to body to reveal content
     document.body.classList.add('authenticated');
@@ -4727,7 +4736,14 @@ function secureGetItem(key) {
   try {
     const encrypted = localStorage.getItem(key);
     if (!encrypted) return null;
-    return simpleDecrypt(encrypted);
+    
+    // Try to decrypt first
+    try {
+      return simpleDecrypt(encrypted);
+    } catch (decryptError) {
+      // If decryption fails, assume it's plain text (for backward compatibility)
+      return encrypted;
+    }
   } catch (e) {
     console.error('Secure retrieval error:', e);
     return localStorage.getItem(key);
@@ -4784,7 +4800,15 @@ async function forceLogout() {
   if(chatRealtime){sb.removeChannel(chatRealtime);chatRealtime=null;}
   if(typingRealtime){sb.removeChannel(typingRealtime);typingRealtime=null;}
   
-  // Clear all auth data (both encrypted and direct)
+  // Sign out from Supabase to clear session from localStorage
+  try {
+    await sb.auth.signOut();
+    console.log('Supabase session cleared');
+  } catch (error) {
+    console.error('Error signing out from Supabase:', error);
+  }
+  
+  // Clear all auth data
   localStorage.removeItem(AUTH_SESSION_KEY);
   localStorage.removeItem('user_id');
   localStorage.removeItem('username');
