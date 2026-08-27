@@ -241,6 +241,46 @@ body {
   display: none !important;
 }
 
+/* SECURITY: Hide all main content by default - only shown after authentication */
+.sidebar, .main-content, .chat-page, .dev-panel, .questionnaire-overlay,
+.onboarding-overlay, .sitepass-overlay, .timetable-alert-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Only show these elements when authenticated */
+body.authenticated .sidebar,
+body.authenticated .main-content,
+body.authenticated .chat-page,
+body.authenticated .dev-panel {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+body.authenticated .questionnaire-overlay.active,
+body.authenticated .onboarding-overlay.active,
+body.authenticated .sitepass-overlay.active,
+body.authenticated .timetable-alert-overlay.active {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* SECURITY: Always show auth overlay when not authenticated */
+body:not(.authenticated) .auth-overlay {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+body:not(.authenticated) .auth-overlay.hidden {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 /* ── SITE PASSWORD OVERLAY ── */
 .sitepass-overlay{position:fixed;inset:0;z-index:999999999;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;justify-content:center;align-items:center;overflow:hidden}
 .sitepass-overlay.hidden{display:none!important}
@@ -276,7 +316,7 @@ body {
 .sp-footer{color:rgba(255,255,255,.2);font-size:.75em;text-align:center;margin-top:20px}
 
 /* ── AUTH OVERLAY ── */
-.auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);z-index:999999;display:flex;justify-content:center;align-items:center}
+.auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);z-index:999999999;display:flex!important;justify-content:center;align-items:center!important}
 .auth-overlay.hidden{display:none!important}
 .auth-box{background:#fff;padding:44px 50px;border-radius:22px;box-shadow:0 16px 48px rgba(0,0,0,.25);text-align:center;max-width:420px;width:90%;position:relative}
 .auth-logo{font-size:2.6em;margin-bottom:6px}
@@ -1470,6 +1510,100 @@ body {
 <body>
 <!-- adsense removed -->
 
+<!-- SECURITY SCRIPT - Executes immediately before any content loads -->
+<script>
+(function() {
+  'use strict';
+  
+  // Security check function
+  function validateSession() {
+    try {
+      // Check for valid session token
+      const sessionToken = localStorage.getItem('sb-access-token') || sessionStorage.getItem('sb-access-token');
+      const userId = localStorage.getItem('user_id'); // Direct access for initial validation
+      
+      if (!sessionToken || !userId) {
+        // No valid session - don't add authenticated class
+        console.log('Security: No valid session found');
+        return false;
+      }
+      
+      // Additional validation could be added here
+      return true;
+    } catch (e) {
+      console.error('Security validation error:', e);
+      return false;
+    }
+  }
+  
+  // Only add authenticated class if session is valid
+  if (validateSession()) {
+    document.body.classList.add('authenticated');
+    console.log('Security: Valid session found, content will be visible');
+  } else {
+    console.log('Security: No valid session, only auth overlay will be visible');
+  }
+  
+  // Prevent DOM manipulation attempts on auth overlay
+  const originalRemove = Element.prototype.remove;
+  Element.prototype.remove = function() {
+    if (this.id === 'authOverlay' && !document.body.classList.contains('authenticated')) {
+      console.warn('Security: Attempted to remove auth overlay blocked');
+      return;
+    }
+    originalRemove.call(this);
+  };
+  
+  // Prevent style manipulation of auth overlay when not authenticated
+  const originalSetAttribute = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function(name, value) {
+    if (this.id === 'authOverlay' && !document.body.classList.contains('authenticated')) {
+      if (name === 'style' || name === 'class') {
+        const currentValue = this.getAttribute(name) || '';
+        const newValue = currentValue + ' ' + value;
+        if (newValue.includes('hidden') || newValue.includes('display:none') || newValue.includes('visibility:hidden')) {
+          console.warn('Security: Attempted to hide auth overlay blocked');
+          return;
+        }
+      }
+    }
+    originalSetAttribute.call(this, name, value);
+  };
+  
+  // Prevent classList manipulation of auth overlay when not authenticated
+  // Set up a MutationObserver to catch any attempts to hide the auth overlay
+  if (!document.body.classList.contains('authenticated')) {
+    setTimeout(() => {
+      const authEl = document.getElementById('authOverlay');
+      if (authEl) {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              if (authEl.classList.contains('hidden')) {
+                console.warn('Security: Attempted to hide auth overlay via classList, reverting');
+                authEl.classList.remove('hidden');
+              }
+            }
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+              if (authEl.style.display === 'none' || authEl.style.visibility === 'hidden') {
+                console.warn('Security: Attempted to hide auth overlay via style, reverting');
+                authEl.style.display = '';
+                authEl.style.visibility = '';
+              }
+            }
+          });
+        });
+        
+        observer.observe(authEl, {
+          attributes: true,
+          attributeFilter: ['class', 'style']
+        });
+      }
+    }, 100);
+  }
+})();
+</script>
+
 <!-- AUTH OVERLAY (MANDATORY) -->
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-box">
@@ -1671,7 +1805,7 @@ body {
     <button class="game-button" onclick="openGame('Drive Mad','https://play.fancade.com/5F084A0BCE06B710')"><img src=" img/drive-mad.png" alt="Drive Mad" class="game-image"><div class="game-info"><h3>🏎️ Drive Mad</h3><p>Racing car vehicle game</p></div></button>
     <button class="game-button" onclick="openGame('Poly Track','https://arcadrome.com/embed/polytrack')"><img src=" img/polytrack.png" alt="Poly Track" class="game-image"><div class="game-info"><h3>🏁 Poly Track</h3><p>Racing car vehicle game</p></div></button>
     <button class="game-button" onclick="openGame('Odd Bot Out','https://play.fancade.com/5D01F70D3373F2DD')"><img src=" img/odd-bot-out.png" alt="Odd Bot Out" class="game-image"><div class="game-info"><h3>🤖 Odd Bot Out</h3><p>Robot puzzle game</p></div></button>
-    <button class="game-button" onclick="openGame('Stunt Bike Extreme','https://g.igroutka.ru/games/793/2xTdm6GrXEuN0Kwq/fe831138-3321-40ed-b8cd-f1c482091e04/index.html')"><img src=" img/stunt-bike-extreme.png" alt="Stunt Bike Extreme" class="game-image"><div class="game-info"><h3>🏍️ Stunt Bike Extreme</h3><p>Motorcycle tricks and stunts</p></div></button>
+    <button class="game-button" onclick="openGame('Stunt Bike Extreme','https://games.playtropolis.com/stunt-bike-extreme/')"><img src=" img/stunt-bike-extreme.png" alt="Stunt Bike Extreme" class="game-image"><div class="game-info"><h3>🏍️ Stunt Bike Extreme</h3><p>Motorcycle tricks and stunts</p></div></button>
     <button class="game-button" onclick="openGame('Subway Surfers','https://arcadrome.com/embed/subway-surfers')"><img src=" img/subway-surfers.png" alt="Subway Surfers" class="game-image"><div class="game-info"><h3>🚇 Subway Surfers</h3><p>Endless running game</p></div></button>
     <button class="game-button" onclick="openGame('Monkey Mart','https://games.playtropolis.com/monkey-mart/')"><img src=" img/monkey-markt.png" alt="Monkey Mart" class="game-image"><div class="game-info"><h3>🐵 Monkey Mart</h3><p>Store management game</p></div></button>
     <button class="game-button" onclick="openGame('House Of Hazards','https://games.playtropolis.com/house-of-hazards/')"><img src=" img/house-of-hazards.png" alt="House Of Hazards" class="game-image"><div class="game-info"><h3>🏠 House Of Hazards</h3><p>Obstacle fun game</p></div></button>
@@ -2195,7 +2329,7 @@ body {
         <div style="text-align:center"><div style="color:#fff;font-size:1.1em;font-weight:800;margin-bottom:6px">Connect to GitHub</div><div style="color:rgba(255,255,255,.4);font-size:.85em;max-width:340px;line-height:1.6">Paste your GitHub Personal Access Token & Repository Name.<br>It will be saved securely and auto-loaded next time.</div></div>
         <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:10px">
           <input type="text" class="gh-input" id="ghRepoInput" placeholder="username/repository (e.g. your-user/maths.support)" value="gabriel-oli-ren/pomomathfocussupport" autocomplete="off" style="font-size:.9em;padding:12px 16px;text-align:center">
-          <input type="password" class="gh-input" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" value="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" autocomplete="off" style="font-size:.95em;padding:13px 16px;text-align:center;letter-spacing:2px">
+          <input type="password" class="gh-input" id="ghTokenInput" placeholder="Enter your GitHub token" value="" autocomplete="off" style="font-size:.95em;padding:13px 16px;text-align:center;letter-spacing:2px">
           <button class="gh-load-btn" onclick="ghConnect()" style="padding:13px;font-size:.95em">🔗 Save &amp; Connect</button>
           <div id="ghConnectError" style="display:none;color:#f87171;font-size:.8em;text-align:center;padding:8px 12px;background:rgba(246,79,89,.1);border-radius:8px;border:1px solid rgba(246,79,89,.3)"></div>
           <div id="ghConnectStatus" style="display:none;color:#4ade80;font-size:.8em;text-align:center;padding:8px 12px;background:rgba(34,197,94,.08);border-radius:8px;border:1px solid rgba(34,197,94,.2)"></div>
@@ -3125,10 +3259,16 @@ async function onboardingComplete() {
 }
 
 function completeAuthentication(user, profile) {
-  // Store user session data
-  localStorage.setItem('user_id', user.id);
-  localStorage.setItem('username', profile.username);
-  localStorage.setItem('display_name', profile.display_name);
+  // Store user session data using secure storage
+  secureSetItem('user_id', user.id);
+  secureSetItem('username', profile.username);
+  secureSetItem('display_name', profile.display_name);
+  
+  // SECURITY: Add authenticated class to body to reveal content
+  document.body.classList.add('authenticated');
+  
+  // SECURITY: Start continuous session validation
+  startSessionValidation();
   
   // Update UI for logged in user
   updateUserUI(user);
@@ -3307,6 +3447,10 @@ async function doRegister(){
 
 async function doSignOut(e){
   if(e)e.stopPropagation();closeDropdown();
+  
+  // SECURITY: Stop session validation
+  stopSessionValidation();
+  
   if(friendsPollTimer){clearInterval(friendsPollTimer);friendsPollTimer=null;}
   if(chatPollTimer){clearInterval(chatPollTimer);chatPollTimer=null;}
   if(chatRealtime){sb.removeChannel(chatRealtime);chatRealtime=null;}
@@ -3327,6 +3471,9 @@ async function doSignOut(e){
   document.getElementById('userBadge').classList.remove('visible');
   stopClock();
   
+  // SECURITY: Remove authenticated class to hide content
+  document.body.classList.remove('authenticated');
+  
   // Show auth overlay again
   document.getElementById('authOverlay').classList.remove('hidden');
   
@@ -3337,6 +3484,13 @@ async function doSignOut(e){
 async function onSignedIn(profile){
   currentUser={id:profile.id,email:profile.email};
   currentProfile=profile;
+  
+  // SECURITY: Add authenticated class to body to reveal content
+  document.body.classList.add('authenticated');
+  
+  // SECURITY: Start continuous session validation
+  startSessionValidation();
+  
   document.getElementById('authOverlay').classList.add('hidden');
   renderUserBadge();
   populateAccountPage();
@@ -3380,6 +3534,8 @@ async function restoreSession(){
     
     if (sessionError || !session) {
       console.log('No Supabase session found');
+      // SECURITY: Ensure body doesn't have authenticated class
+      document.body.classList.remove('authenticated');
       document.getElementById('authOverlay').classList.remove('hidden');
       setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
       return null;
@@ -3400,6 +3556,8 @@ async function restoreSession(){
         startOnboarding(session.user);
         return null;
       }
+      // SECURITY: Ensure body doesn't have authenticated class
+      document.body.classList.remove('authenticated');
       document.getElementById('authOverlay').classList.remove('hidden');
       setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
       return null;
@@ -3412,15 +3570,23 @@ async function restoreSession(){
       return null;
     }
     
-    // Store session data
-    localStorage.setItem('user_id', profile.id);
-    localStorage.setItem('username', profile.username);
-    localStorage.setItem('display_name', profile.display_name);
+    // Store session data using secure storage
+    secureSetItem('user_id', profile.id);
+    secureSetItem('username', profile.username);
+    secureSetItem('display_name', profile.display_name);
+    
+    // SECURITY: Add authenticated class to body to reveal content
+    document.body.classList.add('authenticated');
+    
+    // SECURITY: Start continuous session validation
+    startSessionValidation();
     
     return profile;
     
   } catch (e) {
     console.error('Session restore exception:', e);
+    // SECURITY: Ensure body doesn't have authenticated class
+    document.body.classList.remove('authenticated');
     document.getElementById('authOverlay').classList.remove('hidden');
     setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
     return null;
@@ -4511,6 +4677,141 @@ function preventAction(e){e.preventDefault();return false;}
 function preventDevTools(e){if(e.keyCode===123||(e.ctrlKey&&e.shiftKey&&[73,74,67].includes(e.keyCode))||(e.ctrlKey&&e.keyCode===85)){e.preventDefault();return false;}}
 function enableSecurityProtection(){document.addEventListener('contextmenu',preventAction);document.addEventListener('keydown',preventDevTools);}
 function disableSecurityProtection(){document.removeEventListener('contextmenu',preventAction);document.removeEventListener('keydown',preventDevTools);}
+
+// SECURITY: Continuous session validation
+let sessionValidationInterval = null;
+
+// SECURITY: Simple encryption for sensitive localStorage data
+const SECURITY_KEY = 'maths_support_security_v1';
+
+function simpleEncrypt(text) {
+  if (!text) return '';
+  try {
+    const result = [];
+    for (let i = 0; i < text.length; i++) {
+      result.push(String.fromCharCode(text.charCodeAt(i) ^ SECURITY_KEY.charCodeAt(i % SECURITY_KEY.length)));
+    }
+    return btoa(result.join(''));
+  } catch (e) {
+    console.error('Encryption error:', e);
+    return text;
+  }
+}
+
+function simpleDecrypt(encoded) {
+  if (!encoded) return '';
+  try {
+    const text = atob(encoded);
+    const result = [];
+    for (let i = 0; i < text.length; i++) {
+      result.push(String.fromCharCode(text.charCodeAt(i) ^ SECURITY_KEY.charCodeAt(i % SECURITY_KEY.length)));
+    }
+    return result.join('');
+  } catch (e) {
+    console.error('Decryption error:', e);
+    return '';
+  }
+}
+
+function secureSetItem(key, value) {
+  try {
+    const encrypted = simpleEncrypt(value);
+    localStorage.setItem(key, encrypted);
+  } catch (e) {
+    console.error('Secure storage error:', e);
+    localStorage.setItem(key, value);
+  }
+}
+
+function secureGetItem(key) {
+  try {
+    const encrypted = localStorage.getItem(key);
+    if (!encrypted) return null;
+    return simpleDecrypt(encrypted);
+  } catch (e) {
+    console.error('Secure retrieval error:', e);
+    return localStorage.getItem(key);
+  }
+}
+
+function startSessionValidation() {
+  // Clear any existing interval
+  if (sessionValidationInterval) {
+    clearInterval(sessionValidationInterval);
+  }
+  
+  // Validate session every 30 seconds
+  sessionValidationInterval = setInterval(async () => {
+    try {
+      const sessionToken = localStorage.getItem('sb-access-token') || sessionStorage.getItem('sb-access-token');
+      const userId = localStorage.getItem('user_id');
+      
+      if (!sessionToken || !userId) {
+        console.log('Security: Session invalidated during continuous check');
+        await forceLogout();
+        return;
+      }
+      
+      // Verify session with Supabase
+      if (sb) {
+        const { data: { session }, error } = await sb.auth.getSession();
+        if (error || !session) {
+          console.log('Security: Supabase session invalid');
+          await forceLogout();
+        }
+      }
+    } catch (e) {
+      console.error('Security: Session validation error', e);
+      await forceLogout();
+    }
+  }, 30000); // 30 seconds
+}
+
+function stopSessionValidation() {
+  if (sessionValidationInterval) {
+    clearInterval(sessionValidationInterval);
+    sessionValidationInterval = null;
+  }
+}
+
+async function forceLogout() {
+  console.log('Security: Force logout triggered');
+  
+  // Stop all operations
+  stopSessionValidation();
+  if(friendsPollTimer){clearInterval(friendsPollTimer);friendsPollTimer=null;}
+  if(chatPollTimer){clearInterval(chatPollTimer);chatPollTimer=null;}
+  if(chatRealtime){sb.removeChannel(chatRealtime);chatRealtime=null;}
+  if(typingRealtime){sb.removeChannel(typingRealtime);typingRealtime=null;}
+  
+  // Clear all auth data (both encrypted and direct)
+  localStorage.removeItem(AUTH_SESSION_KEY);
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('username');
+  localStorage.removeItem('display_name');
+  localStorage.removeItem('sb-access-token');
+  localStorage.removeItem('sb-refresh-token');
+  sessionStorage.clear();
+  
+  currentUser = null;
+  currentProfile = null;
+  
+  // Hide all content
+  document.body.classList.remove('authenticated');
+  document.getElementById('userBadge').classList.remove('visible');
+  stopClock();
+  
+  // Show auth overlay
+  document.getElementById('authOverlay').classList.remove('hidden');
+  
+  // Re-render Google button
+  setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
+  
+  // Reload page to ensure clean state
+  setTimeout(() => {
+    window.location.reload();
+  }, 1000);
+}
 
 // ══════════════════════════════════════════════════════════════════
 // GAMES
@@ -5672,7 +5973,7 @@ function setGitHubRepo(newRepo){
 }
 
 function ghGetHeaders(){return { 'Authorization':'token '+ghToken, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' };}
-async function ghRestoreSavedToken(){if(!currentUser) return;try{const{data}=await sb.from('admin_settings').select('value').eq('key','github_token').maybeSingle();if(data?.value){ghToken=data.value;ghShowEditor();ghLoadFiles();}else{ghToken='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';ghShowEditor();ghLoadFiles();}}catch(e){console.warn('ghRestoreSavedToken:',e);ghToken='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';ghShowEditor();ghLoadFiles();}}
+async function ghRestoreSavedToken(){if(!currentUser) return;try{const{data}=await sb.from('admin_settings').select('value').eq('key','github_token').maybeSingle();if(data?.value){ghToken=data.value;ghShowEditor();ghLoadFiles();}else{ghToken='';ghShowEditor();}}catch(e){console.warn('ghRestoreSavedToken:',e);ghToken='';ghShowEditor();}}
 async function ghConnect(){
   const repoInput=document.getElementById('ghRepoInput');
   if(repoInput && repoInput.value.trim()){
@@ -5681,10 +5982,10 @@ async function ghConnect(){
   const input=document.getElementById('ghTokenInput');const tok=(input?.value||'').trim();const errEl=document.getElementById('ghConnectError');const statusEl=document.getElementById('ghConnectStatus');
   if(errEl) errEl.style.display='none';
   
-  // Use default token if not provided
-  const finalToken = tok || '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';
+  // Require user to provide their own token
+  const finalToken = tok;
   
-  if(!tok && !finalToken){if(errEl){errEl.textContent='Please paste your GitHub token.';errEl.style.display='block';}return;}
+  if(!finalToken){if(errEl){errEl.textContent='Please paste your GitHub token.';errEl.style.display='block';}return;}
   if(statusEl){statusEl.textContent='⏳ Validating token & repository...';statusEl.style.display='block';}
   try{
     const res=await fetch(`https://api.github.com/repos/${GH_REPO}`,{headers:{'Authorization':'token '+finalToken,'Accept':'application/vnd.github.v3+json'}});
