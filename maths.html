@@ -6296,7 +6296,7 @@ async function sendAiMessage(){ /* ... keep existing implementation ... */ }
 async function loadAiMathsConversations(){
   if(!currentUser) return;
   try{
-    const{data,error}=await sb.from('ai_conversations').select('*').eq('user_id',currentUser.id).order('started_at',{ascending:false});
+    const{data,error}=await sb.from('ai_conversations').select('*').eq('user_id',currentUser.id);
     if(error) throw error;
     aimathsConversations=data||[];
     renderAiMathsConversationsList();
@@ -6327,11 +6327,7 @@ async function createNewAiConversation(){
   try{
     const{data,error}=await sb.from('ai_conversations').insert({
       user_id:currentUser.id,
-      title:'New Conversation',
-      status:'active',
-      started_at:new Date().toISOString(),
-      message_count:0,
-      total_tokens:0
+      title:'New Conversation'
     }).select().single();
     if(error) throw error;
     aimathsConversations.unshift(data);
@@ -6341,7 +6337,7 @@ async function createNewAiConversation(){
     document.getElementById('aimathsChatTitle').textContent=data.title;
   }catch(e){
     console.error('Error creating conversation:',e);
-    showToast('❌ Failed to create conversation - AI tables may not exist in database');
+    showToast('❌ Failed to create conversation: '+e.message);
   }
 }
 
@@ -6355,10 +6351,12 @@ async function loadAiMathsConversation(conversationId){
     clearAiMathsChat();
     document.getElementById('aimathsChatTitle').textContent=aimathsCurrentConversation.title;
     if(messages&&messages.length){
+      // Simple alternation for message roles since table doesn't have role field
+      let isUser = true;
       messages.forEach(msg=>{
-        // Add role field based on mode for display
-        msg.role = msg.mode === 'assistant' ? 'assistant' : 'user';
+        msg.role = isUser ? 'user' : 'assistant';
         appendAiMathsMessage(msg);
+        isUser = !isUser;
       });
     }
   }catch(e){
@@ -6428,8 +6426,7 @@ async function sendAiMathsMessage(){
     const{data:savedMsg,error}=await sb.from('ai_chat_messages').insert({
       conversation_id:aimathsCurrentConversation.id,
       user_id:currentUser.id,
-      content:content,
-      mode:'text'
+      content:content
     }).select().single();
     if(error) throw error;
     // Add role and image data locally for display (not saved to database)
@@ -6438,7 +6435,7 @@ async function sendAiMathsMessage(){
     appendAiMathsMessage(savedMsg);
   }catch(e){
     console.error('Error saving message:',e);
-    showToast('❌ Failed to save message - AI tables may not exist in database');
+    showToast('❌ Failed to save message: '+e.message);
   }
   input.value='';
   aimathsCurrentImage=null;
@@ -6458,8 +6455,7 @@ async function sendAiMathsMessage(){
     const{data:assistantMsg,error}=await sb.from('ai_chat_messages').insert({
       conversation_id:aimathsCurrentConversation.id,
       user_id:currentUser.id,
-      content:response,
-      mode:'assistant'
+      content:response
     }).select().single();
     if(error) throw error;
     // Add role and search data locally for display (not saved to database)
@@ -6494,10 +6490,11 @@ async function getAiMathsResponse(content,imageData,searchResults){
   if(aimathsCurrentConversation){
     const{data:history}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',aimathsCurrentConversation.id).limit(10);
     if(history){
-      // Since the table doesn't have role field, we'll use mode field to determine role
+      // Simple alternation for conversation history since table doesn't have role field
+      let isUser = true;
       history.forEach(msg=>{
-        const role = msg.mode === 'assistant' ? 'assistant' : 'user';
-        messages.push({role:role,content:msg.content});
+        messages.push({role:isUser?'user':'assistant',content:msg.content});
+        isUser = !isUser;
       });
     }
   }
