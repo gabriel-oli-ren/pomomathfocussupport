@@ -6316,7 +6316,9 @@ function renderAiMathsConversationsList(){
   aimathsConversations.forEach(conv=>{
     const item=document.createElement('div');
     item.className='aimaths-conversation-item'+(aimathsCurrentConversation?.id===conv.id?' active':'');
-    item.innerHTML=`<div class="aimaths-conversation-title">${escapeHtml(conv.title)}</div><div class="aimaths-conversation-date">${new Date(conv.updated_at).toLocaleDateString()}</div>`;
+    // Use started_at if available, otherwise show no date
+    const dateStr = conv.started_at ? new Date(conv.started_at).toLocaleDateString() : '';
+    item.innerHTML=`<div class="aimaths-conversation-title">${escapeHtml(conv.title)}</div>${dateStr ? `<div class="aimaths-conversation-date">${dateStr}</div>` : ''}`;
     item.onclick=()=>loadAiMathsConversation(conv.id);
     list.appendChild(item);
   });
@@ -6324,6 +6326,12 @@ function renderAiMathsConversationsList(){
 
 async function createNewAiConversation(){
   if(!currentUser) return;
+  // Check if we already have a current conversation to avoid duplicates
+  if(aimathsCurrentConversation){
+    clearAiMathsChat();
+    document.getElementById('aimathsChatTitle').textContent=aimathsCurrentConversation.title;
+    return;
+  }
   try{
     const{data,error}=await sb.from('ai_conversations').insert({
       user_id:currentUser.id,
