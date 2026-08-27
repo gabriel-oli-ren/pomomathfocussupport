@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -257,10 +256,16 @@ body {
   opacity: 0 !important;
 }
 
+/* Dev panel is handled separately - hidden by default, shown when active and authenticated */
+.dev-panel {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
 /* Only show these elements when authenticated */
 body.authenticated .sidebar,
-body.authenticated .main-content,
-body.authenticated .dev-panel {
+body.authenticated .main-content {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -268,6 +273,13 @@ body.authenticated .dev-panel {
 
 /* Chat page only shows when both authenticated AND has active class */
 body.authenticated .chat-page.active {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Dev panel only shows when both authenticated AND has active class */
+body.authenticated .dev-panel.active {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -892,9 +904,14 @@ body:not(.authenticated) .chat-page.active {
 .admin-dev-arrow{margin-left:auto;color:rgba(246,79,89,.6);font-size:1.4em;transition:transform .3s}
 .admin-dev-entry:hover .admin-dev-arrow{transform:translateX(4px)}
 .admin-dev-pill{position:absolute;top:12px;right:48px;background:rgba(246,79,89,.2);border:1px solid rgba(246,79,89,.4);color:#f64f59;font-size:.68em;font-weight:800;letter-spacing:1px;padding:3px 10px;border-radius:20px;text-transform:uppercase}
-.dev-panel{display:none;position:fixed;top:0;bottom:0;left:60px;right:0;z-index:950;background:#0a0a0f;font-family:'Plus Jakarta Sans',sans-serif;flex-direction:column}
-.dev-panel.active{display:flex}
+.dev-panel{display:none !important;position:fixed;top:0;bottom:0;left:60px;right:0;z-index:950;background:#0a0a0f;font-family:'Plus Jakarta Sans',sans-serif;flex-direction:column}
+.dev-panel.active{display:flex !important}
 .sidebar:hover ~ .dev-panel{left:250px}
+
+/* Ensure dev panel is hidden when not authenticated */
+body:not(.authenticated) .dev-panel.active {
+  display: none !important;
+}
 .dev-panel-topbar{display:flex;align-items:center;gap:16px;padding:14px 24px;background:rgba(246,79,89,.06);border-bottom:1px solid rgba(246,79,89,.2);flex-shrink:0}
 .dev-panel-back{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
 .dev-panel-back:hover{background:rgba(255,255,255,.15)}
@@ -3286,8 +3303,9 @@ function completeAuthentication(user, profile) {
   // SECURITY: Hide auth overlay and show main content
   document.getElementById('authOverlay').classList.add('hidden');
   
-  // Ensure chat page is not automatically opened after authentication
+  // Ensure chat page and dev panel are not automatically opened after authentication
   document.getElementById('chatPage').classList.remove('active');
+  document.getElementById('devPanel').classList.remove('active');
   
   // Show success message
   const successEl = document.getElementById('authSuccess');
@@ -3509,8 +3527,9 @@ async function onSignedIn(profile){
   renderUserBadge();
   populateAccountPage();
   
-  // Ensure chat page is not automatically opened after login
+  // Ensure chat page and dev panel are not automatically opened after login
   document.getElementById('chatPage').classList.remove('active');
+  document.getElementById('devPanel').classList.remove('active');
   
   // Don't disable security protection during sign in
   startFriendPolling();
@@ -3616,8 +3635,9 @@ async function restoreSession(){
     // SECURITY: Start continuous session validation
     startSessionValidation();
     
-    // Ensure chat page is not automatically opened when restoring session
+    // Ensure chat page and dev panel are not automatically opened when restoring session
     document.getElementById('chatPage').classList.remove('active');
+    document.getElementById('devPanel').classList.remove('active');
     
     return profile;
     
@@ -4785,31 +4805,42 @@ function startSessionValidation() {
     clearInterval(sessionValidationInterval);
   }
   
-  // Validate session every 30 seconds
+  // Validate session every 5 minutes (less aggressive)
   sessionValidationInterval = setInterval(async () => {
     try {
-      const sessionToken = localStorage.getItem('sb-access-token') || sessionStorage.getItem('sb-access-token');
       const userId = localStorage.getItem('user_id');
       
-      if (!sessionToken || !userId) {
-        console.log('Security: Session invalidated during continuous check');
-        await forceLogout();
+      // Basic check - if no user ID, session is definitely invalid
+      if (!userId) {
+        console.log('Security: No user ID found, session invalid');
+        await forceLogout('User session data not found');
         return;
       }
       
-      // Verify session with Supabase
+      // Verify session with Supabase (this will handle token refresh automatically)
       if (sb) {
         const { data: { session }, error } = await sb.auth.getSession();
-        if (error || !session) {
-          console.log('Security: Supabase session invalid');
-          await forceLogout();
+        
+        // Only logout if there's a definite error AND no session
+        // Don't logout on temporary network issues
+        if (error && !session) {
+          console.log('Security: Supabase session invalid, logging out');
+          await forceLogout('Supabase session validation failed');
+        } else if (error) {
+          console.warn('Security: Session validation error (network issue?):', error.message);
+          // Don't force logout on network errors - let Supabase handle retry
+        } else if (!session) {
+          console.log('Security: No Supabase session found, logging out');
+          await forceLogout('Supabase session not found');
+        } else {
+          console.log('Security: Session validated successfully for user:', session.user?.email);
         }
       }
     } catch (e) {
-      console.error('Security: Session validation error', e);
-      await forceLogout();
+      // Only log errors, don't force logout on exceptions (might be network issues)
+      console.error('Security: Session validation exception (not forcing logout):', e.message);
     }
-  }, 30000); // 30 seconds
+  }, 300000); // 5 minutes (300000ms) instead of 30 seconds
 }
 
 function stopSessionValidation() {
@@ -4819,8 +4850,19 @@ function stopSessionValidation() {
   }
 }
 
-async function forceLogout() {
-  console.log('Security: Force logout triggered');
+async function forceLogout(reason = 'Session expired') {
+  console.log('Security: Force logout triggered -', reason);
+  
+  // Show user notification about the logout
+  try {
+    const authError = document.getElementById('authError');
+    if (authError) {
+      authError.textContent = `You have been signed out: ${reason}. Please sign in again.`;
+      authError.classList.add('show');
+    }
+  } catch (e) {
+    console.log('Could not show logout notification:', e);
+  }
   
   // Stop all operations
   stopSessionValidation();
@@ -4860,10 +4902,11 @@ async function forceLogout() {
   // Re-render Google button
   setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
   
-  // Reload page to ensure clean state
+  // Reload page to ensure clean state (but with longer delay to allow user to see what happened)
   setTimeout(() => {
+    console.log('Reloading page after logout -', reason);
     window.location.reload();
-  }, 1000);
+  }, 3000); // Increased to 3 seconds to give user time to see the logout message
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -4937,6 +4980,7 @@ function actuallyOpenGame(name, url) {
     else el.classList.remove('active');
   });
   document.getElementById('chatPage').classList.remove('active');
+  document.getElementById('devPanel').classList.remove('active');
   document.getElementById('gameMainWrapper').style.display = 'flex';
   document.getElementById('gameAdBottom').style.display = 'none';
   document.getElementById('topNav').classList.add('minimal');
@@ -5008,9 +5052,12 @@ function showSection(section){
   document.getElementById('gamesGrid').style.display='none';
   ['appsPage','accountPage','friendsPage','shopPage','aimathsPage','mathssearchPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   
-  // Always ensure chat page is closed when switching sections (unless explicitly opening chat)
+  // Always ensure chat page and dev panel are closed when switching sections (unless explicitly opening them)
   if(section !== 'chat') {
     document.getElementById('chatPage').classList.remove('active');
+  }
+  if(section !== 'dev') {
+    document.getElementById('devPanel').classList.remove('active');
   }
   
   ['homeBtn','appsBtn','accountBtn','friendsBtn','chatBtn','shopBtn','mathsSearchBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
@@ -5131,6 +5178,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.activeElement.id==='loginPassword')doLogin();
   if(e.key==='Enter'&&document.activeElement.id==='regPasswordConfirm')doRegister();
   if(e.key==='Escape'&&document.getElementById('chatPage').classList.contains('active'))showSection('home');
+  if(e.key==='Escape'&&document.getElementById('devPanel').classList.contains('active'))closeDevPanel();
   if(e.key==='Escape'&&document.getElementById('fprofileOverlay')?.classList.contains('active'))closeFriendProfile();
   if(e.key==='Escape'&&document.getElementById('petModalOverlay')?.classList.contains('active'))closePetModal();
   if(e.key==='Escape'&&document.getElementById('gameBannerOverlay')?.classList.contains('active')){const skipBtn=document.getElementById('bannerSkipBtn');if(skipBtn&&!skipBtn.disabled)skipGameBanner();}
