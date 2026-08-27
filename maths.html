@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,8 +243,15 @@ body {
 }
 
 /* SECURITY: Hide all main content by default - only shown after authentication */
-.sidebar, .main-content, .chat-page, .dev-panel, .questionnaire-overlay,
+.sidebar, .main-content, .dev-panel, .questionnaire-overlay,
 .onboarding-overlay, .sitepass-overlay, .timetable-alert-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Chat page is handled separately - hidden by default, shown when active and authenticated */
+.chat-page {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -252,9 +260,15 @@ body {
 /* Only show these elements when authenticated */
 body.authenticated .sidebar,
 body.authenticated .main-content,
-body.authenticated .chat-page,
 body.authenticated .dev-panel {
   display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Chat page only shows when both authenticated AND has active class */
+body.authenticated .chat-page.active {
+  display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
@@ -702,7 +716,7 @@ body:not(.authenticated) .auth-overlay.hidden {
 .sidebar:hover + .main-content ~ .chat-page{ --sidebar-w: 250px; }
 
 .chat-page{
-  display:none;
+  display:none !important;
   position:fixed;
   inset:0;
   z-index:9999;
@@ -713,7 +727,12 @@ body:not(.authenticated) .auth-overlay.hidden {
   align-items:center;
   padding:20px;
 }
-.chat-page.active{display:flex}
+.chat-page.active{display:flex !important}
+
+/* Ensure chat page is hidden when not authenticated */
+body:not(.authenticated) .chat-page.active {
+  display: none !important;
+}
 .chat-modal-box{
   width:100%;
   max-width:980px;
@@ -3267,6 +3286,9 @@ function completeAuthentication(user, profile) {
   // SECURITY: Hide auth overlay and show main content
   document.getElementById('authOverlay').classList.add('hidden');
   
+  // Ensure chat page is not automatically opened after authentication
+  document.getElementById('chatPage').classList.remove('active');
+  
   // Show success message
   const successEl = document.getElementById('authSuccess');
   successEl.textContent = '¡Sesión iniciada con éxito! Bienvenido, ' + profile.display_name;
@@ -3486,6 +3508,10 @@ async function onSignedIn(profile){
   document.getElementById('authOverlay').classList.add('hidden');
   renderUserBadge();
   populateAccountPage();
+  
+  // Ensure chat page is not automatically opened after login
+  document.getElementById('chatPage').classList.remove('active');
+  
   // Don't disable security protection during sign in
   startFriendPolling();
   subscribeToChat();
@@ -3589,6 +3615,9 @@ async function restoreSession(){
     
     // SECURITY: Start continuous session validation
     startSessionValidation();
+    
+    // Ensure chat page is not automatically opened when restoring session
+    document.getElementById('chatPage').classList.remove('active');
     
     return profile;
     
@@ -4978,7 +5007,12 @@ function showSection(section){
   if(chatPollTimer&&section!=='chat'){clearInterval(chatPollTimer);chatPollTimer=null;}
   document.getElementById('gamesGrid').style.display='none';
   ['appsPage','accountPage','friendsPage','shopPage','aimathsPage','mathssearchPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
-  document.getElementById('chatPage').classList.remove('active');
+  
+  // Always ensure chat page is closed when switching sections (unless explicitly opening chat)
+  if(section !== 'chat') {
+    document.getElementById('chatPage').classList.remove('active');
+  }
+  
   ['homeBtn','appsBtn','accountBtn','friendsBtn','chatBtn','shopBtn','mathsSearchBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   document.getElementById('topNav').classList.remove('minimal');
   const cas=document.querySelector('.custom-apps-section');
