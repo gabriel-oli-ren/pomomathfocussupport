@@ -2303,7 +2303,7 @@ body:not(.authenticated) .dev-panel.active {
         </div>
         <div class="aimaths-input-row">
           <textarea class="aimaths-input" id="aimathsInput" placeholder="Ask me anything..." rows="1"></textarea>
-          <button onclick="sendAiMathsMessage()" class="aimaths-send-btn">➤</button>
+          <button onclick="sendAiMathsMessage()" class="aimaths-send-btn" id="aimathsSendBtn">➤</button>
         </div>
         <div class="aimaths-search-indicator" id="aimathsSearchIndicator" style="display:none">
           <span>🔍 Searching the web...</span>
@@ -6418,6 +6418,11 @@ function appendAiMathsMessage(msg){
 
 async function sendAiMathsMessage(){
   const input=document.getElementById('aimathsInput');
+  const sendBtn=document.getElementById('aimathsSendBtn');
+  if(!input || !sendBtn){
+    console.error('AI chat elements not found');
+    return;
+  }
   const content=input.value.trim();
   if(!content&&!aimathsCurrentImage) return;
   if(!AIMATHS_API_KEY){
@@ -6428,7 +6433,7 @@ async function sendAiMathsMessage(){
     await createNewAiConversation();
   }
   input.disabled=true;
-  document.getElementById('aimathsSendBtn').disabled=true;
+  sendBtn.disabled=true;
   const userMessage={role:'user',content:content};
   try{
     const{data:savedMsg,error}=await sb.from('ai_chat_messages').insert({
@@ -6485,7 +6490,7 @@ async function sendAiMathsMessage(){
     showToast('❌ Failed to get AI response: '+e.message);
   }
   input.disabled=false;
-  document.getElementById('aimathsSendBtn').disabled=false;
+  sendBtn.disabled=false;
   input.focus();
 }
 
