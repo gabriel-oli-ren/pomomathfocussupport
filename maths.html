@@ -2617,23 +2617,6 @@ body:not(.authenticated) .dev-panel.active {
   </div>
 </div>
 
-<!-- IN-GAME CHAT OVERLAY -->
-<div class="ingame-chat-overlay" id="ingameChatOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:99999;display:none;justify-content:center;align-items:center">
-  <div class="ingame-chat-box" style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:20px;max-width:400px;width:90%;max-height:60vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-      <h3 style="color:#fff;margin:0;font-size:1.2em">💬 In-Game Chat</h3>
-      <button onclick="document.getElementById('ingameChatOverlay').style.display='none'" style="background:none;border:none;color:#fff;font-size:1.5em;cursor:pointer;padding:5px">✕</button>
-    </div>
-    <div id="ingameChatMessages" style="flex:1;overflow-y:auto;background:rgba(0,0,0,0.3);border-radius:12px;padding:15px;margin-bottom:15px;min-height:200px;max-height:300px">
-      <div style="color:rgba(255,255,255,0.5);text-align:center;font-size:0.9em">Chat messages will appear here</div>
-    </div>
-    <div style="display:flex;gap:10px">
-      <input type="text" id="ingameChatInput" placeholder="Type a message..." style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 15px;color:#fff;font-size:0.95em;outline:none">
-      <button onclick="sendIngameMessage()" style="background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:10px;padding:10px 20px;color:#fff;font-weight:600;cursor:pointer">Send</button>
-    </div>
-  </div>
-</div>
-
 <script>
 // ══════════════════════════════════════════════════════════════════
 // SUPABASE SETUP
@@ -5014,11 +4997,6 @@ function actuallyOpenGame(name, url) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   startClock();
   broadcastGameStatus(name, url);
-  // Show in-game chat
-  const ingameChat = document.getElementById('ingameChatOverlay');
-  if (ingameChat) {
-    ingameChat.style.display = 'flex';
-  }
 }
 
 function openGame(name, url) {
@@ -5040,10 +5018,6 @@ function closeGame(){
   document.getElementById('gameFrame').src='about:blank';
   document.getElementById('gameMainWrapper').style.display='none';
   document.getElementById('gameAdBottom').style.display='none';
-  const ingameChat = document.getElementById('ingameChatOverlay');
-  if (ingameChat) {
-    ingameChat.style.display = 'none';
-  }
   broadcastGameStatus(null,null);
   document.getElementById('topNav').classList.remove('minimal');
   stopClock(); // Hide calendar when exiting game
@@ -5053,22 +5027,6 @@ function closeGame(){
   }else if(document.getElementById('appsBtn').classList.contains('active')){
     document.getElementById('appsPage').classList.add('active');
   }
-}
-
-function sendIngameMessage() {
-  const input = document.getElementById('ingameChatInput');
-  const messages = document.getElementById('ingameChatMessages');
-  const message = input.value.trim();
-  
-  if (!message) return;
-  
-  const messageDiv = document.createElement('div');
-  messageDiv.style.cssText = 'background:rgba(102,126,234,0.2);border-radius:8px;padding:8px 12px;margin-bottom:8px;color:#fff;font-size:0.9em';
-  messageDiv.textContent = message;
-  
-  messages.appendChild(messageDiv);
-  messages.scrollTop = messages.scrollHeight;
-  input.value = '';
 }
 
 function toggleFullscreen(){const gc=document.getElementById('gameContainer');if(!document.fullscreenElement)gc.requestFullscreen().catch(err=>alert(err.message));else document.exitFullscreen();}
@@ -7108,18 +7066,21 @@ document.addEventListener('DOMContentLoaded',async()=>{
 
 <!-- Ads script - will be loaded dynamically after user completes setup -->
 <script>
+let adsScriptLoaded = false;
+
 function loadAdsScript() {
   // Only load ads script if user is authenticated and has completed onboarding
   const isAuthenticated = document.body.classList.contains('authenticated');
   const onboardingCompleted = localStorage.getItem('onboarding_completed') === 'true';
   
-  if (isAuthenticated && onboardingCompleted) {
+  if (isAuthenticated && onboardingCompleted && !adsScriptLoaded) {
     const adsScript = document.createElement('script');
     adsScript.src = 'https://cdn.apitiny.net/scripts/v2.0/main.js';
     adsScript.setAttribute('data-site-id', '6a90c2bfbe98f7b4416bb4d1');
     adsScript.setAttribute('data-test-mode', 'false');
     adsScript.async = true;
     document.head.appendChild(adsScript);
+    adsScriptLoaded = true;
     console.log('Ads script loaded after user setup completion');
   }
 }
@@ -7129,7 +7090,7 @@ const checkAdsLoad = setInterval(() => {
   const isAuthenticated = document.body.classList.contains('authenticated');
   const onboardingCompleted = localStorage.getItem('onboarding_completed') === 'true';
   
-  if (isAuthenticated && onboardingCompleted) {
+  if (isAuthenticated && onboardingCompleted && !adsScriptLoaded) {
     loadAdsScript();
     clearInterval(checkAdsLoad);
   }
@@ -7139,10 +7100,25 @@ const checkAdsLoad = setInterval(() => {
 const originalSetOnboarding = localStorage.setItem;
 localStorage.setItem = function(key, value) {
   originalSetOnboarding.call(this, key, value);
-  if (key === 'onboarding_completed' && value === 'true') {
+  if (key === 'onboarding_completed' && value === 'true' && !adsScriptLoaded) {
     setTimeout(loadAdsScript, 500);
   }
 };
+
+// Also load when authenticated class is added
+const observer = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+      const isAuthenticated = document.body.classList.contains('authenticated');
+      const onboardingCompleted = localStorage.getItem('onboarding_completed') === 'true';
+      if (isAuthenticated && onboardingCompleted && !adsScriptLoaded) {
+        loadAdsScript();
+      }
+    }
+  });
+});
+
+observer.observe(document.body, { attributes: true });
 </script>
 
 <!-- EXPERIMENTAL / CUSTOM CURSOR MODAL -->
