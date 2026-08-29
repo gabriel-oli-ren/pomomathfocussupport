@@ -565,12 +565,40 @@ async function sendMessage() {
   textEl.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
   scrollToBottom();
 
+  try {const { data, error } = await supabase.functions.invoke('chat-completion', {
+  body: { messages: toApiMessages(currentMessages) }
+});
+
+if (error) {
+  let details = error.message || 'Edge Function error';
+
   try {
-    const { data, error } = await supabase.functions.invoke('chat-completion', {
-      body: { messages: toApiMessages(currentMessages) }
-    });
-    if (error) throw error;
-    const answer = data?.answer || data?.error || 'No response was returned.';
+    if (error.context) {
+      const responseText = await error.context.text();
+
+      try {
+        const parsed = JSON.parse(responseText);
+        details = parsed.error || parsed.message || responseText;
+      } catch {
+        if (responseText) details = responseText;
+      }
+    }
+  } catch (e) {
+    console.error('Could not read Edge Function error:', e);
+  }
+
+  throw new Error(details);
+}
+
+if (!data) {
+  throw new Error('The Edge Function returned no data.');
+}
+
+if (data.error) {
+  throw new Error(data.error);
+}
+
+const answer = data.answer || 'No response was returned.';
 
     const { data: assistantMsg, error: assistantErr } = await supabase
       .from('am_messages')
