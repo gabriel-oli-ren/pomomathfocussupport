@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -181,8 +182,8 @@ import { marked } from 'https://cdn.jsdelivr.net/npm/marked@11/+esm';
 import DOMPurify from 'https://cdn.jsdelivr.net/npm/dompurify@3/+esm';
 
 // ── Configure with your Supabase project ─────────────────────────────────
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://inidxltybmadzgggvpxz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaWR4bHR5Ym1hZHpnZ2d2cHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMjMyOTMsImV4cCI6MjEwMjg5OTI5M30.7yrNe9mk_cj6YPi4adutrKfC0pDZxWLyUcsdvbnkSqY';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 marked.setOptions({ breaks: true });
