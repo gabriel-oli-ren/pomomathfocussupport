@@ -12,6 +12,7 @@
 >
 
 <style>
+
 :root{
   --sidebar-bg:#171717;
   --sidebar-hover:#212121;
@@ -62,6 +63,10 @@ button{
   color:inherit;
 }
 
+button:disabled{
+  cursor:not-allowed;
+}
+
 textarea{
   font:inherit;
 }
@@ -75,12 +80,11 @@ textarea{
 
 /* =========================================================
    SIDEBAR
-   ========================================================= */
+========================================================= */
 
 .sidebar{
   width:270px;
   flex-shrink:0;
-
   background:var(--sidebar-bg);
   color:var(--sidebar-text);
 
@@ -130,9 +134,8 @@ textarea{
   background:var(--sidebar-hover);
 }
 
-.new-chat-btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
+.new-chat-btn svg{
+  flex-shrink:0;
 }
 
 .chat-list{
@@ -155,6 +158,7 @@ textarea{
   padding:10px 10px 4px;
 
   text-transform:uppercase;
+
   letter-spacing:.04em;
 }
 
@@ -163,6 +167,7 @@ textarea{
 
   display:flex;
   align-items:center;
+
   gap:8px;
 
   padding:9px 10px;
@@ -189,6 +194,7 @@ textarea{
 
   overflow:hidden;
   text-overflow:ellipsis;
+
   white-space:nowrap;
 
   text-align:left;
@@ -212,6 +218,7 @@ textarea{
 
 .chat-item .delete-btn:hover{
   color:var(--danger);
+
   background:rgba(255,255,255,.08);
 }
 
@@ -225,6 +232,7 @@ textarea{
 .user-row{
   display:flex;
   align-items:center;
+
   gap:9px;
 
   padding:8px;
@@ -244,7 +252,7 @@ textarea{
 
   flex-shrink:0;
 
-  background:#333;
+  object-fit:cover;
 }
 
 .user-row .name{
@@ -253,7 +261,9 @@ textarea{
   font-size:13px;
 
   overflow:hidden;
+
   text-overflow:ellipsis;
+
   white-space:nowrap;
 }
 
@@ -267,13 +277,14 @@ textarea{
 
 .user-row .signout-btn:hover{
   color:var(--sidebar-text);
+
   background:rgba(255,255,255,.08);
 }
 
 
 /* =========================================================
    MAIN
-   ========================================================= */
+========================================================= */
 
 .main{
   flex:1;
@@ -325,7 +336,7 @@ textarea{
 
 /* =========================================================
    MESSAGES
-   ========================================================= */
+========================================================= */
 
 .msg{
   display:flex;
@@ -354,14 +365,17 @@ textarea{
   justify-content:center;
 
   background:var(--accent);
+
   color:#fff;
 
   font-size:13px;
+
   font-weight:700;
 }
 
 .msg-body{
   max-width:75%;
+
   min-width:0;
 }
 
@@ -377,16 +391,30 @@ textarea{
   padding-top:4px;
 }
 
-.msg-image{
-  max-width:280px;
+.msg-images{
+  display:flex;
 
-  max-height:400px;
+  flex-wrap:wrap;
+
+  gap:8px;
+
+  margin-bottom:8px;
+}
+
+.msg-image{
+  width:280px;
+
+  max-width:100%;
+
+  max-height:320px;
+
+  object-fit:contain;
 
   border-radius:12px;
 
   display:block;
 
-  margin-bottom:8px;
+  background:#f5f5f5;
 }
 
 .msg-text{
@@ -409,6 +437,7 @@ textarea{
 
 .msg.assistant .msg-text pre{
   background:#0d0d0d;
+
   color:#f2f2f2;
 
   padding:12px 14px;
@@ -447,7 +476,7 @@ textarea{
 
 /* =========================================================
    TYPING
-   ========================================================= */
+========================================================= */
 
 .typing-dots{
   display:flex;
@@ -466,7 +495,10 @@ textarea{
   background:#9b9b9b;
 
   animation:
-    bounce 1.2s infinite ease-in-out;
+    bounce
+    1.2s
+    infinite
+    ease-in-out;
 }
 
 .typing-dots span:nth-child(2){
@@ -490,12 +522,13 @@ textarea{
     transform:translateY(-4px);
     opacity:1;
   }
+
 }
 
 
 /* =========================================================
    COMPOSER
-   ========================================================= */
+========================================================= */
 
 .composer-wrap{
   position:absolute;
@@ -504,7 +537,10 @@ textarea{
   right:0;
   bottom:0;
 
-  padding:14px 20px 18px;
+  padding:
+    14px
+    20px
+    18px;
 
   background:
     linear-gradient(
@@ -525,18 +561,33 @@ textarea{
   border-radius:22px;
 
   box-shadow:
-    0 6px 24px rgba(0,0,0,.07);
+    0 6px 24px
+    rgba(0,0,0,.07);
 }
 
-.image-preview{
+
+/* =========================================================
+   IMAGE PREVIEW
+========================================================= */
+
+.image-preview-container{
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:8px;
+
+  padding:10px 12px 0;
+}
+
+.image-preview-item{
   position:relative;
 
-  display:inline-flex;
-
-  margin:10px 0 0 12px;
+  width:64px;
+  height:64px;
 }
 
-.image-preview img{
+.image-preview-item img{
   width:64px;
   height:64px;
 
@@ -545,9 +596,11 @@ textarea{
   border-radius:10px;
 
   border:1px solid var(--border);
+
+  display:block;
 }
 
-.image-preview button{
+.image-preview-remove{
   position:absolute;
 
   top:-6px;
@@ -559,15 +612,29 @@ textarea{
   border-radius:50%;
 
   background:#111;
+
   color:#fff;
 
-  font-size:13px;
-  line-height:1;
+  font-size:14px;
+
+  line-height:20px;
+
+  padding:0;
 
   display:flex;
+
   align-items:center;
   justify-content:center;
 }
+
+.image-preview-remove:hover{
+  background:var(--danger);
+}
+
+
+/* =========================================================
+   COMPOSER ROW
+========================================================= */
 
 .composer-row{
   display:flex;
@@ -586,6 +653,7 @@ textarea{
   border-radius:50%;
 
   display:flex;
+
   align-items:center;
   justify-content:center;
 
@@ -600,18 +668,19 @@ textarea{
 
 .icon-btn:disabled{
   opacity:.4;
-  cursor:not-allowed;
 }
 
 .composer textarea{
   flex:1;
 
   border:0;
+
   outline:0;
 
   resize:none;
 
   min-height:26px;
+
   max-height:200px;
 
   padding:9px 6px;
@@ -630,9 +699,11 @@ textarea{
   border-radius:50%;
 
   background:#111;
+
   color:#fff;
 
   display:flex;
+
   align-items:center;
   justify-content:center;
 
@@ -660,7 +731,7 @@ textarea{
 
 /* =========================================================
    AUTH
-   ========================================================= */
+========================================================= */
 
 .auth-overlay{
   position:fixed;
@@ -672,6 +743,7 @@ textarea{
   display:flex;
 
   align-items:center;
+
   justify-content:center;
 
   z-index:50;
@@ -696,6 +768,8 @@ textarea{
   border-radius:14px;
 
   margin-bottom:18px;
+
+  object-fit:cover;
 }
 
 .auth-card h1{
@@ -718,6 +792,7 @@ textarea{
   display:flex;
 
   align-items:center;
+
   justify-content:center;
 
   gap:10px;
@@ -740,7 +815,7 @@ textarea{
 }
 
 .google-btn:disabled{
-  opacity:.5;
+  opacity:.6;
 }
 
 .auth-status{
@@ -754,7 +829,7 @@ textarea{
 
 /* =========================================================
    MOBILE
-   ========================================================= */
+========================================================= */
 
 @media(max-width:760px){
 
@@ -786,311 +861,368 @@ textarea{
     max-width:88%;
   }
 
+  .composer-wrap{
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .msg-image{
+    width:240px;
+  }
+
 }
+
 </style>
 </head>
+
 
 <body>
 
 <div class="app">
 
-  <!-- =====================================================
-       SIDEBAR
-       ===================================================== -->
 
-  <aside class="sidebar" id="sidebar">
+<!-- =======================================================
+     SIDEBAR
+======================================================= -->
 
-    <div class="brand">
-      <img src="maths-logo.png" alt="">
-      Artificial Maths
-    </div>
+<aside
+  class="sidebar"
+  id="sidebar"
+>
 
-    <button
-      class="new-chat-btn"
-      id="newChatBtn"
-      type="button"
+  <div class="brand">
+
+    <img
+      src="maths-logo.png"
+      alt=""
     >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M12 5v14M5 12h14"/>
-      </svg>
 
-      New chat
-    </button>
+    Artificial Maths
 
-    <div class="chat-list-label">
-      Chats
-    </div>
+  </div>
+
+
+  <button
+    class="new-chat-btn"
+    id="newChatBtn"
+    type="button"
+  >
+
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path d="M12 5v14"/>
+      <path d="M5 12h14"/>
+    </svg>
+
+    New chat
+
+  </button>
+
+
+  <div class="chat-list-label">
+    Chats
+  </div>
+
+
+  <div
+    class="chat-list"
+    id="chatList"
+  ></div>
+
+
+  <div class="sidebar-bottom">
 
     <div
-      class="chat-list"
-      id="chatList"
-    ></div>
+      class="user-row"
+      id="userRow"
+    >
 
-    <div class="sidebar-bottom">
-
-      <div
-        class="user-row"
-        id="userRow"
+      <img
+        id="userAvatar"
+        alt=""
       >
 
-        <img
-          id="userAvatar"
-          alt=""
+      <span
+        class="name"
+        id="userName"
+      ></span>
+
+
+      <button
+        class="signout-btn"
+        id="signOutBtn"
+        type="button"
+        title="Sign out"
+      >
+
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
         >
 
-        <span
-          class="name"
-          id="userName"
-        ></span>
+          <path
+            d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+          />
+
+          <path
+            d="M16 17l5-5-5-5"
+          />
+
+          <path
+            d="M21 12H9"
+          />
+
+        </svg>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</aside>
+
+
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<main class="main">
+
+
+  <div
+    class="chat-scroll"
+    id="chatScroll"
+  >
+
+    <div
+      class="messages"
+      id="messages"
+    >
+
+      <div
+        class="empty-state"
+        id="emptyState"
+      >
+
+        <h1>
+          What can I help you with?
+        </h1>
+
+        <p>
+          Maths, coding, science, ideas, research and more.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       COMPOSER
+  ====================================================== -->
+
+  <div class="composer-wrap">
+
+    <div class="composer">
+
+
+      <!-- IMAGE PREVIEWS -->
+
+      <div
+        class="image-preview-container"
+        id="imagePreview"
+        hidden
+      ></div>
+
+
+      <div class="composer-row">
+
+
+        <!-- ATTACH -->
 
         <button
-          class="signout-btn"
-          id="signOutBtn"
-          title="Sign out"
+          class="icon-btn"
+          id="attachBtn"
           type="button"
+          title="Attach images"
         >
+
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+
+            <path
+              d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+
+          </svg>
+
+        </button>
+
+
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          multiple
+          hidden
+        >
+
+
+        <!-- TEXT -->
+
+        <textarea
+          id="input"
+          rows="1"
+          placeholder="Message Artificial Maths..."
+        ></textarea>
+
+
+        <!-- SEND -->
+
+        <button
+          class="send-btn"
+          id="sendBtn"
+          type="button"
+          title="Send"
+          disabled
+        >
+
           <svg
             width="16"
             height="16"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
+            stroke-width="2.4"
           >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <path d="M16 17l5-5-5-5"/>
-            <path d="M21 12H9"/>
+
+            <path
+              d="M12 19V5"
+            />
+
+            <path
+              d="M5 12l7-7 7 7"
+            />
+
           </svg>
+
         </button>
 
+
       </div>
 
     </div>
 
-  </aside>
+
+    <div class="disclaimer">
+      AI responses can be inaccurate. Check important information.
+    </div>
+
+  </div>
 
 
-  <!-- =====================================================
-       MAIN
-       ===================================================== -->
+</main>
 
-  <main class="main">
 
-    <div
-      class="chat-scroll"
-      id="chatScroll"
+<!-- =======================================================
+     AUTH OVERLAY
+======================================================= -->
+
+<div
+  class="auth-overlay"
+  id="authOverlay"
+>
+
+  <div class="auth-card">
+
+    <img
+      src="maths-logo.png"
+      alt=""
     >
 
-      <div
-        class="messages"
-        id="messages"
+    <h1>
+      Artificial Maths
+    </h1>
+
+    <p>
+      Sign in to start chatting.
+    </p>
+
+
+    <button
+      class="google-btn"
+      id="googleSignInBtn"
+      type="button"
+    >
+
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 48 48"
       >
 
-        <div
-          class="empty-state"
-          id="emptyState"
-        >
-          <h1>
-            What can I help you with?
-          </h1>
+        <path
+          fill="#FFC107"
+          d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.5-.4-3.5z"
+        />
 
-          <p>
-            Maths, coding, science, ideas, research and more.
-          </p>
-        </div>
+        <path
+          fill="#FF3D00"
+          d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 15.6 3 8.4 7.9 6.3 14.7z"
+        />
 
-      </div>
+        <path
+          fill="#4CAF50"
+          d="M24 45c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 36.4 27 37 24 37c-5.3 0-9.7-3.1-11.3-7.5l-6.6 5.1C8.3 40 15.5 45 24 45z"
+        />
 
-    </div>
+        <path
+          fill="#1976D2"
+          d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.5l6.6 5.4C41.5 35.9 45 30.4 45 24c0-1.4-.1-2.5-.4-3.5z"
+        />
 
+      </svg>
 
-    <!-- ===================================================
-         COMPOSER
-         =================================================== -->
+      Continue with Google
 
-    <div class="composer-wrap">
-
-      <div class="composer">
-
-        <div
-          class="image-preview"
-          id="imagePreview"
-          hidden
-        >
-
-          <img
-            id="imagePreviewImg"
-            alt=""
-          >
-
-          <button
-            id="removeImageBtn"
-            type="button"
-          >
-            ×
-          </button>
-
-        </div>
+    </button>
 
 
-        <div class="composer-row">
-
-          <button
-            class="icon-btn"
-            id="attachBtn"
-            type="button"
-            title="Attach image"
-          >
-
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
-              />
-            </svg>
-
-          </button>
-
-          <input
-            type="file"
-            id="fileInput"
-            accept="image/*"
-            hidden
-          >
-
-
-          <textarea
-            id="input"
-            rows="1"
-            placeholder="Message Artificial Maths..."
-          ></textarea>
-
-
-          <button
-            class="send-btn"
-            id="sendBtn"
-            type="button"
-            title="Send"
-            disabled
-          >
-
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.4"
-            >
-              <path d="M12 19V5M5 12l7-7 7 7"/>
-            </svg>
-
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div class="disclaimer">
-        AI responses can be inaccurate. Check important information.
-      </div>
-
-    </div>
-
-  </main>
-
-
-  <!-- =====================================================
-       AUTH
-       ===================================================== -->
-
-  <div
-    class="auth-overlay"
-    id="authOverlay"
-  >
-
-    <div class="auth-card">
-
-      <img
-        src="maths-logo.png"
-        alt=""
-      >
-
-      <h1>
-        Artificial Maths
-      </h1>
-
-      <p>
-        Sign in to start chatting.
-      </p>
-
-
-      <button
-        class="google-btn"
-        id="googleSignInBtn"
-        type="button"
-      >
-
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 48 48"
-        >
-          <path
-            fill="#FFC107"
-            d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.5-.4-3.5z"
-          />
-
-          <path
-            fill="#FF3D00"
-            d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 15.6 3 8.4 7.9 6.3 14.7z"
-          />
-
-          <path
-            fill="#4CAF50"
-            d="M24 45c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 36.4 27 37 24 37c-5.3 0-9.7-3.1-11.3-7.5l-6.6 5.1C8.3 40 15.5 45 24 45z"
-          />
-
-          <path
-            fill="#1976D2"
-            d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.5l6.6 5.4C41.5 35.9 45 30.4 45 24c0-1.4-.1-2.5-.4-3.5z"
-          />
-        </svg>
-
-        Continue with Google
-
-      </button>
-
-
-      <div
-        class="auth-status"
-        id="authStatus"
-      ></div>
-
-    </div>
+    <div
+      class="auth-status"
+      id="authStatus"
+    ></div>
 
   </div>
 
 </div>
 
 
+</div>
+
+
 <!-- =======================================================
      LIBRARIES
-     ======================================================= -->
+======================================================= -->
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
@@ -1101,27 +1233,39 @@ textarea{
 
 import {
   createClient
-} from
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
 
 import {
   marked
-} from
-  'https://cdn.jsdelivr.net/npm/marked@11/+esm';
+} from "https://cdn.jsdelivr.net/npm/marked@11/+esm";
 
-import DOMPurify from
-  'https://cdn.jsdelivr.net/npm/dompurify@3/+esm';
+
+import DOMPurify
+  from "https://cdn.jsdelivr.net/npm/dompurify@3/+esm";
+
 
 
 /* =========================================================
-   SUPABASE
-   ========================================================= */
+   SUPABASE CONFIGURATION
+========================================================= */
+
+/*
+ * IMPORTANT:
+ *
+ * SUPABASE_URL and SUPABASE_ANON_KEY MUST belong
+ * to the SAME Supabase project.
+ *
+ * Do NOT use a service_role key here.
+ */
 
 const SUPABASE_URL =
-  'https://inidxltybmadzgggvpxz.supabase.co';
+  "https://inidxltybmadzgggvpxz.supabase.co";
+
 
 const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaXJ4bHR5Ym1hZHpnZ2d2cHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMjMyOTMsImV4cCI6MjEwMjg5OTI5M30.7yrNe9mk_cj6YPi4adutrKfC0pDZxWLyUcsdvbnkSqY';
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaWR4bHR5Ym1hZHpnZ2d2cHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMjMyOTMsImV4cCI6MjEwMjg5OTI5M30.7yrNe9mk_cj6YPi4adutrKfC0pDZxWLyUcsdvbnkSqY";
+
 
 const supabase =
   createClient(
@@ -1137,66 +1281,107 @@ marked.setOptions({
 
 /* =========================================================
    DOM
-   ========================================================= */
+========================================================= */
 
 const authOverlay =
-  document.getElementById('authOverlay');
+  document.getElementById(
+    "authOverlay"
+  );
+
 
 const authStatus =
-  document.getElementById('authStatus');
+  document.getElementById(
+    "authStatus"
+  );
+
 
 const googleSignInBtn =
-  document.getElementById('googleSignInBtn');
+  document.getElementById(
+    "googleSignInBtn"
+  );
+
 
 const signOutBtn =
-  document.getElementById('signOutBtn');
+  document.getElementById(
+    "signOutBtn"
+  );
+
 
 const userAvatar =
-  document.getElementById('userAvatar');
+  document.getElementById(
+    "userAvatar"
+  );
+
 
 const userName =
-  document.getElementById('userName');
+  document.getElementById(
+    "userName"
+  );
+
 
 const newChatBtn =
-  document.getElementById('newChatBtn');
+  document.getElementById(
+    "newChatBtn"
+  );
+
 
 const chatList =
-  document.getElementById('chatList');
+  document.getElementById(
+    "chatList"
+  );
+
 
 const messagesEl =
-  document.getElementById('messages');
+  document.getElementById(
+    "messages"
+  );
+
 
 const emptyState =
-  document.getElementById('emptyState');
+  document.getElementById(
+    "emptyState"
+  );
+
 
 const chatScroll =
-  document.getElementById('chatScroll');
+  document.getElementById(
+    "chatScroll"
+  );
+
 
 const input =
-  document.getElementById('input');
+  document.getElementById(
+    "input"
+  );
+
 
 const sendBtn =
-  document.getElementById('sendBtn');
+  document.getElementById(
+    "sendBtn"
+  );
+
 
 const attachBtn =
-  document.getElementById('attachBtn');
+  document.getElementById(
+    "attachBtn"
+  );
+
 
 const fileInput =
-  document.getElementById('fileInput');
+  document.getElementById(
+    "fileInput"
+  );
+
 
 const imagePreview =
-  document.getElementById('imagePreview');
-
-const imagePreviewImg =
-  document.getElementById('imagePreviewImg');
-
-const removeImageBtn =
-  document.getElementById('removeImageBtn');
+  document.getElementById(
+    "imagePreview"
+  );
 
 
 /* =========================================================
    STATE
-   ========================================================= */
+========================================================= */
 
 let currentUser = null;
 
@@ -1206,85 +1391,127 @@ let currentChat = null;
 
 let currentMessages = [];
 
-let pendingImageUrl = null;
+let pendingImages = [];
 
 let sending = false;
 
 
 /* =========================================================
    AUTH
-   ========================================================= */
+========================================================= */
 
 googleSignInBtn.addEventListener(
-  'click',
+  "click",
   async () => {
 
     authStatus.textContent =
-      'Redirecting to Google…';
+      "Redirecting to Google…";
 
-    googleSignInBtn.disabled = true;
+    googleSignInBtn.disabled =
+      true;
 
-    const {
-      error
-    } =
-      await supabase.auth.signInWithOAuth({
-        provider:'google',
+    try {
 
-        options:{
-          redirectTo:
-            window.location.href
-        }
-      });
+      const {
+        error
+      } =
+        await supabase.auth.signInWithOAuth({
+          provider:"google",
 
-    if (error) {
+          options:{
+            redirectTo:
+              window.location.href
+          }
+        });
+
+
+      if (error) {
+        throw error;
+      }
+
+    } catch (error) {
 
       console.error(error);
 
       authStatus.textContent =
-        error.message;
+        error.message ||
+        "Could not sign in.";
 
-      googleSignInBtn.disabled = false;
+      googleSignInBtn.disabled =
+        false;
     }
+
   }
 );
 
 
 signOutBtn.addEventListener(
-  'click',
+  "click",
   async () => {
 
     await supabase.auth.signOut();
+
   }
 );
 
 
-async function handleSession(session){
+/* =========================================================
+   SESSION
+========================================================= */
+
+async function handleSession(
+  session
+){
 
   currentUser =
     session?.user || null;
 
-  if(currentUser){
 
-    authOverlay.classList.add('hidden');
+  if (currentUser) {
+
+    authOverlay.classList.add(
+      "hidden"
+    );
+
 
     userName.textContent =
-      currentUser.user_metadata?.full_name ||
+      currentUser.user_metadata
+        ?.full_name ||
       currentUser.email ||
-      'Account';
+      "Account";
 
-    userAvatar.src =
-      currentUser.user_metadata?.avatar_url ||
-      '';
+
+    const avatar =
+      currentUser.user_metadata
+        ?.avatar_url;
+
+
+    if (avatar) {
+
+      userAvatar.src =
+        avatar;
+
+    } else {
+
+      userAvatar.removeAttribute(
+        "src"
+      );
+
+    }
+
 
     await loadChats();
 
-  }else{
+  } else {
 
-    authOverlay.classList.remove('hidden');
+    authOverlay.classList.remove(
+      "hidden"
+    );
 
-    authStatus.textContent = '';
 
-    googleSignInBtn.disabled = false;
+    authStatus.textContent =
+      "";
+
 
     chats = [];
 
@@ -1292,129 +1519,193 @@ async function handleSession(session){
 
     currentMessages = [];
 
+    clearPendingImages();
+
     renderChatList();
 
     renderMessages();
+
   }
+
 }
 
 
-supabase.auth
-  .getSession()
-  .then(({data}) =>
-    handleSession(data.session)
-  );
+/* =========================================================
+   INITIAL SESSION
+========================================================= */
+
+const {
+  data: sessionData
+} =
+  await supabase.auth.getSession();
+
+
+await handleSession(
+  sessionData.session
+);
 
 
 supabase.auth.onAuthStateChange(
-  (_event, session) =>
-    handleSession(session)
+  async (
+    _event,
+    session
+  ) => {
+
+    await handleSession(
+      session
+    );
+
+  }
 );
 
 
 /* =========================================================
    LOAD CHATS
-   ========================================================= */
+========================================================= */
 
 async function loadChats(){
+
+  if (!currentUser) {
+    return;
+  }
+
 
   const {
     data,
     error
   } =
     await supabase
-      .from('am_chats')
-      .select('*')
+      .from("am_chats")
+      .select("*")
       .order(
-        'updated_at',
+        "updated_at",
         {
           ascending:false
         }
       );
 
-  if(error){
+
+  if (error) {
 
     console.error(
-      'Failed to load chats:',
+      "Failed to load chats:",
       error
     );
+
+    /*
+     * 401 usually means the Supabase
+     * public key is incorrect.
+     */
+
+    if (
+      error.code === "401" ||
+      error.status === 401
+    ) {
+
+      authStatus.textContent =
+        "Supabase authentication failed. Check your Supabase Publishable/anon key.";
+
+    }
 
     return;
   }
 
-  chats = data || [];
+
+  chats =
+    data || [];
+
 
   renderChatList();
 
-  if(
+
+  if (
     chats.length &&
     !currentChat
-  ){
+  ) {
 
     await selectChat(
       chats[0]
     );
 
-  }else if(
+  } else if (
     !chats.length
-  ){
+  ) {
 
     currentChat = null;
 
     currentMessages = [];
 
     renderMessages();
+
   }
+
 }
 
 
 /* =========================================================
    CHAT LIST
-   ========================================================= */
+========================================================= */
 
 function renderChatList(){
 
-  chatList.innerHTML = '';
+  chatList.innerHTML = "";
 
-  for(const chat of chats){
+
+  for (
+    const chat of chats
+  ){
 
     const item =
-      document.createElement('div');
+      document.createElement(
+        "div"
+      );
+
 
     item.className =
-      'chat-item' +
+      "chat-item" +
       (
         currentChat &&
         currentChat.id === chat.id
-          ? ' active'
-          : ''
+          ? " active"
+          : ""
       );
 
 
     const title =
-      document.createElement('span');
+      document.createElement(
+        "span"
+      );
+
 
     title.className =
-      'title';
+      "title";
+
 
     title.textContent =
       chat.title ||
-      'New chat';
+      "New chat";
 
 
     const del =
-      document.createElement('button');
+      document.createElement(
+        "button"
+      );
+
 
     del.className =
-      'delete-btn';
+      "delete-btn";
+
 
     del.type =
-      'button';
+      "button";
+
 
     del.title =
-      'Delete chat';
+      "Delete chat";
 
-    del.innerHTML = `
+
+    del.innerHTML =
+      `
       <svg
         width="14"
         height="14"
@@ -1427,96 +1718,119 @@ function renderChatList(){
         <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
       </svg>
-    `;
+      `;
 
 
     del.addEventListener(
-      'click',
-      e => {
+      "click",
+      event => {
 
-        e.stopPropagation();
+        event.stopPropagation();
 
         deleteChat(chat);
+
       }
     );
 
 
-    item.appendChild(title);
+    item.appendChild(
+      title
+    );
 
-    item.appendChild(del);
-
-
-    item.addEventListener(
-      'click',
-      () =>
-        selectChat(chat)
+    item.appendChild(
+      del
     );
 
 
-    chatList.appendChild(item);
+    item.addEventListener(
+      "click",
+      () => {
+
+        selectChat(
+          chat
+        );
+
+      }
+    );
+
+
+    chatList.appendChild(
+      item
+    );
+
   }
+
 }
 
 
 /* =========================================================
    SELECT CHAT
-   ========================================================= */
+========================================================= */
 
-async function selectChat(chat){
+async function selectChat(
+  chat
+){
 
   currentChat =
     chat;
 
+
   renderChatList();
+
 
   const {
     data,
     error
   } =
     await supabase
-      .from('am_messages')
-      .select('*')
+      .from("am_messages")
+      .select("*")
       .eq(
-        'chat_id',
+        "chat_id",
         chat.id
       )
       .order(
-        'created_at',
+        "created_at",
         {
           ascending:true
         }
       );
 
-  if(error){
+
+  if (error) {
 
     console.error(
-      'Failed to load messages:',
+      "Failed to load messages:",
       error
     );
 
     return;
   }
 
+
   currentMessages =
     data || [];
 
+
   renderMessages();
+
 }
 
 
 /* =========================================================
-   CREATE NEW CHAT
-   ========================================================= */
+   CREATE CHAT
+========================================================= */
 
 async function createNewChat(){
 
-  if(!currentUser){
+  if (!currentUser) {
 
-    alert(
-      'Please sign in first.'
+    console.error(
+      "Cannot create chat without a user."
     );
 
     return null;
+
   }
 
 
@@ -1525,31 +1839,30 @@ async function createNewChat(){
     error
   } =
     await supabase
-      .from('am_chats')
+      .from("am_chats")
       .insert({
-
         user_id:
           currentUser.id,
 
         title:
-          'New chat'
+          "New chat"
       })
       .select()
       .single();
 
 
-  if(error){
+  if (error) {
 
     console.error(
-      'Failed to create chat:',
+      "Failed to create chat:",
       error
     );
 
     alert(
-      'Could not create chat: ' +
+      "Could not create chat: " +
       (
         error.message ||
-        'Unknown error'
+        "Unknown error"
       )
     );
 
@@ -1557,45 +1870,45 @@ async function createNewChat(){
   }
 
 
-  chats.unshift(data);
+  chats.unshift(
+    data
+  );
+
 
   currentChat =
     data;
 
-  currentMessages = [];
+
+  currentMessages =
+    [];
+
 
   renderChatList();
 
   renderMessages();
 
+
   return data;
+
 }
-
-
-newChatBtn.addEventListener(
-  'click',
-  async () => {
-
-    if(sending) return;
-
-    await createNewChat();
-  }
-);
 
 
 /* =========================================================
    DELETE CHAT
-   ========================================================= */
+========================================================= */
 
-async function deleteChat(chat){
+async function deleteChat(
+  chat
+){
 
-  if(
+  if (
     !confirm(
-      'Delete this chat?'
+      "Delete this chat?"
     )
-  ){
+  ) {
 
     return;
+
   }
 
 
@@ -1603,27 +1916,28 @@ async function deleteChat(chat){
     error
   } =
     await supabase
-      .from('am_chats')
+      .from("am_chats")
       .delete()
       .eq(
-        'id',
+        "id",
         chat.id
       );
 
 
-  if(error){
+  if (error) {
 
     console.error(
-      'Failed to delete chat:',
+      "Failed to delete chat:",
       error
     );
 
     alert(
-      'Could not delete chat: ' +
+      "Could not delete chat: " +
       error.message
     );
 
     return;
+
   }
 
 
@@ -1634,152 +1948,264 @@ async function deleteChat(chat){
     );
 
 
-  if(
+  if (
     currentChat &&
     currentChat.id === chat.id
   ){
 
-    currentChat = null;
+    currentChat =
+      null;
 
-    currentMessages = [];
+    currentMessages =
+      [];
 
-    if(chats.length){
+
+    if (chats.length) {
 
       await selectChat(
         chats[0]
       );
 
-    }else{
+    } else {
 
       renderMessages();
+
     }
+
   }
 
 
   renderChatList();
+
 }
 
 
 /* =========================================================
    RENDER MESSAGES
-   ========================================================= */
+========================================================= */
 
 function renderMessages(){
 
-  messagesEl.innerHTML = '';
+  messagesEl.innerHTML = "";
 
-  if(!currentMessages.length){
+
+  if (
+    !currentMessages.length
+  ){
 
     messagesEl.appendChild(
       emptyState
     );
 
+
     emptyState.style.display =
-      '';
+      "";
+
 
     return;
+
   }
 
 
   emptyState.style.display =
-    'none';
+    "none";
 
 
-  for(
-    const m of currentMessages
+  for (
+    const message of currentMessages
   ){
 
     appendMessageEl(
-      m.role,
-      m.content,
-      m.image_url
+      message.role,
+      message.content,
+      message.image_url,
+      message.image_urls
     );
+
   }
 
 
   scrollToBottom();
+
 }
 
 
 /* =========================================================
    APPEND MESSAGE
-   ========================================================= */
+========================================================= */
 
 function appendMessageEl(
   role,
   content,
-  imageUrl
+  imageUrl,
+  imageUrls = []
 ){
 
   const wrap =
-    document.createElement('div');
+    document.createElement(
+      "div"
+    );
+
 
   wrap.className =
-    'msg ' + role;
+    "msg " +
+    role;
 
 
-  if(role === 'assistant'){
+  if (
+    role === "assistant"
+  ){
 
     const avatar =
-      document.createElement('div');
+      document.createElement(
+        "div"
+      );
+
 
     avatar.className =
-      'avatar';
+      "avatar";
+
 
     avatar.textContent =
-      'AM';
+      "AM";
+
 
     wrap.appendChild(
       avatar
     );
+
   }
 
 
   const body =
-    document.createElement('div');
+    document.createElement(
+      "div"
+    );
+
 
   body.className =
-    'msg-body';
+    "msg-body";
 
 
-  if(imageUrl){
+  /*
+   * Support:
+   *
+   * image_urls[]
+   *
+   * and old:
+   *
+   * image_url
+   */
 
-    const img =
-      document.createElement('img');
+  const urls = [];
 
-    img.className =
-      'msg-image';
 
-    img.src =
-      imageUrl;
+  if (
+    Array.isArray(
+      imageUrls
+    )
+  ){
 
-    img.alt =
-      'Uploaded image';
+    urls.push(
+      ...imageUrls
+    );
+
+  }
+
+
+  if (
+    imageUrl &&
+    !urls.includes(
+      imageUrl
+    )
+  ){
+
+    urls.push(
+      imageUrl
+    );
+
+  }
+
+
+  if (
+    urls.length
+  ){
+
+    const images =
+      document.createElement(
+        "div"
+      );
+
+
+    images.className =
+      "msg-images";
+
+
+    for (
+      const url of urls
+    ){
+
+      if (!url) {
+        continue;
+      }
+
+
+      const img =
+        document.createElement(
+          "img"
+        );
+
+
+      img.className =
+        "msg-image";
+
+
+      img.src =
+        url;
+
+
+      img.alt =
+        "Uploaded image";
+
+
+      images.appendChild(
+        img
+      );
+
+    }
+
 
     body.appendChild(
-      img
+      images
     );
+
   }
 
 
   const textEl =
-    document.createElement('div');
+    document.createElement(
+      "div"
+    );
+
 
   textEl.className =
-    'msg-text';
+    "msg-text";
 
 
-  if(role === 'assistant'){
+  if (
+    role === "assistant"
+  ){
 
     renderRichText(
       textEl,
-      content || ''
+      content || ""
     );
 
-  }else{
+  } else {
 
     textEl.textContent =
-      content || '';
+      content || "";
+
   }
 
 
@@ -1787,9 +2213,11 @@ function appendMessageEl(
     textEl
   );
 
+
   wrap.appendChild(
     body
   );
+
 
   messagesEl.appendChild(
     wrap
@@ -1800,57 +2228,57 @@ function appendMessageEl(
     wrap,
     textEl
   };
+
 }
 
 
 /* =========================================================
-   MARKDOWN + KATEX
-   ========================================================= */
+   RICH TEXT
+========================================================= */
 
 function renderRichText(
-  el,
+  element,
   text
 ){
 
   const html =
     DOMPurify.sanitize(
-      marked.parse(text)
+      marked.parse(
+        text || ""
+      )
     );
 
-  el.innerHTML =
+
+  element.innerHTML =
     html;
 
 
-  if(
+  if (
     window.renderMathInElement
   ){
 
     window.renderMathInElement(
-      el,
+      element,
       {
-
         delimiters:[
           {
-            left:'$$',
-            right:'$$',
+            left:"$$",
+            right:"$$",
             display:true
           },
-
           {
-            left:'$',
-            right:'$',
+            left:"$",
+            right:"$",
             display:false
           },
-
           {
-            left:'\\(',
-            right:'\\)',
+            left:"\\(",
+            right:"\\)",
             display:false
           },
-
           {
-            left:'\\[',
-            right:'\\]',
+            left:"\\[",
+            right:"\\]",
             display:true
           }
         ],
@@ -1858,225 +2286,363 @@ function renderRichText(
         throwOnError:false
       }
     );
+
   }
+
 }
 
 
 /* =========================================================
    SCROLL
-   ========================================================= */
+========================================================= */
 
 function scrollToBottom(){
 
-  requestAnimationFrame(
-    () => {
+  chatScroll.scrollTop =
+    chatScroll.scrollHeight;
 
-      chatScroll.scrollTop =
-        chatScroll.scrollHeight;
-    }
-  );
 }
 
 
 /* =========================================================
-   INPUT
-   ========================================================= */
+   SEND BUTTON
+========================================================= */
+
+function updateSendButton(){
+
+  sendBtn.disabled =
+    sending ||
+    (
+      !input.value.trim() &&
+      pendingImages.length === 0
+    );
+
+}
+
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
 
 input.addEventListener(
-  'input',
+  "input",
   () => {
 
     input.style.height =
-      'auto';
+      "auto";
+
 
     input.style.height =
       Math.min(
         input.scrollHeight,
         200
-      ) + 'px';
+      ) + "px";
 
 
-    sendBtn.disabled =
-      (
-        !input.value.trim() &&
-        !pendingImageUrl
-      );
+    updateSendButton();
+
   }
 );
 
 
 input.addEventListener(
-  'keydown',
-  e => {
+  "keydown",
+  event => {
 
-    if(
-      e.key === 'Enter' &&
-      !e.shiftKey
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
     ){
 
-      e.preventDefault();
+      event.preventDefault();
 
       sendMessage();
+
     }
+
   }
 );
 
 
 sendBtn.addEventListener(
-  'click',
-  sendMessage
+  "click",
+  () => {
+
+    sendMessage();
+
+  }
 );
 
 
 /* =========================================================
    IMAGE UPLOAD
-   ========================================================= */
+========================================================= */
 
 attachBtn.addEventListener(
-  'click',
-  () =>
-    fileInput.click()
-);
+  "click",
+  () => {
 
-
-fileInput.addEventListener(
-  'change',
-  async () => {
-
-    const file =
-      fileInput.files[0];
-
-    if(!file) return;
-
-
-    if(
-      !file.type.startsWith(
-        'image/'
-      )
-    ){
-
-      alert(
-        'Please select an image.'
-      );
-
+    if (sending) {
       return;
     }
 
+    fileInput.click();
 
-    imagePreviewImg.src =
-      URL.createObjectURL(file);
-
-    imagePreview.hidden =
-      false;
-
-    attachBtn.disabled =
-      true;
-
-
-    try{
-
-      pendingImageUrl =
-        await uploadImage(
-          file
-        );
-
-    }catch(err){
-
-      console.error(err);
-
-      alert(
-        'Image upload failed: ' +
-        err.message
-      );
-
-      imagePreview.hidden =
-        true;
-
-      pendingImageUrl =
-        null;
-
-    }finally{
-
-      attachBtn.disabled =
-        false;
-
-      sendBtn.disabled =
-        (
-          !input.value.trim() &&
-          !pendingImageUrl
-        );
-
-      fileInput.value =
-        '';
-    }
   }
 );
 
 
-removeImageBtn.addEventListener(
-  'click',
+fileInput.addEventListener(
+  "change",
   () => {
 
-    pendingImageUrl =
-      null;
+    const files =
+      Array.from(
+        fileInput.files || []
+      );
 
-    imagePreview.hidden =
-      true;
 
-    imagePreviewImg.src =
-      '';
+    if (!files.length) {
+      return;
+    }
 
-    sendBtn.disabled =
-      !input.value.trim();
+
+    for (
+      const file of files
+    ){
+
+      if (
+        !file.type.startsWith(
+          "image/"
+        )
+      ){
+
+        continue;
+
+      }
+
+
+      const exists =
+        pendingImages.some(
+          image =>
+            image.file.name ===
+              file.name &&
+            image.file.size ===
+              file.size
+        );
+
+
+      if (exists) {
+        continue;
+      }
+
+
+      pendingImages.push({
+
+        file,
+
+        url:
+          URL.createObjectURL(
+            file
+          ),
+
+        uploadedUrl:null
+
+      });
+
+    }
+
+
+    renderImagePreviews();
+
+    updateSendButton();
+
+
+    /*
+     * Reset so the same file
+     * can be selected again.
+     */
+
+    fileInput.value = "";
+
   }
 );
 
 
 /* =========================================================
-   UPLOAD IMAGE
-   ========================================================= */
+   IMAGE PREVIEWS
+========================================================= */
 
-async function uploadImage(file){
+function renderImagePreviews(){
 
-  if(!currentUser){
+  imagePreview.innerHTML =
+    "";
 
-    throw new Error(
-      'You must be signed in.'
-    );
+
+  if (
+    !pendingImages.length
+  ){
+
+    imagePreview.hidden =
+      true;
+
+    return;
+
   }
 
 
-  const ext =
+  imagePreview.hidden =
+    false;
+
+
+  pendingImages.forEach(
+    (
+      image,
+      index
+    ) => {
+
+      const item =
+        document.createElement(
+          "div"
+        );
+
+
+      item.className =
+        "image-preview-item";
+
+
+      const img =
+        document.createElement(
+          "img"
+        );
+
+
+      img.src =
+        image.url;
+
+
+      img.alt =
+        `Image ${index + 1}`;
+
+
+      const remove =
+        document.createElement(
+          "button"
+        );
+
+
+      remove.type =
+        "button";
+
+
+      remove.className =
+        "image-preview-remove";
+
+
+      remove.title =
+        "Remove image";
+
+
+      remove.textContent =
+        "×";
+
+
+      remove.addEventListener(
+        "click",
+        () => {
+
+          URL.revokeObjectURL(
+            image.url
+          );
+
+
+          pendingImages.splice(
+            index,
+            1
+          );
+
+
+          renderImagePreviews();
+
+          updateSendButton();
+
+        }
+      );
+
+
+      item.appendChild(
+        img
+      );
+
+
+      item.appendChild(
+        remove
+      );
+
+
+      imagePreview.appendChild(
+        item
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   UPLOAD ONE IMAGE
+========================================================= */
+
+async function uploadImage(
+  file
+){
+
+  if (!currentUser) {
+
+    throw new Error(
+      "You must be signed in."
+    );
+
+  }
+
+
+  const extension =
     (
       file.name
-        .split('.')
+        .split(".")
         .pop() ||
-      'png'
+      "png"
     ).toLowerCase();
 
 
   const path =
-    `${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+    `${currentUser.id}/${crypto.randomUUID()}.${extension}`;
 
 
   const {
     error
   } =
     await supabase.storage
-      .from('am-chat-images')
+      .from(
+        "am-chat-images"
+      )
       .upload(
         path,
         file,
         {
           upsert:false,
-          contentType:file.type
+
+          contentType:
+            file.type
         }
       );
 
 
-  if(error){
+  if (error) {
 
     throw error;
+
   }
 
 
@@ -2084,434 +2650,780 @@ async function uploadImage(file){
     data
   } =
     supabase.storage
-      .from('am-chat-images')
-      .getPublicUrl(path);
+      .from(
+        "am-chat-images"
+      )
+      .getPublicUrl(
+        path
+      );
 
 
   return data.publicUrl;
+
 }
 
 
 /* =========================================================
-   API MESSAGE FORMAT
-   ========================================================= */
+   UPLOAD ALL IMAGES
+========================================================= */
+
+async function uploadPendingImages(){
+
+  const urls = [];
+
+
+  for (
+    const image of pendingImages
+  ){
+
+    if (
+      image.uploadedUrl
+    ){
+
+      urls.push(
+        image.uploadedUrl
+      );
+
+      continue;
+
+    }
+
+
+    const url =
+      await uploadImage(
+        image.file
+      );
+
+
+    image.uploadedUrl =
+      url;
+
+
+    urls.push(
+      url
+    );
+
+  }
+
+
+  return urls;
+
+}
+
+
+/* =========================================================
+   CLEAR IMAGES
+========================================================= */
+
+function clearPendingImages(){
+
+  for (
+    const image of pendingImages
+  ){
+
+    if (image.url){
+
+      URL.revokeObjectURL(
+        image.url
+      );
+
+    }
+
+  }
+
+
+  pendingImages = [];
+
+
+  imagePreview.innerHTML =
+    "";
+
+
+  imagePreview.hidden =
+    true;
+
+
+  updateSendButton();
+
+}
+
+
+/* =========================================================
+   API MESSAGE CONVERSION
+========================================================= */
 
 function toApiMessages(
   history
 ){
 
   return history.map(
-    m => {
+    message => {
 
-      if(m.image_url){
+      /*
+       * Multiple images.
+       */
+
+      if (
+        Array.isArray(
+          message.image_urls
+        ) &&
+        message.image_urls.length
+      ){
+
+        const content = [];
+
+
+        if (
+          message.content
+        ){
+
+          content.push({
+
+            type:"text",
+
+            text:
+              message.content
+
+          });
+
+        }
+
+
+        for (
+          const url of message.image_urls
+        ){
+
+          content.push({
+
+            type:"image_url",
+
+            image_url:{
+              url
+            }
+
+          });
+
+        }
+
 
         return {
 
-          role:m.role,
+          role:
+            message.role,
 
-          content:[
-            {
-              type:'text',
+          content
 
-              text:
-                m.content ||
-                'Please read and analyze this image.'
-            },
-
-            {
-              type:'image_url',
-
-              image_url:{
-                url:m.image_url
-              }
-            }
-          ]
         };
+
       }
 
 
+      /*
+       * Old single-image format.
+       */
+
+      if (
+        message.image_url
+      ){
+
+        return {
+
+          role:
+            message.role,
+
+          content:[
+
+            {
+
+              type:"text",
+
+              text:
+                message.content ||
+                "Please analyze this image."
+
+            },
+
+            {
+
+              type:"image_url",
+
+              image_url:{
+                url:
+                  message.image_url
+              }
+
+            }
+
+          ]
+
+        };
+
+      }
+
+
+      /*
+       * Normal text.
+       */
+
       return {
 
-        role:m.role,
+        role:
+          message.role,
 
         content:
-          m.content || ''
+          message.content || ""
+
       };
+
     }
   );
+
 }
 
 
 /* =========================================================
-   SEND MESSAGE
-   ========================================================= */
+   GET ACCESS TOKEN
+========================================================= */
 
-async function sendMessage(){
-
-  if(sending) return;
-
-
-  const text =
-    input.value.trim();
-
-  const imageUrl =
-    pendingImageUrl;
-
-
-  // Nothing typed and no image
-  if(
-    !text &&
-    !imageUrl
-  ){
-
-    return;
-  }
-
-
-  sending =
-    true;
-
-  sendBtn.disabled =
-    true;
-
-  newChatBtn.disabled =
-    true;
-
-
-  const originalText =
-    text;
-
-  const originalImage =
-    imageUrl;
-
-
-  /* -------------------------------------------------------
-     CREATE CHAT ONLY WHEN ACTUALLY SENDING
-     ------------------------------------------------------- */
-
-  if(!currentChat){
-
-    const created =
-      await createNewChat();
-
-
-    if(!created){
-
-      sending =
-        false;
-
-      newChatBtn.disabled =
-        false;
-
-      sendBtn.disabled =
-        (
-          !input.value.trim() &&
-          !pendingImageUrl
-        );
-
-      return;
-    }
-  }
-
-
-  emptyState.style.display =
-    'none';
-
-
-  /* -------------------------------------------------------
-     CLEAR COMPOSER
-     ------------------------------------------------------- */
-
-  input.value =
-    '';
-
-  input.style.height =
-    'auto';
-
-  imagePreview.hidden =
-    true;
-
-  pendingImageUrl =
-    null;
-
-
-  /* -------------------------------------------------------
-     SAVE USER MESSAGE
-     ------------------------------------------------------- */
-
-  const insertPayload = {
-
-    chat_id:
-      currentChat.id,
-
-    role:
-      'user',
-
-    content:
-      text || ''
-  };
-
-
-  if(imageUrl){
-
-    insertPayload.image_url =
-      imageUrl;
-  }
-
+async function getAccessToken(){
 
   const {
-    data:userMsg,
-    error:insertErr
+    data,
+    error
   } =
-    await supabase
-      .from('am_messages')
-      .insert(insertPayload)
-      .select()
-      .single();
+    await supabase.auth.getSession();
 
 
-  if(insertErr){
-
-    console.error(
-      'Failed to save user message:',
-      insertErr
-    );
-
-
-    input.value =
-      originalText;
-
-
-    if(originalImage){
-
-      pendingImageUrl =
-        originalImage;
-
-      imagePreviewImg.src =
-        originalImage;
-
-      imagePreview.hidden =
-        false;
-    }
-
-
-    sending =
-      false;
-
-    newChatBtn.disabled =
-      false;
-
-    sendBtn.disabled =
-      false;
-
-
-    alert(
-      'Could not send message: ' +
-      (
-        insertErr.message ||
-        'Database error'
-      )
-    );
-
-
-    return;
+  if (error) {
+    throw error;
   }
 
 
-  currentMessages.push(
-    userMsg
-  );
+  const token =
+    data.session?.access_token;
 
 
-  appendMessageEl(
-    'user',
-    text,
-    imageUrl
-  );
+  if (!token){
+
+    throw new Error(
+      "Your session has expired. Please sign in again."
+    );
+
+  }
 
 
-  scrollToBottom();
+  return token;
+
+}
 
 
-  /* -------------------------------------------------------
-     TITLE CHECK
-     
-     1st message -> generate title
-     Every 3rd user message -> check title
-     ------------------------------------------------------- */
+/* =========================================================
+   GENERATE CHAT TITLE
+========================================================= */
 
-  const userMessageCount =
-    currentMessages.filter(
-      m =>
-        m.role === 'user'
-    ).length;
+async function generateChatTitle(){
 
-
-  if(
-    userMessageCount === 1 ||
-    userMessageCount % 3 === 0
+  if (
+    !currentChat ||
+    !currentMessages.length
   ){
 
-    generateChatTitle();
+    return;
+
   }
 
 
-  /* -------------------------------------------------------
-     ASSISTANT MESSAGE
-     ------------------------------------------------------- */
+  try {
 
-  const assistantElement =
-    appendMessageEl(
-      'assistant',
-      '',
-      null
-    );
+    const accessToken =
+      await getAccessToken();
 
-
-  const textEl =
-    assistantElement.textEl;
-
-
-  textEl.innerHTML = `
-    <div class="typing-dots">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-  `;
-
-
-  scrollToBottom();
-
-
-  try{
-
-    /* -----------------------------------------------------
-       SESSION
-       ----------------------------------------------------- */
-
-    const {
-      data:{
-        session
-      }
-    } =
-      await supabase.auth.getSession();
-
-
-    if(!session?.access_token){
-
-      throw new Error(
-        'You are not authenticated.'
-      );
-    }
-
-
-    /* -----------------------------------------------------
-       STREAM REQUEST
-       ----------------------------------------------------- */
 
     const response =
       await fetch(
         `${SUPABASE_URL}/functions/v1/chat-completion`,
         {
 
-          method:'POST',
+          method:"POST",
 
           headers:{
-            'Content-Type':
-              'application/json',
 
-            Authorization:
-              `Bearer ${session.access_token}`,
+            "Content-Type":
+              "application/json",
 
-            apikey:
-              SUPABASE_ANON_KEY
+            "apikey":
+              SUPABASE_ANON_KEY,
+
+            "Authorization":
+              `Bearer ${accessToken}`
+
           },
 
-          body:JSON.stringify({
+          body:
+            JSON.stringify({
 
-            messages:
-              toApiMessages(
+              mode:"title",
+
+              messages:
                 currentMessages
-              ),
 
-            stream:true
-          })
+            })
+
         }
       );
 
 
-    if(!response.ok){
+    if (!response.ok){
+
+      console.error(
+        "Title generation failed:",
+        await response.text()
+      );
+
+      return;
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    const title =
+      data?.title?.trim();
+
+
+    if (!title) {
+      return;
+    }
+
+
+    /*
+     * Don't update if identical.
+     */
+
+    if (
+      title ===
+      currentChat.title
+    ){
+
+      return;
+
+    }
+
+
+    const {
+      data:updatedChat,
+      error
+    } =
+      await supabase
+        .from("am_chats")
+        .update({
+
+          title,
+
+          updated_at:
+            new Date().toISOString()
+
+        })
+        .eq(
+          "id",
+          currentChat.id
+        )
+        .select()
+        .single();
+
+
+    if (error){
+
+      console.error(
+        "Could not update title:",
+        error
+      );
+
+      return;
+
+    }
+
+
+    currentChat =
+      updatedChat;
+
+
+    const index =
+      chats.findIndex(
+        chat =>
+          chat.id ===
+          currentChat.id
+      );
+
+
+    if (index !== -1){
+
+      chats[index] =
+        updatedChat;
+
+    }
+
+
+    renderChatList();
+
+  } catch (error){
+
+    console.error(
+      "generateChatTitle:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+async function sendMessage(){
+
+  if (sending) {
+    return;
+  }
+
+
+  const text =
+    input.value.trim();
+
+
+  /*
+   * Copy the currently selected images.
+   */
+
+  const selectedImages =
+    [...pendingImages];
+
+
+  /*
+   * NOTHING TO SEND.
+   *
+   * This is important:
+   *
+   * no text + no images
+   * =
+   * absolutely nothing happens.
+   */
+
+  if (
+    !text &&
+    selectedImages.length === 0
+  ){
+
+    return;
+
+  }
+
+
+  sending = true;
+
+  updateSendButton();
+
+
+  const originalText =
+    text;
+
+
+  try {
+
+    /* =====================================================
+       CREATE CHAT IF NEEDED
+    ====================================================== */
+
+    if (!currentChat){
+
+      const created =
+        await createNewChat();
+
+
+      if (!created){
+
+        throw new Error(
+          "Could not create a new chat."
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       UPLOAD IMAGES
+    ====================================================== */
+
+    let imageUrls = [];
+
+
+    if (
+      selectedImages.length
+    ){
+
+      imageUrls =
+        await uploadPendingImages();
+
+    }
+
+
+    /* =====================================================
+       CLEAR COMPOSER
+    ====================================================== */
+
+    input.value =
+      "";
+
+
+    input.style.height =
+      "auto";
+
+
+    clearPendingImages();
+
+
+    /* =====================================================
+       SAVE USER MESSAGE
+    ====================================================== */
+
+    const insertPayload = {
+
+      chat_id:
+        currentChat.id,
+
+      role:
+        "user",
+
+      content:
+        text || "",
+
+      image_urls:
+        imageUrls
+
+    };
+
+
+    /*
+     * Compatibility with old schema.
+     */
+
+    if (
+      imageUrls.length === 1
+    ){
+
+      insertPayload.image_url =
+        imageUrls[0];
+
+    }
+
+
+    const {
+      data:userMsg,
+      error:insertErr
+    } =
+      await supabase
+        .from("am_messages")
+        .insert(
+          insertPayload
+        )
+        .select()
+        .single();
+
+
+    if (insertErr){
+
+      throw insertErr;
+
+    }
+
+
+    currentMessages.push(
+      userMsg
+    );
+
+
+    /* =====================================================
+       DISPLAY USER MESSAGE
+    ====================================================== */
+
+    emptyState.style.display =
+      "none";
+
+
+    appendMessageEl(
+      "user",
+      text,
+      null,
+      imageUrls
+    );
+
+
+    scrollToBottom();
+
+
+    /* =====================================================
+       COUNT USER MESSAGES
+    ====================================================== */
+
+    const userMessageCount =
+      currentMessages.filter(
+        message =>
+          message.role ===
+          "user"
+      ).length;
+
+
+    /*
+     * First prompt:
+     * generate title.
+     */
+
+    if (
+      userMessageCount === 1
+    ){
+
+      await generateChatTitle();
+
+    }
+
+
+    /* =====================================================
+       ASSISTANT MESSAGE UI
+    ====================================================== */
+
+    const {
+      textEl
+    } =
+      appendMessageEl(
+        "assistant",
+        "",
+        null
+      );
+
+
+    textEl.innerHTML =
+      `
+      <div class="typing-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      `;
+
+
+    scrollToBottom();
+
+
+    /* =====================================================
+       AUTH TOKEN
+    ====================================================== */
+
+    const accessToken =
+      await getAccessToken();
+
+
+    /* =====================================================
+       STREAMING EDGE FUNCTION
+    ====================================================== */
+
+    const response =
+      await fetch(
+        `${SUPABASE_URL}/functions/v1/chat-completion`,
+        {
+
+          method:"POST",
+
+          headers:{
+
+            "Content-Type":
+              "application/json",
+
+            "apikey":
+              SUPABASE_ANON_KEY,
+
+            "Authorization":
+              `Bearer ${accessToken}`
+
+          },
+
+          body:
+            JSON.stringify({
+
+              mode:"chat",
+
+              messages:
+                toApiMessages(
+                  currentMessages
+                )
+
+            })
+
+        }
+      );
+
+
+    if (!response.ok){
 
       const errorText =
         await response.text();
 
-      let message =
-        errorText;
-
-
-      try{
-
-        const parsed =
-          JSON.parse(errorText);
-
-        message =
-          parsed.error ||
-          parsed.message ||
-          errorText;
-
-      }catch{}
-
 
       throw new Error(
-        message ||
-        `Edge Function returned HTTP ${response.status}`
+        errorText ||
+        `Edge Function returned ${response.status}`
       );
+
     }
 
 
-    if(!response.body){
+    if (!response.body){
 
       throw new Error(
-        'The server did not return a stream.'
+        "The AI returned no response."
       );
+
     }
 
 
-    /* -----------------------------------------------------
-       READ STREAM
-       ----------------------------------------------------- */
+    /* =====================================================
+       STREAM RESPONSE
+    ====================================================== */
 
     const reader =
       response.body.getReader();
 
+
     const decoder =
       new TextDecoder();
 
-    let buffer =
-      '';
 
-    let answer =
-      '';
+    let answer = "";
 
 
     textEl.innerHTML =
-      '';
+      "";
 
 
-    while(true){
+    while (true){
 
       const {
-        value,
-        done
+        done,
+        value
       } =
         await reader.read();
 
 
-      if(done) break;
+      if (done){
+        break;
+      }
 
 
-      buffer +=
+      const chunk =
         decoder.decode(
           value,
           {
@@ -2520,335 +3432,227 @@ async function sendMessage(){
         );
 
 
-      const lines =
-        buffer.split('\n');
+      answer +=
+        chunk;
 
 
-      buffer =
-        lines.pop() || '';
+      /*
+       * IMPORTANT:
+       *
+       * The response is rendered
+       * after EVERY received chunk.
+       */
+
+      renderRichText(
+        textEl,
+        answer
+      );
 
 
-      for(
-        let line of lines
-      ){
+      scrollToBottom();
 
-        line =
-          line.trim();
+    }
 
 
-        if(!line) continue;
+    /*
+     * Flush remaining decoder data.
+     */
+
+    answer +=
+      decoder.decode();
 
 
-        if(
-          line ===
-          'data: [DONE]'
-        ){
+    if (
+      answer.trim()
+    ){
 
-          continue;
-        }
+      /* =================================================
+         SAVE ASSISTANT RESPONSE
+      ================================================== */
 
+      const {
+        data:assistantMsg,
+        error:assistantErr
+      } =
+        await supabase
+          .from("am_messages")
+          .insert({
 
-        if(
-          !line.startsWith(
-            'data:'
-          )
-        ){
+            chat_id:
+              currentChat.id,
 
-          continue;
-        }
+            role:
+              "assistant",
 
+            content:
+              answer
 
-        const jsonText =
-          line
-            .substring(5)
-            .trim();
-
-
-        if(!jsonText) continue;
-
-
-        let chunk;
-
-
-        try{
-
-          chunk =
-            JSON.parse(
-              jsonText
-            );
-
-        }catch{
-
-          continue;
-        }
+          })
+          .select()
+          .single();
 
 
-        if(chunk.error){
+      if (assistantErr){
 
-          throw new Error(
-            chunk.error
-          );
-        }
-
-
-        const token =
-          chunk.token ||
-          '';
-
-
-        if(!token) continue;
-
-
-        answer +=
-          token;
-
-
-        /*
-         * Render immediately.
-         * This is what makes Artificial Maths
-         * appear to type as the AI generates.
-         */
-
-        renderRichText(
-          textEl,
-          answer
+        console.error(
+          "Failed to save assistant message:",
+          assistantErr
         );
 
+      } else {
 
-        scrollToBottom();
+        currentMessages.push(
+          assistantMsg
+        );
+
       }
+
     }
 
 
-    if(!answer.trim()){
+    /* =====================================================
+       RENAME EVERY 3 USER MESSAGES
+    ====================================================== */
 
-      throw new Error(
-        'The AI returned an empty response.'
-      );
+    const totalUserMessages =
+      currentMessages.filter(
+        message =>
+          message.role ===
+          "user"
+      ).length;
+
+
+    if (
+      totalUserMessages > 0 &&
+      totalUserMessages % 3 === 0
+    ){
+
+      await generateChatTitle();
+
     }
 
 
-    /* -----------------------------------------------------
-       SAVE COMPLETE ASSISTANT MESSAGE
-       ----------------------------------------------------- */
+    /*
+     * Update chat timestamp.
+     */
 
-    const {
-      data:assistantMsg,
-      error:assistantErr
-    } =
-      await supabase
-        .from('am_messages')
-        .insert({
-
-          chat_id:
-            currentChat.id,
-
-          role:
-            'assistant',
-
-          content:
-            answer
-        })
-        .select()
-        .single();
-
-
-    if(assistantErr){
-
-      console.error(
-        'Failed to save assistant message:',
-        assistantErr
+    await supabase
+      .from("am_chats")
+      .update({
+        updated_at:
+          new Date().toISOString()
+      })
+      .eq(
+        "id",
+        currentChat.id
       );
 
-    }else{
 
-      currentMessages.push(
-        assistantMsg
-      );
-    }
-
-
-  }catch(err){
+  } catch (error){
 
     console.error(
-      'Chat error:',
-      err
+      "sendMessage error:",
+      error
     );
 
 
-    textEl.textContent =
-      'Error: ' +
-      (
-        err.message ||
-        'Something went wrong.'
+    /*
+     * Restore text if sending failed.
+     */
+
+    input.value =
+      originalText;
+
+
+    input.style.height =
+      "auto";
+
+
+    input.style.height =
+      Math.min(
+        input.scrollHeight,
+        200
+      ) + "px";
+
+
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Something went wrong.";
+
+
+    /*
+     * Display error in chat instead of
+     * creating an AI database message.
+     */
+
+    const assistantMessages =
+      messagesEl.querySelectorAll(
+        ".msg.assistant .msg-text"
       );
 
-  }finally{
 
-    sending =
-      false;
+    const lastAssistant =
+      assistantMessages[
+        assistantMessages.length - 1
+      ];
 
-    newChatBtn.disabled =
-      false;
 
-    sendBtn.disabled =
-      (
-        !input.value.trim() &&
-        !pendingImageUrl
+    if (lastAssistant){
+
+      lastAssistant.textContent =
+        "Error: " +
+        errorMessage;
+
+    } else {
+
+      alert(
+        "Could not send message: " +
+        errorMessage
       );
+
+    }
+
+
+  } finally {
+
+    sending = false;
+
+    updateSendButton();
 
     scrollToBottom();
+
   }
+
 }
 
 
 /* =========================================================
-   GENERATE / CHECK CHAT TITLE
-   ========================================================= */
+   NEW CHAT
+========================================================= */
 
-async function generateChatTitle(){
+newChatBtn.addEventListener(
+  "click",
+  async () => {
 
-  if(!currentChat) return;
+    /*
+     * New chat creates an EMPTY chat.
+     *
+     * There is NO automatic AI greeting.
+     */
 
+    await createNewChat();
 
-  try{
-
-    const {
-      data:{
-        session
-      }
-    } =
-      await supabase.auth.getSession();
-
-
-    if(!session?.access_token){
-
-      return;
-    }
-
-
-    const response =
-      await fetch(
-        `${SUPABASE_URL}/functions/v1/chat-completion`,
-        {
-
-          method:'POST',
-
-          headers:{
-            'Content-Type':
-              'application/json',
-
-            Authorization:
-              `Bearer ${session.access_token}`,
-
-            apikey:
-              SUPABASE_ANON_KEY
-          },
-
-          body:JSON.stringify({
-
-            action:'title',
-
-            messages:
-              toApiMessages(
-                currentMessages
-              ),
-
-            current_title:
-              currentChat.title
-          })
-        }
-      );
-
-
-    if(!response.ok){
-
-      console.error(
-        'Title generation failed:',
-        await response.text()
-      );
-
-      return;
-    }
-
-
-    const data =
-      await response.json();
-
-
-    const newTitle =
-      data?.title?.trim();
-
-
-    if(!newTitle){
-
-      return;
-    }
-
-
-    if(
-      newTitle ===
-      currentChat.title
-    ){
-
-      return;
-    }
-
-
-    const {
-      error
-    } =
-      await supabase
-        .from('am_chats')
-        .update({
-          title:newTitle
-        })
-        .eq(
-          'id',
-          currentChat.id
-        );
-
-
-    if(error){
-
-      console.error(
-        'Failed to save chat title:',
-        error
-      );
-
-      return;
-    }
-
-
-    currentChat.title =
-      newTitle;
-
-
-    const index =
-      chats.findIndex(
-        c =>
-          c.id === currentChat.id
-      );
-
-
-    if(index !== -1){
-
-      chats[index].title =
-        newTitle;
-    }
-
-
-    renderChatList();
-
-
-  }catch(error){
-
-    console.error(
-      'Failed to generate title:',
-      error
-    );
   }
-}
+);
+
+
+/* =========================================================
+   INITIAL BUTTON STATE
+========================================================= */
+
+updateSendButton();
+
 
 </script>
 
