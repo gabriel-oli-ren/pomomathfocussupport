@@ -72,16 +72,10 @@
   .typing-dots span:nth-child(3){animation-delay:.3s}
   @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-4px);opacity:1}}
 
-  .avatar.generating{animation:pulse-avatar 1.3s ease-in-out infinite}
-  @keyframes pulse-avatar{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.94)}}
-  .stream-cursor{display:inline-block;width:2px;height:1em;background:currentColor;margin-left:1px;vertical-align:text-bottom;animation:blink-cursor 0.9s steps(1) infinite}
-  @keyframes blink-cursor{0%,50%{opacity:1}50.01%,100%{opacity:0}}
-
   /* ── Composer ────────────────────────────────────────── */
   .composer-wrap{position:absolute;left:0;right:0;bottom:0;padding:14px 20px 18px;background:linear-gradient(transparent,var(--main-bg) 32%)}
   .composer{max-width:768px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:0 6px 24px rgba(0,0,0,.07)}
   .image-preview{position:relative;display:inline-flex;margin:10px 0 0 12px}
-  .image-preview[hidden]{display:none}
   .image-preview img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}
   .image-preview button{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#111;color:#fff;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center}
   .composer-row{display:flex;align-items:flex-end;gap:4px;padding:6px}
@@ -190,21 +184,6 @@ import DOMPurify from 'https://cdn.jsdelivr.net/npm/dompurify@3/+esm';
 const SUPABASE_URL = 'https://inidxltybmadzgggvpxz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaWR4bHR5Ym1hZHpnZ2d2cHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMjMyOTMsImV4cCI6MjEwMjg5OTI5M30.7yrNe9mk_cj6YPi4adutrKfC0pDZxWLyUcsdvbnkSqY';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// ── OpenRouter (called directly from the browser for now) ─────────────────
-// NOTE: this key is visible to anyone who views this page's source. Fine for
-// testing, but move this behind the chat-completion Supabase Edge Function
-// (given separately) before sharing this app with anyone else.
-const OPENROUTER_API_KEY = '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';
-const OPENROUTER_MODEL = 'openrouter/free';
-const SYSTEM_PROMPT =
-  "You are Artificial Maths, a helpful general-purpose AI assistant. " +
-  "You are especially good at mathematics, but you can help with coding, " +
-  "science, writing, research, ideas and general questions too. When the " +
-  "user sends an image, read any text in it (OCR) and/or analyze and " +
-  "describe its visual content before answering their question. Use " +
-  "LaTeX ($...$ for inline, $$...$$ for display) for any mathematical " +
-  "notation. Explain clearly and adapt to the user's level.";
 
 marked.setOptions({ breaks: true });
 
@@ -329,10 +308,28 @@ async function createNewChat() {
     .insert({ user_id: currentUser.id, title: 'New chat' })
     .select()
     .single();
-  if (error) { console.error(error); return null; }
+  if (error) {
+    console.error('Failed to create chat:', error);
+    alert('Could not create chat: ' + (error.message || 'Unknown error'));
+    return null;
+  }
   chats.unshift(data);
   currentChat = data;
-  currentMessages = [];
+
+  // Start every new chat with an AI greeting
+  const greeting = "Hi! I'm Artificial Maths. Ask me anything about maths, coding, science, or ideas — I'm ready when you are.";
+  const { data: assistantMsg, error: msgErr } = await supabase
+    .from('am_messages')
+    .insert({ chat_id: data.id, role: 'assistant', content: greeting })
+    .select()
+    .single();
+  if (msgErr) {
+    console.error('Failed to insert greeting:', msgErr);
+    currentMessages = [];
+  } else {
+    currentMessages = [assistantMsg];
+  }
+
   renderChatList();
   renderMessages();
   return data;
@@ -402,8 +399,8 @@ function appendMessageEl(role, content, imageUrl) {
   return { wrap, textEl };
 }
 
-function renderRichText(el, text, streaming = false) {
-  const html = DOMPurify.sanitize(marked.parse(text || ''));
+function renderRichText(el, text) {
+  const html = DOMPurify.sanitize(marked.parse(text));
   el.innerHTML = html;
   if (window.renderMathInElement) {
     window.renderMathInElement(el, {
@@ -415,11 +412,6 @@ function renderRichText(el, text, streaming = false) {
       ],
       throwOnError: false
     });
-  }
-  if (streaming) {
-    const cursor = document.createElement('span');
-    cursor.className = 'stream-cursor';
-    el.appendChild(cursor);
   }
 }
 
@@ -481,64 +473,6 @@ async function uploadImage(file) {
   return data.publicUrl;
 }
 
-// ── Streaming ───────────────────────────────────────────────────────────
-async function streamChat(apiMessages, onDelta) {
-  if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === 'YOUR_OPENROUTER_API_KEY') {
-    throw new Error('Add your OpenRouter API key to the OPENROUTER_API_KEY constant near the top of the script.');
-  }
-
-  const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': location.href,
-      'X-Title': 'Artificial Maths'
-    },
-    body: JSON.stringify({
-      model: OPENROUTER_MODEL,
-      stream: true,
-      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...apiMessages],
-      temperature: 0.7,
-      max_tokens: 2048
-    })
-  });
-
-  if (!resp.ok || !resp.body) {
-    let message = `Request failed (${resp.status})`;
-    try { message = (await resp.json())?.error?.message || message; } catch (_) {}
-    throw new Error(message);
-  }
-
-  const reader = resp.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let full = '';
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop();
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith('data:')) continue;
-      const payload = trimmed.slice(5).trim();
-      if (!payload || payload === '[DONE]') continue;
-      try {
-        const json = JSON.parse(payload);
-        const delta = json.choices?.[0]?.delta?.content || '';
-        if (delta) {
-          full += delta;
-          onDelta(full);
-        }
-      } catch (_) { /* ignore partial/non-JSON chunks */ }
-    }
-  }
-  return full;
-}
-
 // ── Sending messages ────────────────────────────────────────────────────
 function toApiMessages(history) {
   return history.map(m => {
@@ -563,24 +497,58 @@ async function sendMessage() {
 
   sending = true;
   sendBtn.disabled = true;
+
+  // Keep original values so we can restore on failure
+  const originalText = text;
+  const originalImage = imageUrl;
+
+  if (!currentChat) {
+    const created = await createNewChat();
+    if (!created) {
+      sending = false;
+      sendBtn.disabled = !input.value.trim() && !pendingImageUrl;
+      alert('Could not create a new chat. Please try again.');
+      return;
+    }
+  }
+
+  emptyState.style.display = 'none';
+
+  // Clear UI only after we know we have a chat
   input.value = '';
   input.style.height = 'auto';
   imagePreview.hidden = true;
   pendingImageUrl = null;
 
-  if (!currentChat) {
-    const created = await createNewChat();
-    if (!created) { sending = false; return; }
-  }
-
-  emptyState.style.display = 'none';
+  const insertPayload = {
+    chat_id: currentChat.id,
+    role: 'user',
+    content: text || ''
+  };
+  if (imageUrl) insertPayload.image_url = imageUrl;
 
   const { data: userMsg, error: insertErr } = await supabase
     .from('am_messages')
-    .insert({ chat_id: currentChat.id, role: 'user', content: text, image_url: imageUrl })
+    .insert(insertPayload)
     .select()
     .single();
-  if (insertErr) { console.error(insertErr); sending = false; return; }
+
+  if (insertErr) {
+    console.error('Failed to save user message:', insertErr);
+    // Restore the message so the user doesn't lose it
+    input.value = originalText;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+    if (originalImage) {
+      pendingImageUrl = originalImage;
+      imagePreviewImg.src = originalImage;
+      imagePreview.hidden = false;
+    }
+    sending = false;
+    sendBtn.disabled = false;
+    alert('Could not send message: ' + (insertErr.message || 'Database error. Check console for details.'));
+    return;
+  }
 
   currentMessages.push(userMsg);
   appendMessageEl('user', text, imageUrl);
@@ -594,43 +562,31 @@ async function sendMessage() {
   }
 
   const { wrap, textEl } = appendMessageEl('assistant', '', null);
-  const avatarEl = wrap.querySelector('.avatar');
-  if (avatarEl) avatarEl.classList.add('generating');
   textEl.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
   scrollToBottom();
 
-  let renderScheduled = false;
-  let firstTokenSeen = false;
-  const scheduleRender = (partial) => {
-    if (!firstTokenSeen) { firstTokenSeen = true; }
-    if (renderScheduled) return;
-    renderScheduled = true;
-    requestAnimationFrame(() => {
-      renderScheduled = false;
-      renderRichText(textEl, partial, true);
-      scrollToBottom();
-    });
-  };
-
   try {
-    const answer = await streamChat(toApiMessages(currentMessages), scheduleRender);
-    const finalAnswer = answer || 'No response was returned.';
+    const { data, error } = await supabase.functions.invoke('chat-completion', {
+      body: { messages: toApiMessages(currentMessages) }
+    });
+    if (error) throw error;
+    const answer = data?.answer || data?.error || 'No response was returned.';
 
-    const { data: assistantMsg } = await supabase
+    const { data: assistantMsg, error: assistantErr } = await supabase
       .from('am_messages')
-      .insert({ chat_id: currentChat.id, role: 'assistant', content: finalAnswer })
+      .insert({ chat_id: currentChat.id, role: 'assistant', content: answer })
       .select()
       .single();
-    currentMessages.push(assistantMsg || { role: 'assistant', content: finalAnswer });
+    if (assistantErr) console.error('Failed to save assistant message:', assistantErr);
 
-    renderRichText(textEl, finalAnswer, false);
+    currentMessages.push(assistantMsg || { role: 'assistant', content: answer });
+    renderRichText(textEl, answer);
   } catch (err) {
     console.error(err);
-    textEl.textContent = 'Error: ' + (err.message || 'Something went wrong.');
+    textEl.textContent = 'Error: ' + (err.message || 'Something went wrong. Check the browser console for details.');
   } finally {
-    if (avatarEl) avatarEl.classList.remove('generating');
     sending = false;
-    sendBtn.disabled = !input.value.trim();
+    sendBtn.disabled = !input.value.trim() && !pendingImageUrl;
     scrollToBottom();
   }
 }
