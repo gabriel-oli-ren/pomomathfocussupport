@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artificial Maths</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+  :root{
+    --sidebar-bg:#171717;--sidebar-hover:#212121;--sidebar-active:#2a2a2a;
+    --sidebar-text:#ececec;--sidebar-muted:#a3a3a3;--sidebar-border:#2d2d2d;
+    --main-bg:#ffffff;--text:#0d0d0d;--muted:#6e6e80;--border:#e5e5e5;
+    --bubble-user:#f2f2f3;--accent:#111111;--danger:#e5484d;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,ui-sans-serif,system-ui,sans-serif;background:var(--main-bg);color:var(--text)}
+  button{border:0;background:none;font:inherit;cursor:pointer;color:inherit}
+  textarea{font:inherit}
+  .app{height:100vh;display:flex;overflow:hidden}
+
+  /* ── Sidebar ─────────────────────────────────────────── */
+  .sidebar{width:270px;flex-shrink:0;background:var(--sidebar-bg);color:var(--sidebar-text);display:flex;flex-direction:column;padding:10px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:650;font-size:15px;padding:8px 6px 14px}
+  .brand img{width:26px;height:26px;border-radius:7px;object-fit:cover}
+  .new-chat-btn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:1px solid var(--sidebar-border);border-radius:12px;text-align:left;font-size:14px}
+  .new-chat-btn:hover{background:var(--sidebar-hover)}
+  .new-chat-btn svg{flex-shrink:0}
+  .chat-list{flex:1;overflow-y:auto;margin-top:14px;display:flex;flex-direction:column;gap:2px}
+  .chat-list-label{font-size:11px;color:var(--sidebar-muted);padding:10px 10px 4px;text-transform:uppercase;letter-spacing:.04em}
+  .chat-item{position:relative;display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chat-item:hover{background:var(--sidebar-hover)}
+  .chat-item.active{background:var(--sidebar-active)}
+  .chat-item .title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+  .chat-item .delete-btn{opacity:0;flex-shrink:0;padding:3px;border-radius:6px;color:var(--sidebar-muted)}
+  .chat-item:hover .delete-btn{opacity:1}
+  .chat-item .delete-btn:hover{color:var(--danger);background:rgba(255,255,255,.08)}
+  .sidebar-bottom{border-top:1px solid var(--sidebar-border);padding-top:10px;margin-top:8px}
+  .user-row{display:flex;align-items:center;gap:9px;padding:8px;border-radius:10px}
+  .user-row:hover{background:var(--sidebar-hover)}
+  .user-row img{width:26px;height:26px;border-radius:50%;flex-shrink:0}
+  .user-row .name{flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .user-row .signout-btn{color:var(--sidebar-muted);padding:4px;border-radius:6px}
+  .user-row .signout-btn:hover{color:var(--sidebar-text);background:rgba(255,255,255,.08)}
+
+  /* ── Main ────────────────────────────────────────────── */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+  .chat-scroll{flex:1;overflow-y:auto}
+  .messages{max-width:768px;margin:0 auto;padding:40px 22px 170px;min-height:100%}
+  .empty-state{text-align:center;margin-top:16vh}
+  .empty-state h1{font-size:30px;margin:0 0 8px;letter-spacing:-.6px}
+  .empty-state p{color:var(--muted);margin:0}
+
+  .msg{display:flex;gap:14px;margin:26px 0;align-items:flex-start}
+  .msg.user{justify-content:flex-end}
+  .avatar{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;font-size:13px;font-weight:700}
+  .msg-body{max-width:75%;min-width:0}
+  .msg.user .msg-body{background:var(--bubble-user);padding:11px 15px;border-radius:18px}
+  .msg.assistant .msg-body{padding-top:4px}
+  .msg-image{max-width:280px;border-radius:12px;display:block;margin-bottom:8px}
+  .msg-text{line-height:1.65;font-size:15.5px;white-space:pre-wrap;word-wrap:break-word}
+  .msg.assistant .msg-text p{margin:0 0 12px}
+  .msg.assistant .msg-text p:last-child{margin-bottom:0}
+  .msg.assistant .msg-text pre{background:#0d0d0d;color:#f2f2f2;padding:12px 14px;border-radius:10px;overflow-x:auto;font-size:13px}
+  .msg.assistant .msg-text code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .msg.assistant .msg-text :not(pre)>code{background:#f0f0f1;padding:1px 5px;border-radius:5px}
+  .msg.assistant .msg-text ul,.msg.assistant .msg-text ol{margin:0 0 12px;padding-left:22px}
+
+  .typing-dots{display:flex;gap:4px;padding:8px 0}
+  .typing-dots span{width:7px;height:7px;border-radius:50%;background:#9b9b9b;animation:bounce 1.2s infinite ease-in-out}
+  .typing-dots span:nth-child(2){animation-delay:.15s}
+  .typing-dots span:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-4px);opacity:1}}
+
+  /* ── Composer ────────────────────────────────────────── */
+  .composer-wrap{position:absolute;left:0;right:0;bottom:0;padding:14px 20px 18px;background:linear-gradient(transparent,var(--main-bg) 32%)}
+  .composer{max-width:768px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:0 6px 24px rgba(0,0,0,.07)}
+  .image-preview{position:relative;display:inline-flex;margin:10px 0 0 12px}
+  .image-preview img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}
+  .image-preview button{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#111;color:#fff;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center}
+  .composer-row{display:flex;align-items:flex-end;gap:4px;padding:6px}
+  .icon-btn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#555;flex-shrink:0}
+  .icon-btn:hover{background:#f0f0f1}
+  .composer textarea{flex:1;border:0;outline:0;resize:none;min-height:26px;max-height:200px;padding:9px 6px;background:transparent;font-size:15.5px;line-height:1.4}
+  .send-btn{width:34px;height:34px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:2px}
+  .send-btn:disabled{opacity:.3;cursor:not-allowed}
+  .disclaimer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:8px}
+
+  /* ── Auth overlay ────────────────────────────────────── */
+  .auth-overlay{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:50}
+  .auth-overlay.hidden{display:none}
+  .auth-card{text-align:center;padding:40px;max-width:340px}
+  .auth-card img{width:52px;height:52px;border-radius:14px;margin-bottom:18px}
+  .auth-card h1{font-size:24px;margin:0 0 6px;letter-spacing:-.5px}
+  .auth-card p{color:var(--muted);margin:0 0 26px;font-size:14.5px}
+  .google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:12px;font-size:14.5px;font-weight:550}
+  .google-btn:hover{background:#f7f7f8}
+  .auth-status{font-size:12.5px;color:var(--muted);margin-top:16px}
+
+  @media(max-width:760px){
+    .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:40;transform:translateX(-100%);transition:transform .2s}
+    .sidebar.open{transform:translateX(0)}
+    .messages{padding-left:14px;padding-right:14px}
+    .msg-body{max-width:88%}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><img src="maths-logo.png" alt=""> Artificial Maths</div>
+    <button class="new-chat-btn" id="newChatBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      New chat
+    </button>
+    <div class="chat-list-label">Chats</div>
+    <div class="chat-list" id="chatList"></div>
+    <div class="sidebar-bottom">
+      <div class="user-row" id="userRow">
+        <img id="userAvatar" alt="">
+        <span class="name" id="userName"></span>
+        <button class="signout-btn" id="signOutBtn" title="Sign out">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="chat-scroll" id="chatScroll">
+      <div class="messages" id="messages">
+        <div class="empty-state" id="emptyState">
+          <h1>What can I help you with?</h1>
+          <p>Maths, coding, science, ideas, research and more.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="composer-wrap">
+      <div class="composer">
+        <div class="image-preview" id="imagePreview" hidden>
+          <img id="imagePreviewImg" alt="">
+          <button id="removeImageBtn" type="button">×</button>
+        </div>
+        <div class="composer-row">
+          <button class="icon-btn" id="attachBtn" type="button" title="Attach image">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <input type="file" id="fileInput" accept="image/*" hidden>
+          <textarea id="input" rows="1" placeholder="Message Artificial Maths..."></textarea>
+          <button class="send-btn" id="sendBtn" type="button" title="Send" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="disclaimer">AI responses can be inaccurate. Check important information.</div>
+    </div>
+  </main>
+
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <img src="maths-logo.png" alt="">
+      <h1>Artificial Maths</h1>
+      <p>Sign in to start chatting.</p>
+      <button class="google-btn" id="googleSignInBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.5-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 15.6 3 8.4 7.9 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 36.4 27 37 24 37c-5.3 0-9.7-3.1-11.3-7.5l-6.6 5.1C8.3 40 15.5 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.5l6.6 5.4C41.5 35.9 45 30.4 45 24c0-1.4-.1-2.5-.4-3.5z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-status" id="authStatus"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { marked } from 'https://cdn.jsdelivr.net/npm/marked@11/+esm';
+import DOMPurify from 'https://cdn.jsdelivr.net/npm/dompurify@3/+esm';
+
+// ── Configure with your Supabase project ─────────────────────────────────
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+marked.setOptions({ breaks: true });
+
+// ── DOM refs ───────────────────────────────────────────────────────────────
+const authOverlay = document.getElementById('authOverlay');
+const authStatus = document.getElementById('authStatus');
+const googleSignInBtn = document.getElementById('googleSignInBtn');
+const signOutBtn = document.getElementById('signOutBtn');
+const userAvatar = document.getElementById('userAvatar');
+const userName = document.getElementById('userName');
+
+const newChatBtn = document.getElementById('newChatBtn');
+const chatList = document.getElementById('chatList');
+const messagesEl = document.getElementById('messages');
+const emptyState = document.getElementById('emptyState');
+const chatScroll = document.getElementById('chatScroll');
+
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+const attachBtn = document.getElementById('attachBtn');
+const fileInput = document.getElementById('fileInput');
+const imagePreview = document.getElementById('imagePreview');
+const imagePreviewImg = document.getElementById('imagePreviewImg');
+const removeImageBtn = document.getElementById('removeImageBtn');
+
+// ── State ────────────────────────────────────────────────────────────────
+let currentUser = null;
+let chats = [];
+let currentChat = null;
+let currentMessages = [];
+let pendingImageUrl = null;
+let sending = false;
+
+// ── Auth ─────────────────────────────────────────────────────────────────
+googleSignInBtn.addEventListener('click', async () => {
+  authStatus.textContent = 'Redirecting to Google…';
+  await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+});
+
+signOutBtn.addEventListener('click', async () => {
+  await supabase.auth.signOut();
+});
+
+async function handleSession(session) {
+  currentUser = session?.user || null;
+  if (currentUser) {
+    authOverlay.classList.add('hidden');
+    userName.textContent = currentUser.user_metadata?.full_name || currentUser.email || 'Account';
+    userAvatar.src = currentUser.user_metadata?.avatar_url || '';
+    await loadChats();
+  } else {
+    authOverlay.classList.remove('hidden');
+    authStatus.textContent = '';
+    chats = [];
+    currentChat = null;
+    currentMessages = [];
+    renderChatList();
+    renderMessages();
+  }
+}
+
+supabase.auth.getSession().then(({ data }) => handleSession(data.session));
+supabase.auth.onAuthStateChange((_event, session) => handleSession(session));
+
+// ── Chats ────────────────────────────────────────────────────────────────
+async function loadChats() {
+  const { data, error } = await supabase
+    .from('am_chats')
+    .select('*')
+    .order('updated_at', { ascending: false });
+  if (error) { console.error(error); return; }
+  chats = data || [];
+  renderChatList();
+  if (chats.length && !currentChat) {
+    await selectChat(chats[0]);
+  } else if (!chats.length) {
+    currentChat = null;
+    currentMessages = [];
+    renderMessages();
+  }
+}
+
+function renderChatList() {
+  chatList.innerHTML = '';
+  for (const chat of chats) {
+    const item = document.createElement('div');
+    item.className = 'chat-item' + (currentChat && currentChat.id === chat.id ? ' active' : '');
+    const title = document.createElement('span');
+    title.className = 'title';
+    title.textContent = chat.title || 'New chat';
+    const del = document.createElement('button');
+    del.className = 'delete-btn';
+    del.type = 'button';
+    del.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>';
+    del.addEventListener('click', (e) => { e.stopPropagation(); deleteChat(chat); });
+    item.appendChild(title);
+    item.appendChild(del);
+    item.addEventListener('click', () => selectChat(chat));
+    chatList.appendChild(item);
+  }
+}
+
+async function selectChat(chat) {
+  currentChat = chat;
+  renderChatList();
+  const { data, error } = await supabase
+    .from('am_messages')
+    .select('*')
+    .eq('chat_id', chat.id)
+    .order('created_at', { ascending: true });
+  if (error) { console.error(error); return; }
+  currentMessages = data || [];
+  renderMessages();
+}
+
+async function createNewChat() {
+  const { data, error } = await supabase
+    .from('am_chats')
+    .insert({ user_id: currentUser.id, title: 'New chat' })
+    .select()
+    .single();
+  if (error) { console.error(error); return null; }
+  chats.unshift(data);
+  currentChat = data;
+  currentMessages = [];
+  renderChatList();
+  renderMessages();
+  return data;
+}
+
+async function deleteChat(chat) {
+  if (!confirm('Delete this chat?')) return;
+  await supabase.from('am_chats').delete().eq('id', chat.id);
+  chats = chats.filter(c => c.id !== chat.id);
+  if (currentChat && currentChat.id === chat.id) {
+    currentChat = null;
+    currentMessages = [];
+    if (chats.length) await selectChat(chats[0]);
+    else renderMessages();
+  }
+  renderChatList();
+}
+
+newChatBtn.addEventListener('click', () => createNewChat());
+
+// ── Message rendering ───────────────────────────────────────────────────
+function renderMessages() {
+  messagesEl.innerHTML = '';
+  if (!currentMessages.length) {
+    messagesEl.appendChild(emptyState);
+    emptyState.style.display = '';
+    return;
+  }
+  emptyState.style.display = 'none';
+  for (const m of currentMessages) appendMessageEl(m.role, m.content, m.image_url);
+  scrollToBottom();
+}
+
+function appendMessageEl(role, content, imageUrl) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + role;
+
+  if (role === 'assistant') {
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = 'AM';
+    wrap.appendChild(avatar);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'msg-body';
+
+  if (imageUrl) {
+    const img = document.createElement('img');
+    img.className = 'msg-image';
+    img.src = imageUrl;
+    body.appendChild(img);
+  }
+
+  const textEl = document.createElement('div');
+  textEl.className = 'msg-text';
+
+  if (role === 'assistant') {
+    renderRichText(textEl, content || '');
+  } else {
+    textEl.textContent = content || '';
+  }
+
+  body.appendChild(textEl);
+  wrap.appendChild(body);
+  messagesEl.appendChild(wrap);
+  return { wrap, textEl };
+}
+
+function renderRichText(el, text) {
+  const html = DOMPurify.sanitize(marked.parse(text));
+  el.innerHTML = html;
+  if (window.renderMathInElement) {
+    window.renderMathInElement(el, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+function scrollToBottom() {
+  chatScroll.scrollTop = chatScroll.scrollHeight;
+}
+
+// ── Composer: auto-resize + Enter to send ──────────────────────────────
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+  sendBtn.disabled = !input.value.trim() && !pendingImageUrl;
+});
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+sendBtn.addEventListener('click', () => sendMessage());
+
+// ── Image upload ────────────────────────────────────────────────────────
+attachBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  imagePreviewImg.src = URL.createObjectURL(file);
+  imagePreview.hidden = false;
+  attachBtn.disabled = true;
+  try {
+    pendingImageUrl = await uploadImage(file);
+  } catch (err) {
+    console.error(err);
+    alert('Image upload failed: ' + err.message);
+    imagePreview.hidden = true;
+    pendingImageUrl = null;
+  } finally {
+    attachBtn.disabled = false;
+    sendBtn.disabled = !input.value.trim() && !pendingImageUrl;
+    fileInput.value = '';
+  }
+});
+
+removeImageBtn.addEventListener('click', () => {
+  pendingImageUrl = null;
+  imagePreview.hidden = true;
+  sendBtn.disabled = !input.value.trim();
+});
+
+async function uploadImage(file) {
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const path = `${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from('am-chat-images').upload(path, file, { upsert: false });
+  if (error) throw error;
+  const { data } = supabase.storage.from('am-chat-images').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+// ── Sending messages ────────────────────────────────────────────────────
+function toApiMessages(history) {
+  return history.map(m => {
+    if (m.image_url) {
+      return {
+        role: m.role,
+        content: [
+          { type: 'text', text: m.content || 'Please read and/or analyze this image.' },
+          { type: 'image_url', image_url: { url: m.image_url } }
+        ]
+      };
+    }
+    return { role: m.role, content: m.content || '' };
+  });
+}
+
+async function sendMessage() {
+  if (sending) return;
+  const text = input.value.trim();
+  const imageUrl = pendingImageUrl;
+  if (!text && !imageUrl) return;
+
+  sending = true;
+  sendBtn.disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+  imagePreview.hidden = true;
+  pendingImageUrl = null;
+
+  if (!currentChat) {
+    const created = await createNewChat();
+    if (!created) { sending = false; return; }
+  }
+
+  emptyState.style.display = 'none';
+
+  const { data: userMsg, error: insertErr } = await supabase
+    .from('am_messages')
+    .insert({ chat_id: currentChat.id, role: 'user', content: text, image_url: imageUrl })
+    .select()
+    .single();
+  if (insertErr) { console.error(insertErr); sending = false; return; }
+
+  currentMessages.push(userMsg);
+  appendMessageEl('user', text, imageUrl);
+  scrollToBottom();
+
+  if (currentChat.title === 'New chat') {
+    const newTitle = (text || 'Image').slice(0, 45);
+    currentChat.title = newTitle;
+    supabase.from('am_chats').update({ title: newTitle }).eq('id', currentChat.id).then(() => {});
+    renderChatList();
+  }
+
+  const { wrap, textEl } = appendMessageEl('assistant', '', null);
+  textEl.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  scrollToBottom();
+
+  try {
+    const { data, error } = await supabase.functions.invoke('chat-completion', {
+      body: { messages: toApiMessages(currentMessages) }
+    });
+    if (error) throw error;
+    const answer = data?.answer || data?.error || 'No response was returned.';
+
+    const { data: assistantMsg } = await supabase
+      .from('am_messages')
+      .insert({ chat_id: currentChat.id, role: 'assistant', content: answer })
+      .select()
+      .single();
+    currentMessages.push(assistantMsg || { role: 'assistant', content: answer });
+
+    renderRichText(textEl, answer);
+  } catch (err) {
+    console.error(err);
+    textEl.textContent = 'Error: ' + (err.message || 'Something went wrong.');
+  } finally {
+    sending = false;
+    sendBtn.disabled = !input.value.trim();
+    scrollToBottom();
+  }
+}
+</script>
+</body>
+</html>
