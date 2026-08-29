@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1081,6 +1082,10 @@ body:not(.authenticated) .dev-panel.active {
 .aimaths-action-btn:hover{background:rgba(255,255,255,.2)}
 .aimaths-action-btn.danger:hover{background:rgba(246,79,89,.2);border-color:rgba(246,79,89,.4)}
 .aimaths-action-btn.search-active{background:rgba(59,130,246,.3);border-color:rgba(59,130,246,.5)}
+.aimaths-model-select{margin-right:8px;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:.85em;cursor:pointer;transition:all .2s;outline:none}
+.aimaths-model-select:hover{background:rgba(255,255,255,.15)}
+.aimaths-model-select:focus{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.1)}
+.aimaths-model-select option{background:#1a1a24;color:#fff}
 .aimaths-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
 .aimaths-messages::-webkit-scrollbar{width:4px}
 .aimaths-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
@@ -2275,6 +2280,16 @@ body:not(.authenticated) .dev-panel.active {
       <div class="aimaths-chat-header">
         <div class="aimaths-chat-title" id="aimathsChatTitle">New Conversation</div>
         <div class="aimaths-chat-actions">
+          <select id="aimathsModelSelect" class="aimaths-model-select">
+            <option value="google/gemma-4-31b-it:free" selected>Gemma 4 31B (Free) 🆓</option>
+            <option value="anthropic/claude-sonnet-4-5">Claude Sonnet 4.5 ✨</option>
+            <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+            <option value="openai/gpt-4o">GPT-4o</option>
+            <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+            <option value="google/gemini-2.0-flash-001">Gemini 2.0 Flash</option>
+            <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B</option>
+            <option value="deepseek/deepseek-chat">DeepSeek V3</option>
+          </select>
           <button onclick="toggleAiImageUpload()" class="aimaths-action-btn" title="Upload Image">📷</button>
           <button onclick="toggleAiSearchMode()" class="aimaths-action-btn" title="Enable Search">🔍</button>
           <button onclick="deleteCurrentAiConversation()" class="aimaths-action-btn danger" title="Delete">🗑️</button>
@@ -2393,7 +2408,7 @@ body:not(.authenticated) .dev-panel.active {
             <div class="ai-topbar-left"><div class="ai-topbar-avatar">🤖</div><div><div class="ai-topbar-name">AI Dev Assistant</div><div class="ai-topbar-sub" id="aiStatusLine">OpenRouter · GitHub · Vercel</div></div></div>
             <div class="ai-topbar-actions"><span id="aiActionStatus"></span><button class="ai-topbar-btn" onclick="aiClearChat()" title="Clear">🗑️</button></div>
           </div>
-          <div class="ai-model-bar"><span class="ai-model-label">Model:</span><select id="aiModelSelect" class="ai-model-select"><option value="anthropic/claude-sonnet-4-5">Claude Sonnet 4.5 ✨</option><option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option><option value="openai/gpt-4o">GPT-4o</option><option value="openai/gpt-4o-mini">GPT-4o Mini</option><option value="google/gemini-2.0-flash-001">Gemini 2.0 Flash</option><option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B</option><option value="deepseek/deepseek-chat">DeepSeek V3</option></select></div>
+          <div class="ai-model-bar"><span class="ai-model-label">Model:</span><select id="aiModelSelect" class="ai-model-select"><option value="google/gemma-4-31b-it:free" selected>Gemma 4 31B (Free) 🆓</option><option value="anthropic/claude-sonnet-4-5">Claude Sonnet 4.5 ✨</option><option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option><option value="openai/gpt-4o">GPT-4o</option><option value="openai/gpt-4o-mini">GPT-4o Mini</option><option value="google/gemini-2.0-flash-001">Gemini 2.0 Flash</option><option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B</option><option value="deepseek/deepseek-chat">DeepSeek V3</option></select></div>
           <div class="ai-chat-messages" id="aiChatMessages">
             <div class="ai-welcome" id="aiWelcome">
               <div class="ai-welcome-icon">🤖</div>
@@ -6259,7 +6274,7 @@ let vcToken = '', vcProjects = [], vcDeploymentsList = [];
 // ══════════════════════════════════════════════════════════════════
 const AIMATHS_API_KEY = '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';
 const AIMATHS_BASE_URL = 'https://openrouter.ai/api/v1';
-const AIMATHS_MODEL = 'openai/gpt-4o-mini';
+const AIMATHS_MODEL = 'google/gemma-4-31b-it:free';
 const AIMATHS_SEARCH_API = 'https://api.duckduckgo.com/';
 let aimathsCurrentConversation = null;
 let aimathsConversations = [];
@@ -6522,13 +6537,22 @@ async function getAiMathsResponse(content,imageData,searchResults){
   }else{
     messages.push({role:'user',content:content});
   }
-  const modelSelect = document.getElementById('aiModelSelect');
+  const modelSelect = document.getElementById('aimathsModelSelect');
   const selectedModel = modelSelect ? modelSelect.value : AIMATHS_MODEL;
   
   const response=await fetch(AIMATHS_BASE_URL+'/chat/completions',{
     method:'POST',
-    headers:{'Authorization':'Bearer '+AIMATHS_API_KEY,'Content-Type':'application/json','HTTP-Referer':window.location.origin,'X-Title':'Artificial Maths'},
-    body:JSON.stringify({model:selectedModel,messages:messages,max_tokens:512})
+    headers:{
+      'Authorization':'Bearer '+AIMATHS_API_KEY,
+      'Content-Type':'application/json',
+      'HTTP-Referer':window.location.origin,
+      'X-Title':'Artificial Maths'
+    },
+    body:JSON.stringify({
+      model:selectedModel,
+      messages:messages,
+      max_tokens:512
+    })
   });
   if(!response.ok){
     const error=await response.json();
