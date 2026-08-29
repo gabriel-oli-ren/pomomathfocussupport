@@ -1905,7 +1905,6 @@ function renderMessages(){
     appendMessageEl(
       message.role,
       message.content,
-      message.image_url,
       normalizeImageUrls(
         message.image_urls
       )
@@ -1973,7 +1972,6 @@ function normalizeImageUrls(value){
 function appendMessageEl(
   role,
   content,
-  imageUrl,
   imageUrls = []
 ){
 
@@ -2031,16 +2029,6 @@ function appendMessageEl(
       }
 
     }
-
-  }
-
-
-  if(
-    imageUrl &&
-    !urls.includes(imageUrl)
-  ){
-
-    urls.push(imageUrl);
 
   }
 
@@ -2726,43 +2714,6 @@ function toApiMessages(history){
       }
 
 
-      if(message.image_url){
-
-        return {
-
-          role:
-            message.role,
-
-          content:[
-
-            {
-
-              type:"text",
-
-              text:
-                message.content ||
-                "Please analyze this image."
-
-            },
-
-            {
-
-              type:"image_url",
-
-              image_url:{
-                url:
-                  message.image_url
-              }
-
-            }
-
-          ]
-
-        };
-
-      }
-
-
       return {
 
         role:
@@ -3218,7 +3169,7 @@ async function generateChatTitle(){
 
 
     /*
-     * Title requests normally return JSON.
+     * Title requests return JSON with { title: "..." }
      */
 
     const raw =
@@ -3236,13 +3187,18 @@ async function generateChatTitle(){
 
       title =
         data?.title?.trim() ||
-        data?.content?.trim() ||
         "";
 
-    }catch{
+    }catch(error){
 
-      title =
-        raw.trim();
+      console.error(
+        "Failed to parse title response:",
+        error,
+        "Raw response:",
+        raw
+      );
+
+      return;
 
     }
 
@@ -3374,9 +3330,8 @@ async function saveUserMessage(
    * IMPORTANT:
    *
    * image_urls is JSONB in Supabase.
-   *
-   * JSON.stringify() makes the value
-   * explicitly JSON-compatible.
+   * Supabase JS client handles JavaScript arrays
+   * automatically for JSONB columns - no need to stringify.
    */
 
   const payload = {
@@ -3391,26 +3346,9 @@ async function saveUserMessage(
       text || "",
 
     image_urls:
-      JSON.stringify(
-        imageUrls || []
-      )
+      imageUrls || []
 
   };
-
-
-  /*
-   * Keep old image_url column compatible.
-   */
-
-  if(
-    imageUrls &&
-    imageUrls.length === 1
-  ){
-
-    payload.image_url =
-      imageUrls[0];
-
-  }
 
 
   const {
@@ -3472,7 +3410,7 @@ async function saveAssistantMessage(
           answer,
 
         image_urls:
-          JSON.stringify([])
+          []
 
       })
       .select()
@@ -3636,9 +3574,6 @@ async function sendMessage(){
     appendMessageEl(
       "user",
       text,
-      imageUrls.length === 1
-        ? imageUrls[0]
-        : null,
       imageUrls
     );
 
@@ -3654,7 +3589,6 @@ async function sendMessage(){
       appendMessageEl(
         "assistant",
         "",
-        null,
         []
       );
 
@@ -3678,8 +3612,6 @@ async function sendMessage(){
 
     const response =
       await callEdgeFunction({
-
-        mode:"chat",
 
         messages:
           toApiMessages(
