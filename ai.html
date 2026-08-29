@@ -50,7 +50,6 @@ body{
     ui-sans-serif,
     system-ui,
     sans-serif;
-
   background:var(--main-bg);
   color:var(--text);
 }
@@ -108,9 +107,7 @@ textarea{
 .brand img{
   width:26px;
   height:26px;
-
   border-radius:7px;
-
   object-fit:cover;
 }
 
@@ -120,7 +117,6 @@ textarea{
   gap:10px;
 
   width:100%;
-
   padding:11px 12px;
 
   border:1px solid var(--sidebar-border);
@@ -134,20 +130,13 @@ textarea{
   background:var(--sidebar-hover);
 }
 
-.new-chat-btn svg{
-  flex-shrink:0;
-}
-
 .chat-list{
   flex:1;
-
   overflow-y:auto;
-
   margin-top:14px;
 
   display:flex;
   flex-direction:column;
-
   gap:2px;
 }
 
@@ -158,7 +147,6 @@ textarea{
   padding:10px 10px 4px;
 
   text-transform:uppercase;
-
   letter-spacing:.04em;
 }
 
@@ -167,18 +155,15 @@ textarea{
 
   display:flex;
   align-items:center;
-
   gap:8px;
 
   padding:9px 10px;
 
   border-radius:10px;
-
   font-size:13.5px;
 
   white-space:nowrap;
   overflow:hidden;
-  text-overflow:ellipsis;
 }
 
 .chat-item:hover{
@@ -194,7 +179,6 @@ textarea{
 
   overflow:hidden;
   text-overflow:ellipsis;
-
   white-space:nowrap;
 
   text-align:left;
@@ -206,7 +190,6 @@ textarea{
   flex-shrink:0;
 
   padding:3px;
-
   border-radius:6px;
 
   color:var(--sidebar-muted);
@@ -218,7 +201,6 @@ textarea{
 
 .chat-item .delete-btn:hover{
   color:var(--danger);
-
   background:rgba(255,255,255,.08);
 }
 
@@ -232,11 +214,9 @@ textarea{
 .user-row{
   display:flex;
   align-items:center;
-
   gap:9px;
 
   padding:8px;
-
   border-radius:10px;
 }
 
@@ -249,7 +229,6 @@ textarea{
   height:26px;
 
   border-radius:50%;
-
   flex-shrink:0;
 
   object-fit:cover;
@@ -261,9 +240,7 @@ textarea{
   font-size:13px;
 
   overflow:hidden;
-
   text-overflow:ellipsis;
-
   white-space:nowrap;
 }
 
@@ -271,13 +248,11 @@ textarea{
   color:var(--sidebar-muted);
 
   padding:4px;
-
   border-radius:6px;
 }
 
 .user-row .signout-btn:hover{
   color:var(--sidebar-text);
-
   background:rgba(255,255,255,.08);
 }
 
@@ -293,13 +268,11 @@ textarea{
   flex-direction:column;
 
   min-width:0;
-
   position:relative;
 }
 
 .chat-scroll{
   flex:1;
-
   overflow-y:auto;
 }
 
@@ -315,7 +288,6 @@ textarea{
 
 .empty-state{
   text-align:center;
-
   margin-top:16vh;
 }
 
@@ -329,7 +301,6 @@ textarea{
 
 .empty-state p{
   color:var(--muted);
-
   margin:0;
 }
 
@@ -369,13 +340,11 @@ textarea{
   color:#fff;
 
   font-size:13px;
-
   font-weight:700;
 }
 
 .msg-body{
   max-width:75%;
-
   min-width:0;
 }
 
@@ -393,7 +362,6 @@ textarea{
 
 .msg-images{
   display:flex;
-
   flex-wrap:wrap;
 
   gap:8px;
@@ -403,9 +371,7 @@ textarea{
 
 .msg-image{
   width:280px;
-
   max-width:100%;
-
   max-height:320px;
 
   object-fit:contain;
@@ -419,11 +385,9 @@ textarea{
 
 .msg-text{
   line-height:1.65;
-
   font-size:15.5px;
 
   white-space:pre-wrap;
-
   word-wrap:break-word;
 }
 
@@ -437,7 +401,6 @@ textarea{
 
 .msg.assistant .msg-text pre{
   background:#0d0d0d;
-
   color:#f2f2f2;
 
   padding:12px 14px;
@@ -469,7 +432,6 @@ textarea{
 .msg.assistant .msg-text ul,
 .msg.assistant .msg-text ol{
   margin:0 0 12px;
-
   padding-left:22px;
 }
 
@@ -674,13 +636,11 @@ textarea{
   flex:1;
 
   border:0;
-
   outline:0;
 
   resize:none;
 
   min-height:26px;
-
   max-height:200px;
 
   padding:9px 6px;
@@ -688,7 +648,6 @@ textarea{
   background:transparent;
 
   font-size:15.5px;
-
   line-height:1.4;
 }
 
@@ -699,7 +658,6 @@ textarea{
   border-radius:50%;
 
   background:#111;
-
   color:#fff;
 
   display:flex;
@@ -714,13 +672,11 @@ textarea{
 
 .send-btn:disabled{
   opacity:.3;
-
   cursor:not-allowed;
 }
 
 .disclaimer{
   font-size:11.5px;
-
   color:var(--muted);
 
   text-align:center;
@@ -743,7 +699,6 @@ textarea{
   display:flex;
 
   align-items:center;
-
   justify-content:center;
 
   z-index:50;
@@ -792,7 +747,6 @@ textarea{
   display:flex;
 
   align-items:center;
-
   justify-content:center;
 
   gap:10px;
@@ -824,6 +778,8 @@ textarea{
   color:var(--muted);
 
   margin-top:16px;
+
+  line-height:1.5;
 }
 
 
@@ -999,7 +955,6 @@ textarea{
 
 <main class="main">
 
-
   <div
     class="chat-scroll"
     id="chatScroll"
@@ -1039,8 +994,6 @@ textarea{
     <div class="composer">
 
 
-      <!-- IMAGE PREVIEWS -->
-
       <div
         class="image-preview-container"
         id="imagePreview"
@@ -1050,8 +1003,6 @@ textarea{
 
       <div class="composer-row">
 
-
-        <!-- ATTACH -->
 
         <button
           class="icon-btn"
@@ -1087,16 +1038,12 @@ textarea{
         >
 
 
-        <!-- TEXT -->
-
         <textarea
           id="input"
           rows="1"
           placeholder="Message Artificial Maths..."
         ></textarea>
 
-
-        <!-- SEND -->
 
         <button
           class="send-btn"
@@ -1139,12 +1086,11 @@ textarea{
 
   </div>
 
-
 </main>
 
 
 <!-- =======================================================
-     AUTH OVERLAY
+     AUTH
 ======================================================= -->
 
 <div
@@ -1220,10 +1166,6 @@ textarea{
 </div>
 
 
-<!-- =======================================================
-     LIBRARIES
-======================================================= -->
-
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -1235,37 +1177,23 @@ import {
   createClient
 } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-
 import {
   marked
 } from "https://cdn.jsdelivr.net/npm/marked@11/+esm";
-
 
 import DOMPurify
   from "https://cdn.jsdelivr.net/npm/dompurify@3/+esm";
 
 
-
 /* =========================================================
-   SUPABASE CONFIGURATION
+   SUPABASE
 ========================================================= */
-
-/*
- * IMPORTANT:
- *
- * SUPABASE_URL and SUPABASE_ANON_KEY MUST belong
- * to the SAME Supabase project.
- *
- * Do NOT use a service_role key here.
- */
 
 const SUPABASE_URL =
   "https://inidxltybmadzgggvpxz.supabase.co";
 
-
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaWR4bHR5Ym1hZHpnZ2d2cHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMjMyOTMsImV4cCI6MjEwMjg5OTI5M30.7yrNe9mk_cj6YPi4adutrKfC0pDZxWLyUcsdvbnkSqY";
-
 
 const supabase =
   createClient(
@@ -1284,99 +1212,52 @@ marked.setOptions({
 ========================================================= */
 
 const authOverlay =
-  document.getElementById(
-    "authOverlay"
-  );
-
+  document.getElementById("authOverlay");
 
 const authStatus =
-  document.getElementById(
-    "authStatus"
-  );
-
+  document.getElementById("authStatus");
 
 const googleSignInBtn =
-  document.getElementById(
-    "googleSignInBtn"
-  );
-
+  document.getElementById("googleSignInBtn");
 
 const signOutBtn =
-  document.getElementById(
-    "signOutBtn"
-  );
-
+  document.getElementById("signOutBtn");
 
 const userAvatar =
-  document.getElementById(
-    "userAvatar"
-  );
-
+  document.getElementById("userAvatar");
 
 const userName =
-  document.getElementById(
-    "userName"
-  );
-
+  document.getElementById("userName");
 
 const newChatBtn =
-  document.getElementById(
-    "newChatBtn"
-  );
-
+  document.getElementById("newChatBtn");
 
 const chatList =
-  document.getElementById(
-    "chatList"
-  );
-
+  document.getElementById("chatList");
 
 const messagesEl =
-  document.getElementById(
-    "messages"
-  );
-
+  document.getElementById("messages");
 
 const emptyState =
-  document.getElementById(
-    "emptyState"
-  );
-
+  document.getElementById("emptyState");
 
 const chatScroll =
-  document.getElementById(
-    "chatScroll"
-  );
-
+  document.getElementById("chatScroll");
 
 const input =
-  document.getElementById(
-    "input"
-  );
-
+  document.getElementById("input");
 
 const sendBtn =
-  document.getElementById(
-    "sendBtn"
-  );
-
+  document.getElementById("sendBtn");
 
 const attachBtn =
-  document.getElementById(
-    "attachBtn"
-  );
-
+  document.getElementById("attachBtn");
 
 const fileInput =
-  document.getElementById(
-    "fileInput"
-  );
-
+  document.getElementById("fileInput");
 
 const imagePreview =
-  document.getElementById(
-    "imagePreview"
-  );
+  document.getElementById("imagePreview");
 
 
 /* =========================================================
@@ -1407,31 +1288,35 @@ googleSignInBtn.addEventListener(
     authStatus.textContent =
       "Redirecting to Google…";
 
-    googleSignInBtn.disabled =
-      true;
+    googleSignInBtn.disabled = true;
 
-    try {
+    try{
 
       const {
         error
       } =
         await supabase.auth.signInWithOAuth({
+
           provider:"google",
 
           options:{
             redirectTo:
               window.location.href
           }
+
         });
 
 
-      if (error) {
+      if(error){
         throw error;
       }
 
-    } catch (error) {
+    }catch(error){
 
-      console.error(error);
+      console.error(
+        "Google sign-in error:",
+        error
+      );
 
       authStatus.textContent =
         error.message ||
@@ -1439,6 +1324,7 @@ googleSignInBtn.addEventListener(
 
       googleSignInBtn.disabled =
         false;
+
     }
 
   }
@@ -1459,59 +1345,41 @@ signOutBtn.addEventListener(
    SESSION
 ========================================================= */
 
-async function handleSession(
-  session
-){
+async function handleSession(session){
 
   currentUser =
     session?.user || null;
 
 
-  if (currentUser) {
+  if(currentUser){
 
-    authOverlay.classList.add(
-      "hidden"
-    );
+    authOverlay.classList.add("hidden");
 
 
     userName.textContent =
-      currentUser.user_metadata
-        ?.full_name ||
+      currentUser.user_metadata?.full_name ||
       currentUser.email ||
       "Account";
 
 
     const avatar =
-      currentUser.user_metadata
-        ?.avatar_url;
+      currentUser.user_metadata?.avatar_url;
 
 
-    if (avatar) {
-
-      userAvatar.src =
-        avatar;
-
-    } else {
-
-      userAvatar.removeAttribute(
-        "src"
-      );
-
+    if(avatar){
+      userAvatar.src = avatar;
+    }else{
+      userAvatar.removeAttribute("src");
     }
 
 
     await loadChats();
 
-  } else {
+  }else{
 
-    authOverlay.classList.remove(
-      "hidden"
-    );
+    authOverlay.classList.remove("hidden");
 
-
-    authStatus.textContent =
-      "";
-
+    authStatus.textContent = "";
 
     chats = [];
 
@@ -1534,15 +1402,36 @@ async function handleSession(
    INITIAL SESSION
 ========================================================= */
 
-const {
-  data: sessionData
-} =
-  await supabase.auth.getSession();
+try{
+
+  const {
+    data,
+    error
+  } =
+    await supabase.auth.getSession();
 
 
-await handleSession(
-  sessionData.session
-);
+  if(error){
+    throw error;
+  }
+
+
+  await handleSession(
+    data.session
+  );
+
+}catch(error){
+
+  console.error(
+    "Session error:",
+    error
+  );
+
+  authStatus.textContent =
+    error.message ||
+    "Could not connect to Supabase.";
+
+}
 
 
 supabase.auth.onAuthStateChange(
@@ -1551,9 +1440,18 @@ supabase.auth.onAuthStateChange(
     session
   ) => {
 
-    await handleSession(
-      session
-    );
+    try{
+
+      await handleSession(session);
+
+    }catch(error){
+
+      console.error(
+        "Auth state error:",
+        error
+      );
+
+    }
 
   }
 );
@@ -1565,7 +1463,7 @@ supabase.auth.onAuthStateChange(
 
 async function loadChats(){
 
-  if (!currentUser) {
+  if(!currentUser){
     return;
   }
 
@@ -1577,6 +1475,10 @@ async function loadChats(){
     await supabase
       .from("am_chats")
       .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
       .order(
         "updated_at",
         {
@@ -1585,27 +1487,17 @@ async function loadChats(){
       );
 
 
-  if (error) {
+  if(error){
 
     console.error(
       "Failed to load chats:",
       error
     );
 
-    /*
-     * 401 usually means the Supabase
-     * public key is incorrect.
-     */
-
-    if (
-      error.code === "401" ||
-      error.status === 401
-    ) {
-
-      authStatus.textContent =
-        "Supabase authentication failed. Check your Supabase Publishable/anon key.";
-
-    }
+    showDatabaseError(
+      error,
+      "load chats"
+    );
 
     return;
   }
@@ -1618,18 +1510,16 @@ async function loadChats(){
   renderChatList();
 
 
-  if (
+  if(
     chats.length &&
     !currentChat
-  ) {
+  ){
 
     await selectChat(
       chats[0]
     );
 
-  } else if (
-    !chats.length
-  ) {
+  }else if(!chats.length){
 
     currentChat = null;
 
@@ -1643,6 +1533,33 @@ async function loadChats(){
 
 
 /* =========================================================
+   DATABASE ERROR
+========================================================= */
+
+function showDatabaseError(
+  error,
+  action
+){
+
+  const message =
+    error?.message ||
+    error?.error_description ||
+    "Unknown Supabase error";
+
+
+  console.error(
+    `Supabase error while trying to ${action}:`,
+    error
+  );
+
+
+  authStatus.textContent =
+    `Supabase error: ${message}`;
+
+}
+
+
+/* =========================================================
    CHAT LIST
 ========================================================= */
 
@@ -1651,14 +1568,10 @@ function renderChatList(){
   chatList.innerHTML = "";
 
 
-  for (
-    const chat of chats
-  ){
+  for(const chat of chats){
 
     const item =
-      document.createElement(
-        "div"
-      );
+      document.createElement("div");
 
 
     item.className =
@@ -1672,9 +1585,7 @@ function renderChatList(){
 
 
     const title =
-      document.createElement(
-        "span"
-      );
+      document.createElement("span");
 
 
     title.className =
@@ -1687,18 +1598,14 @@ function renderChatList(){
 
 
     const del =
-      document.createElement(
-        "button"
-      );
+      document.createElement("button");
 
 
     del.className =
       "delete-btn";
 
-
     del.type =
       "button";
-
 
     del.title =
       "Delete chat";
@@ -1733,30 +1640,22 @@ function renderChatList(){
     );
 
 
-    item.appendChild(
-      title
-    );
+    item.appendChild(title);
 
-    item.appendChild(
-      del
-    );
+    item.appendChild(del);
 
 
     item.addEventListener(
       "click",
       () => {
 
-        selectChat(
-          chat
-        );
+        selectChat(chat);
 
       }
     );
 
 
-    chatList.appendChild(
-      item
-    );
+    chatList.appendChild(item);
 
   }
 
@@ -1767,9 +1666,12 @@ function renderChatList(){
    SELECT CHAT
 ========================================================= */
 
-async function selectChat(
-  chat
-){
+async function selectChat(chat){
+
+  if(sending){
+    return;
+  }
+
 
   currentChat =
     chat;
@@ -1797,14 +1699,20 @@ async function selectChat(
       );
 
 
-  if (error) {
+  if(error){
 
     console.error(
       "Failed to load messages:",
       error
     );
 
+    showDatabaseError(
+      error,
+      "load messages"
+    );
+
     return;
+
   }
 
 
@@ -1823,13 +1731,11 @@ async function selectChat(
 
 async function createNewChat(){
 
-  if (!currentUser) {
+  if(!currentUser){
 
-    console.error(
-      "Cannot create chat without a user."
+    throw new Error(
+      "You must be signed in."
     );
-
-    return null;
 
   }
 
@@ -1841,52 +1747,40 @@ async function createNewChat(){
     await supabase
       .from("am_chats")
       .insert({
+
         user_id:
           currentUser.id,
 
         title:
           "New chat"
+
       })
       .select()
       .single();
 
 
-  if (error) {
+  if(error){
 
     console.error(
       "Failed to create chat:",
       error
     );
 
-    alert(
-      "Could not create chat: " +
-      (
-        error.message ||
-        "Unknown error"
-      )
-    );
+    throw error;
 
-    return null;
   }
 
 
-  chats.unshift(
-    data
-  );
-
+  chats.unshift(data);
 
   currentChat =
     data;
 
-
-  currentMessages =
-    [];
-
+  currentMessages = [];
 
   renderChatList();
 
   renderMessages();
-
 
   return data;
 
@@ -1897,18 +1791,14 @@ async function createNewChat(){
    DELETE CHAT
 ========================================================= */
 
-async function deleteChat(
-  chat
-){
+async function deleteChat(chat){
 
-  if (
+  if(
     !confirm(
       "Delete this chat?"
     )
-  ) {
-
+  ){
     return;
-
   }
 
 
@@ -1921,10 +1811,14 @@ async function deleteChat(
       .eq(
         "id",
         chat.id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
       );
 
 
-  if (error) {
+  if(error){
 
     console.error(
       "Failed to delete chat:",
@@ -1932,7 +1826,7 @@ async function deleteChat(
     );
 
     alert(
-      "Could not delete chat: " +
+      "Could not delete chat:\n\n" +
       error.message
     );
 
@@ -1948,25 +1842,23 @@ async function deleteChat(
     );
 
 
-  if (
+  if(
     currentChat &&
     currentChat.id === chat.id
   ){
 
-    currentChat =
-      null;
+    currentChat = null;
 
-    currentMessages =
-      [];
+    currentMessages = [];
 
 
-    if (chats.length) {
+    if(chats.length){
 
       await selectChat(
         chats[0]
       );
 
-    } else {
+    }else{
 
       renderMessages();
 
@@ -1989,18 +1881,13 @@ function renderMessages(){
   messagesEl.innerHTML = "";
 
 
-  if (
-    !currentMessages.length
-  ){
+  if(!currentMessages.length){
 
     messagesEl.appendChild(
       emptyState
     );
 
-
-    emptyState.style.display =
-      "";
-
+    emptyState.style.display = "";
 
     return;
 
@@ -2011,7 +1898,7 @@ function renderMessages(){
     "none";
 
 
-  for (
+  for(
     const message of currentMessages
   ){
 
@@ -2019,13 +1906,62 @@ function renderMessages(){
       message.role,
       message.content,
       message.image_url,
-      message.image_urls
+      normalizeImageUrls(
+        message.image_urls
+      )
     );
 
   }
 
 
   scrollToBottom();
+
+}
+
+
+/* =========================================================
+   NORMALIZE JSONB IMAGE URLS
+========================================================= */
+
+function normalizeImageUrls(value){
+
+  if(Array.isArray(value)){
+    return value.filter(
+      url =>
+        typeof url === "string" &&
+        url.trim()
+    );
+  }
+
+
+  if(typeof value === "string"){
+
+    try{
+
+      const parsed =
+        JSON.parse(value);
+
+
+      if(Array.isArray(parsed)){
+
+        return parsed.filter(
+          url =>
+            typeof url === "string" &&
+            url.trim()
+        );
+
+      }
+
+    }catch{
+
+      return [];
+
+    }
+
+  }
+
+
+  return [];
 
 }
 
@@ -2042,24 +1978,17 @@ function appendMessageEl(
 ){
 
   const wrap =
-    document.createElement(
-      "div"
-    );
+    document.createElement("div");
 
 
   wrap.className =
-    "msg " +
-    role;
+    "msg " + role;
 
 
-  if (
-    role === "assistant"
-  ){
+  if(role === "assistant"){
 
     const avatar =
-      document.createElement(
-        "div"
-      );
+      document.createElement("div");
 
 
     avatar.className =
@@ -2070,90 +1999,68 @@ function appendMessageEl(
       "AM";
 
 
-    wrap.appendChild(
-      avatar
-    );
+    wrap.appendChild(avatar);
 
   }
 
 
   const body =
-    document.createElement(
-      "div"
-    );
+    document.createElement("div");
 
 
   body.className =
     "msg-body";
 
 
-  /*
-   * Support:
-   *
-   * image_urls[]
-   *
-   * and old:
-   *
-   * image_url
-   */
-
   const urls = [];
 
 
-  if (
-    Array.isArray(
-      imageUrls
-    )
-  ){
+  if(Array.isArray(imageUrls)){
 
-    urls.push(
-      ...imageUrls
-    );
+    for(
+      const url of imageUrls
+    ){
+
+      if(
+        url &&
+        !urls.includes(url)
+      ){
+
+        urls.push(url);
+
+      }
+
+    }
 
   }
 
 
-  if (
+  if(
     imageUrl &&
-    !urls.includes(
-      imageUrl
-    )
+    !urls.includes(imageUrl)
   ){
 
-    urls.push(
-      imageUrl
-    );
+    urls.push(imageUrl);
 
   }
 
 
-  if (
-    urls.length
-  ){
+  if(urls.length){
 
     const images =
-      document.createElement(
-        "div"
-      );
+      document.createElement("div");
 
 
     images.className =
       "msg-images";
 
 
-    for (
+    for(
       const url of urls
     ){
 
-      if (!url) {
-        continue;
-      }
-
-
       const img =
-        document.createElement(
-          "img"
-        );
+        document.createElement("img");
 
 
       img.className =
@@ -2168,65 +2075,70 @@ function appendMessageEl(
         "Uploaded image";
 
 
-      images.appendChild(
-        img
-      );
+      img.loading =
+        "lazy";
+
+
+      images.appendChild(img);
 
     }
 
 
-    body.appendChild(
-      images
-    );
+    body.appendChild(images);
 
   }
 
 
-  const textEl =
-    document.createElement(
-      "div"
-    );
+  if(content || role === "assistant"){
+
+    const textEl =
+      document.createElement("div");
 
 
-  textEl.className =
-    "msg-text";
+    textEl.className =
+      "msg-text";
 
 
-  if (
-    role === "assistant"
-  ){
+    if(role === "assistant"){
 
-    renderRichText(
-      textEl,
-      content || ""
-    );
+      renderRichText(
+        textEl,
+        content || ""
+      );
 
-  } else {
+    }else{
 
-    textEl.textContent =
-      content || "";
+      textEl.textContent =
+        content || "";
+
+    }
+
+
+    body.appendChild(textEl);
+
+
+    wrap.appendChild(body);
+
+
+    messagesEl.appendChild(wrap);
+
+
+    return {
+      wrap,
+      textEl
+    };
 
   }
 
 
-  body.appendChild(
-    textEl
-  );
+  wrap.appendChild(body);
 
-
-  wrap.appendChild(
-    body
-  );
-
-
-  messagesEl.appendChild(
-    wrap
-  );
+  messagesEl.appendChild(wrap);
 
 
   return {
     wrap,
-    textEl
+    textEl:null
   };
 
 }
@@ -2241,51 +2153,77 @@ function renderRichText(
   text
 ){
 
-  const html =
-    DOMPurify.sanitize(
-      marked.parse(
-        text || ""
-      )
+  if(!text){
+
+    element.innerHTML = "";
+
+    return;
+
+  }
+
+
+  try{
+
+    const html =
+      DOMPurify.sanitize(
+        marked.parse(text)
+      );
+
+
+    element.innerHTML =
+      html;
+
+
+    if(window.renderMathInElement){
+
+      window.renderMathInElement(
+        element,
+        {
+
+          delimiters:[
+
+            {
+              left:"$$",
+              right:"$$",
+              display:true
+            },
+
+            {
+              left:"$",
+              right:"$",
+              display:false
+            },
+
+            {
+              left:"\\(",
+              right:"\\)",
+              display:false
+            },
+
+            {
+              left:"\\[",
+              right:"\\]",
+              display:true
+            }
+
+          ],
+
+          throwOnError:false
+
+        }
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Rich text rendering error:",
+      error
     );
 
-
-  element.innerHTML =
-    html;
-
-
-  if (
-    window.renderMathInElement
-  ){
-
-    window.renderMathInElement(
-      element,
-      {
-        delimiters:[
-          {
-            left:"$$",
-            right:"$$",
-            display:true
-          },
-          {
-            left:"$",
-            right:"$",
-            display:false
-          },
-          {
-            left:"\\(",
-            right:"\\)",
-            display:false
-          },
-          {
-            left:"\\[",
-            right:"\\]",
-            display:true
-          }
-        ],
-
-        throwOnError:false
-      }
-    );
+    element.textContent =
+      text;
 
   }
 
@@ -2298,8 +2236,14 @@ function renderRichText(
 
 function scrollToBottom(){
 
-  chatScroll.scrollTop =
-    chatScroll.scrollHeight;
+  requestAnimationFrame(
+    () => {
+
+      chatScroll.scrollTop =
+        chatScroll.scrollHeight;
+
+    }
+  );
 
 }
 
@@ -2349,7 +2293,7 @@ input.addEventListener(
   "keydown",
   event => {
 
-    if (
+    if(
       event.key === "Enter" &&
       !event.shiftKey
     ){
@@ -2366,23 +2310,19 @@ input.addEventListener(
 
 sendBtn.addEventListener(
   "click",
-  () => {
-
-    sendMessage();
-
-  }
+  sendMessage
 );
 
 
 /* =========================================================
-   IMAGE UPLOAD
+   IMAGE UPLOAD SELECTOR
 ========================================================= */
 
 attachBtn.addEventListener(
   "click",
   () => {
 
-    if (sending) {
+    if(sending){
       return;
     }
 
@@ -2402,19 +2342,17 @@ fileInput.addEventListener(
       );
 
 
-    if (!files.length) {
+    if(!files.length){
       return;
     }
 
 
-    for (
+    for(
       const file of files
     ){
 
-      if (
-        !file.type.startsWith(
-          "image/"
-        )
+      if(
+        !file.type.startsWith("image/")
       ){
 
         continue;
@@ -2425,14 +2363,13 @@ fileInput.addEventListener(
       const exists =
         pendingImages.some(
           image =>
-            image.file.name ===
-              file.name &&
-            image.file.size ===
-              file.size
+            image.file.name === file.name &&
+            image.file.size === file.size &&
+            image.file.lastModified === file.lastModified
         );
 
 
-      if (exists) {
+      if(exists){
         continue;
       }
 
@@ -2442,9 +2379,7 @@ fileInput.addEventListener(
         file,
 
         url:
-          URL.createObjectURL(
-            file
-          ),
+          URL.createObjectURL(file),
 
         uploadedUrl:null
 
@@ -2459,8 +2394,7 @@ fileInput.addEventListener(
 
 
     /*
-     * Reset so the same file
-     * can be selected again.
+     * Allows selecting the same file again.
      */
 
     fileInput.value = "";
@@ -2475,24 +2409,19 @@ fileInput.addEventListener(
 
 function renderImagePreviews(){
 
-  imagePreview.innerHTML =
-    "";
+  imagePreview.innerHTML = "";
 
 
-  if (
-    !pendingImages.length
-  ){
+  if(!pendingImages.length){
 
-    imagePreview.hidden =
-      true;
+    imagePreview.hidden = true;
 
     return;
 
   }
 
 
-  imagePreview.hidden =
-    false;
+  imagePreview.hidden = false;
 
 
   pendingImages.forEach(
@@ -2502,9 +2431,7 @@ function renderImagePreviews(){
     ) => {
 
       const item =
-        document.createElement(
-          "div"
-        );
+        document.createElement("div");
 
 
       item.className =
@@ -2512,9 +2439,7 @@ function renderImagePreviews(){
 
 
       const img =
-        document.createElement(
-          "img"
-        );
+        document.createElement("img");
 
 
       img.src =
@@ -2526,9 +2451,7 @@ function renderImagePreviews(){
 
 
       const remove =
-        document.createElement(
-          "button"
-        );
+        document.createElement("button");
 
 
       remove.type =
@@ -2570,19 +2493,11 @@ function renderImagePreviews(){
       );
 
 
-      item.appendChild(
-        img
-      );
+      item.appendChild(img);
 
+      item.appendChild(remove);
 
-      item.appendChild(
-        remove
-      );
-
-
-      imagePreview.appendChild(
-        item
-      );
+      imagePreview.appendChild(item);
 
     }
   );
@@ -2591,14 +2506,12 @@ function renderImagePreviews(){
 
 
 /* =========================================================
-   UPLOAD ONE IMAGE
+   UPLOAD IMAGE
 ========================================================= */
 
-async function uploadImage(
-  file
-){
+async function uploadImage(file){
 
-  if (!currentUser) {
+  if(!currentUser){
 
     throw new Error(
       "You must be signed in."
@@ -2624,25 +2537,23 @@ async function uploadImage(
     error
   } =
     await supabase.storage
-      .from(
-        "am-chat-images"
-      )
+      .from("am-chat-images")
       .upload(
         path,
         file,
         {
+
           upsert:false,
 
           contentType:
             file.type
+
         }
       );
 
 
-  if (error) {
-
+  if(error){
     throw error;
-
   }
 
 
@@ -2650,12 +2561,17 @@ async function uploadImage(
     data
   } =
     supabase.storage
-      .from(
-        "am-chat-images"
-      )
-      .getPublicUrl(
-        path
-      );
+      .from("am-chat-images")
+      .getPublicUrl(path);
+
+
+  if(!data?.publicUrl){
+
+    throw new Error(
+      "Could not create the public image URL."
+    );
+
+  }
 
 
   return data.publicUrl;
@@ -2664,7 +2580,7 @@ async function uploadImage(
 
 
 /* =========================================================
-   UPLOAD ALL IMAGES
+   UPLOAD ALL
 ========================================================= */
 
 async function uploadPendingImages(){
@@ -2672,13 +2588,11 @@ async function uploadPendingImages(){
   const urls = [];
 
 
-  for (
+  for(
     const image of pendingImages
   ){
 
-    if (
-      image.uploadedUrl
-    ){
+    if(image.uploadedUrl){
 
       urls.push(
         image.uploadedUrl
@@ -2699,9 +2613,7 @@ async function uploadPendingImages(){
       url;
 
 
-    urls.push(
-      url
-    );
+    urls.push(url);
 
   }
 
@@ -2712,16 +2624,16 @@ async function uploadPendingImages(){
 
 
 /* =========================================================
-   CLEAR IMAGES
+   CLEAR PENDING IMAGES
 ========================================================= */
 
 function clearPendingImages(){
 
-  for (
+  for(
     const image of pendingImages
   ){
 
-    if (image.url){
+    if(image.url){
 
       URL.revokeObjectURL(
         image.url
@@ -2743,6 +2655,9 @@ function clearPendingImages(){
     true;
 
 
+  fileInput.value = "";
+
+
   updateSendButton();
 
 }
@@ -2752,30 +2667,23 @@ function clearPendingImages(){
    API MESSAGE CONVERSION
 ========================================================= */
 
-function toApiMessages(
-  history
-){
+function toApiMessages(history){
 
   return history.map(
     message => {
 
-      /*
-       * Multiple images.
-       */
-
-      if (
-        Array.isArray(
+      const images =
+        normalizeImageUrls(
           message.image_urls
-        ) &&
-        message.image_urls.length
-      ){
+        );
+
+
+      if(images.length){
 
         const content = [];
 
 
-        if (
-          message.content
-        ){
+        if(message.content){
 
           content.push({
 
@@ -2789,8 +2697,8 @@ function toApiMessages(
         }
 
 
-        for (
-          const url of message.image_urls
+        for(
+          const url of images
         ){
 
           content.push({
@@ -2798,7 +2706,7 @@ function toApiMessages(
             type:"image_url",
 
             image_url:{
-              url
+              url:url
             }
 
           });
@@ -2818,13 +2726,7 @@ function toApiMessages(
       }
 
 
-      /*
-       * Old single-image format.
-       */
-
-      if (
-        message.image_url
-      ){
+      if(message.image_url){
 
         return {
 
@@ -2861,10 +2763,6 @@ function toApiMessages(
       }
 
 
-      /*
-       * Normal text.
-       */
-
       return {
 
         role:
@@ -2882,7 +2780,7 @@ function toApiMessages(
 
 
 /* =========================================================
-   GET ACCESS TOKEN
+   ACCESS TOKEN
 ========================================================= */
 
 async function getAccessToken(){
@@ -2894,7 +2792,7 @@ async function getAccessToken(){
     await supabase.auth.getSession();
 
 
-  if (error) {
+  if(error){
     throw error;
   }
 
@@ -2903,7 +2801,7 @@ async function getAccessToken(){
     data.session?.access_token;
 
 
-  if (!token){
+  if(!token){
 
     throw new Error(
       "Your session has expired. Please sign in again."
@@ -2918,12 +2816,383 @@ async function getAccessToken(){
 
 
 /* =========================================================
+   EDGE FUNCTION REQUEST
+========================================================= */
+
+async function callEdgeFunction(
+  body
+){
+
+  const accessToken =
+    await getAccessToken();
+
+
+  const response =
+    await fetch(
+      `${SUPABASE_URL}/functions/v1/chat-completion`,
+      {
+
+        method:"POST",
+
+        headers:{
+
+          "Content-Type":
+            "application/json",
+
+          "apikey":
+            SUPABASE_ANON_KEY,
+
+          "Authorization":
+            `Bearer ${accessToken}`
+
+        },
+
+        body:
+          JSON.stringify(body)
+
+      }
+    );
+
+
+  if(!response.ok){
+
+    const text =
+      await response.text();
+
+
+    let message =
+      text;
+
+
+    try{
+
+      const json =
+        JSON.parse(text);
+
+
+      message =
+        json?.error ||
+        json?.message ||
+        text;
+
+    }catch{
+
+      /* response wasn't JSON */
+
+    }
+
+
+    throw new Error(
+      message ||
+      `Edge Function returned HTTP ${response.status}`
+    );
+
+  }
+
+
+  return response;
+
+}
+
+
+/* =========================================================
+   READ STREAM
+========================================================= */
+
+async function readAIStream(
+  response,
+  onText
+){
+
+  if(!response.body){
+
+    throw new Error(
+      "The Edge Function returned no response body."
+    );
+
+  }
+
+
+  const reader =
+    response.body.getReader();
+
+
+  const decoder =
+    new TextDecoder();
+
+
+  let buffer = "";
+
+  let answer = "";
+
+
+  while(true){
+
+    const {
+      done,
+      value
+    } =
+      await reader.read();
+
+
+    if(done){
+      break;
+    }
+
+
+    buffer +=
+      decoder.decode(
+        value,
+        {
+          stream:true
+        }
+      );
+
+
+    /*
+     * Support normal text streaming.
+     */
+
+    const lines =
+      buffer.split("\n");
+
+
+    buffer =
+      lines.pop() || "";
+
+
+    for(
+      const rawLine of lines
+    ){
+
+      const line =
+        rawLine.trim();
+
+
+      if(!line){
+        continue;
+      }
+
+
+      /*
+       * Support SSE:
+       * data: {...}
+       */
+
+      if(line.startsWith("data:")){
+
+        const dataPart =
+          line.slice(5).trim();
+
+
+        if(dataPart === "[DONE]"){
+          continue;
+        }
+
+
+        try{
+
+          const parsed =
+            JSON.parse(dataPart);
+
+
+          const token =
+            parsed?.choices?.[0]?.delta?.content ??
+            parsed?.choices?.[0]?.message?.content ??
+            parsed?.content ??
+            parsed?.text ??
+            "";
+
+
+          if(token){
+
+            answer += token;
+
+            onText(answer);
+
+          }
+
+        }catch{
+
+          /*
+           * If it isn't JSON, treat it
+           * as streamed text.
+           */
+
+          if(dataPart){
+
+            answer += dataPart;
+
+            onText(answer);
+
+          }
+
+        }
+
+
+        continue;
+
+      }
+
+
+      /*
+       * Support JSON chunks.
+       */
+
+      if(
+        line.startsWith("{") &&
+        line.endsWith("}")
+      ){
+
+        try{
+
+          const parsed =
+            JSON.parse(line);
+
+
+          const token =
+            parsed?.choices?.[0]?.delta?.content ??
+            parsed?.choices?.[0]?.message?.content ??
+            parsed?.content ??
+            parsed?.text ??
+            "";
+
+
+          if(token){
+
+            answer += token;
+
+            onText(answer);
+
+          }
+
+          continue;
+
+        }catch{
+
+          /* fall through */
+
+        }
+
+      }
+
+
+      /*
+       * Normal raw streaming text.
+       */
+
+      answer += line + "\n";
+
+      onText(answer);
+
+    }
+
+  }
+
+
+  buffer +=
+    decoder.decode();
+
+
+  if(buffer.trim()){
+
+    const finalText =
+      buffer.trim();
+
+
+    if(finalText.startsWith("data:")){
+
+      const dataPart =
+        finalText.slice(5).trim();
+
+
+      if(dataPart !== "[DONE]"){
+
+        try{
+
+          const parsed =
+            JSON.parse(dataPart);
+
+
+          const token =
+            parsed?.choices?.[0]?.delta?.content ??
+            parsed?.choices?.[0]?.message?.content ??
+            parsed?.content ??
+            parsed?.text ??
+            "";
+
+
+          if(token){
+
+            answer += token;
+
+            onText(answer);
+
+          }
+
+        }catch{
+
+          if(dataPart){
+
+            answer += dataPart;
+
+            onText(answer);
+
+          }
+
+        }
+
+      }
+
+    }else{
+
+      try{
+
+        const parsed =
+          JSON.parse(finalText);
+
+
+        const token =
+          parsed?.choices?.[0]?.message?.content ??
+          parsed?.choices?.[0]?.delta?.content ??
+          parsed?.content ??
+          parsed?.text ??
+          "";
+
+
+        if(token){
+
+          answer += token;
+
+          onText(answer);
+
+        }
+
+      }catch{
+
+        answer += finalText;
+
+        onText(answer);
+
+      }
+
+    }
+
+  }
+
+
+  return answer;
+
+}
+
+
+/* =========================================================
    GENERATE CHAT TITLE
 ========================================================= */
 
 async function generateChatTitle(){
 
-  if (
+  if(
     !currentChat ||
     !currentMessages.length
   ){
@@ -2933,78 +3202,81 @@ async function generateChatTitle(){
   }
 
 
-  try {
-
-    const accessToken =
-      await getAccessToken();
-
+  try{
 
     const response =
-      await fetch(
-        `${SUPABASE_URL}/functions/v1/chat-completion`,
-        {
+      await callEdgeFunction({
 
-          method:"POST",
+        mode:"title",
 
-          headers:{
+        messages:
+          toApiMessages(
+            currentMessages
+          )
 
-            "Content-Type":
-              "application/json",
-
-            "apikey":
-              SUPABASE_ANON_KEY,
-
-            "Authorization":
-              `Bearer ${accessToken}`
-
-          },
-
-          body:
-            JSON.stringify({
-
-              mode:"title",
-
-              messages:
-                currentMessages
-
-            })
-
-        }
-      );
+      });
 
 
-    if (!response.ok){
+    /*
+     * Title requests normally return JSON.
+     */
 
-      console.error(
-        "Title generation failed:",
-        await response.text()
-      );
+    const raw =
+      await response.text();
 
-      return;
+
+    let title = "";
+
+
+    try{
+
+      const data =
+        JSON.parse(raw);
+
+
+      title =
+        data?.title?.trim() ||
+        data?.content?.trim() ||
+        "";
+
+    }catch{
+
+      title =
+        raw.trim();
 
     }
 
 
-    const data =
-      await response.json();
+    /*
+     * Remove accidental quotes.
+     */
+
+    title =
+      title
+        .replace(/^["']+|["']+$/g,"")
+        .trim();
 
 
-    const title =
-      data?.title?.trim();
-
-
-    if (!title) {
+    if(!title){
       return;
     }
 
 
     /*
-     * Don't update if identical.
+     * Keep titles short.
      */
 
-    if (
-      title ===
-      currentChat.title
+    if(title.length > 80){
+
+      title =
+        title.substring(0,80).trim();
+
+    }
+
+
+    if(
+      title.toLowerCase() ===
+      (currentChat.title || "").toLowerCase()
     ){
 
       return;
@@ -3020,7 +3292,7 @@ async function generateChatTitle(){
         .from("am_chats")
         .update({
 
-          title,
+          title:title,
 
           updated_at:
             new Date().toISOString()
@@ -3030,14 +3302,18 @@ async function generateChatTitle(){
           "id",
           currentChat.id
         )
+        .eq(
+          "user_id",
+          currentUser.id
+        )
         .select()
         .single();
 
 
-    if (error){
+    if(error){
 
       console.error(
-        "Could not update title:",
+        "Could not update chat title:",
         error
       );
 
@@ -3054,11 +3330,11 @@ async function generateChatTitle(){
       chats.findIndex(
         chat =>
           chat.id ===
-          currentChat.id
+          updatedChat.id
       );
 
 
-    if (index !== -1){
+    if(index !== -1){
 
       chats[index] =
         updatedChat;
@@ -3068,14 +3344,154 @@ async function generateChatTitle(){
 
     renderChatList();
 
-  } catch (error){
+  }catch(error){
+
+    /*
+     * Title failure should NOT break
+     * the actual conversation.
+     */
 
     console.error(
-      "generateChatTitle:",
+      "Chat title generation failed:",
       error
     );
 
   }
+
+}
+
+
+/* =========================================================
+   SAVE USER MESSAGE
+========================================================= */
+
+async function saveUserMessage(
+  text,
+  imageUrls
+){
+
+  /*
+   * IMPORTANT:
+   *
+   * image_urls is JSONB in Supabase.
+   *
+   * JSON.stringify() makes the value
+   * explicitly JSON-compatible.
+   */
+
+  const payload = {
+
+    chat_id:
+      currentChat.id,
+
+    role:
+      "user",
+
+    content:
+      text || "",
+
+    image_urls:
+      JSON.stringify(
+        imageUrls || []
+      )
+
+  };
+
+
+  /*
+   * Keep old image_url column compatible.
+   */
+
+  if(
+    imageUrls &&
+    imageUrls.length === 1
+  ){
+
+    payload.image_url =
+      imageUrls[0];
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabase
+      .from("am_messages")
+      .insert(payload)
+      .select()
+      .single();
+
+
+  if(error){
+
+    console.error(
+      "Failed to save user message:",
+      error
+    );
+
+    throw error;
+
+  }
+
+
+  return data;
+
+}
+
+
+/* =========================================================
+   SAVE ASSISTANT MESSAGE
+========================================================= */
+
+async function saveAssistantMessage(
+  answer
+){
+
+  if(!answer.trim()){
+    return null;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabase
+      .from("am_messages")
+      .insert({
+
+        chat_id:
+          currentChat.id,
+
+        role:
+          "assistant",
+
+        content:
+          answer,
+
+        image_urls:
+          JSON.stringify([])
+
+      })
+      .select()
+      .single();
+
+
+  if(error){
+
+    console.error(
+      "Failed to save assistant message:",
+      error
+    );
+
+    throw error;
+
+  }
+
+
+  return data;
 
 }
 
@@ -3086,7 +3502,7 @@ async function generateChatTitle(){
 
 async function sendMessage(){
 
-  if (sending) {
+  if(sending){
     return;
   }
 
@@ -3095,10 +3511,6 @@ async function sendMessage(){
     input.value.trim();
 
 
-  /*
-   * Copy the currently selected images.
-   */
-
   const selectedImages =
     [...pendingImages];
 
@@ -3106,14 +3518,11 @@ async function sendMessage(){
   /*
    * NOTHING TO SEND.
    *
-   * This is important:
-   *
-   * no text + no images
-   * =
+   * No text + no images =
    * absolutely nothing happens.
    */
 
-  if (
+  if(
     !text &&
     selectedImages.length === 0
   ){
@@ -3132,25 +3541,29 @@ async function sendMessage(){
     text;
 
 
-  try {
+  let assistantUI = null;
+
+  let userMessageWasSaved = false;
+
+
+  try{
 
     /* =====================================================
-       CREATE CHAT IF NEEDED
+       CREATE CHAT
     ====================================================== */
 
-    if (!currentChat){
+    if(!currentChat){
 
-      const created =
-        await createNewChat();
+      await createNewChat();
+
+    }
 
 
-      if (!created){
+    if(!currentChat){
 
-        throw new Error(
-          "Could not create a new chat."
-        );
-
-      }
+      throw new Error(
+        "Could not create a new chat."
+      );
 
     }
 
@@ -3162,9 +3575,7 @@ async function sendMessage(){
     let imageUrls = [];
 
 
-    if (
-      selectedImages.length
-    ){
+    if(selectedImages.length){
 
       imageUrls =
         await uploadPendingImages();
@@ -3172,79 +3583,46 @@ async function sendMessage(){
     }
 
 
-    /* =====================================================
-       CLEAR COMPOSER
-    ====================================================== */
-
-    input.value =
-      "";
-
-
-    input.style.height =
-      "auto";
-
-
-    clearPendingImages();
+    /*
+     * At this point imageUrls contains ONLY
+     * actual uploaded images.
+     *
+     * If no image was selected:
+     *
+     * imageUrls = []
+     *
+     * Therefore nothing is displayed.
+     */
 
 
     /* =====================================================
        SAVE USER MESSAGE
     ====================================================== */
 
-    const insertPayload = {
-
-      chat_id:
-        currentChat.id,
-
-      role:
-        "user",
-
-      content:
-        text || "",
-
-      image_urls:
+    const userMsg =
+      await saveUserMessage(
+        text,
         imageUrls
-
-    };
-
-
-    /*
-     * Compatibility with old schema.
-     */
-
-    if (
-      imageUrls.length === 1
-    ){
-
-      insertPayload.image_url =
-        imageUrls[0];
-
-    }
+      );
 
 
-    const {
-      data:userMsg,
-      error:insertErr
-    } =
-      await supabase
-        .from("am_messages")
-        .insert(
-          insertPayload
-        )
-        .select()
-        .single();
-
-
-    if (insertErr){
-
-      throw insertErr;
-
-    }
+    userMessageWasSaved = true;
 
 
     currentMessages.push(
       userMsg
     );
+
+
+    /* =====================================================
+       CLEAR COMPOSER
+    ====================================================== */
+
+    input.value = "";
+
+    input.style.height = "auto";
+
+    clearPendingImages();
 
 
     /* =====================================================
@@ -3258,7 +3636,9 @@ async function sendMessage(){
     appendMessageEl(
       "user",
       text,
-      null,
+      imageUrls.length === 1
+        ? imageUrls[0]
+        : null,
       imageUrls
     );
 
@@ -3267,46 +3647,19 @@ async function sendMessage(){
 
 
     /* =====================================================
-       COUNT USER MESSAGES
+       ASSISTANT UI
     ====================================================== */
 
-    const userMessageCount =
-      currentMessages.filter(
-        message =>
-          message.role ===
-          "user"
-      ).length;
-
-
-    /*
-     * First prompt:
-     * generate title.
-     */
-
-    if (
-      userMessageCount === 1
-    ){
-
-      await generateChatTitle();
-
-    }
-
-
-    /* =====================================================
-       ASSISTANT MESSAGE UI
-    ====================================================== */
-
-    const {
-      textEl
-    } =
+    assistantUI =
       appendMessageEl(
         "assistant",
         "",
-        null
+        null,
+        []
       );
 
 
-    textEl.innerHTML =
+    assistantUI.textEl.innerHTML =
       `
       <div class="typing-dots">
         <span></span>
@@ -3320,212 +3673,160 @@ async function sendMessage(){
 
 
     /* =====================================================
-       AUTH TOKEN
-    ====================================================== */
-
-    const accessToken =
-      await getAccessToken();
-
-
-    /* =====================================================
-       STREAMING EDGE FUNCTION
+       CALL AI
     ====================================================== */
 
     const response =
-      await fetch(
-        `${SUPABASE_URL}/functions/v1/chat-completion`,
-        {
+      await callEdgeFunction({
 
-          method:"POST",
+        mode:"chat",
 
-          headers:{
+        messages:
+          toApiMessages(
+            currentMessages
+          )
 
-            "Content-Type":
-              "application/json",
-
-            "apikey":
-              SUPABASE_ANON_KEY,
-
-            "Authorization":
-              `Bearer ${accessToken}`
-
-          },
-
-          body:
-            JSON.stringify({
-
-              mode:"chat",
-
-              messages:
-                toApiMessages(
-                  currentMessages
-                )
-
-            })
-
-        }
-      );
-
-
-    if (!response.ok){
-
-      const errorText =
-        await response.text();
-
-
-      throw new Error(
-        errorText ||
-        `Edge Function returned ${response.status}`
-      );
-
-    }
-
-
-    if (!response.body){
-
-      throw new Error(
-        "The AI returned no response."
-      );
-
-    }
+      });
 
 
     /* =====================================================
-       STREAM RESPONSE
+       STREAM AI
     ====================================================== */
 
-    const reader =
-      response.body.getReader();
-
-
-    const decoder =
-      new TextDecoder();
+    assistantUI.textEl.innerHTML = "";
 
 
     let answer = "";
 
 
-    textEl.innerHTML =
-      "";
+    answer =
+      await readAIStream(
+        response,
+        streamedText => {
+
+          renderRichText(
+            assistantUI.textEl,
+            streamedText
+          );
 
 
-    while (true){
+          scrollToBottom();
 
-      const {
-        done,
-        value
-      } =
-        await reader.read();
-
-
-      if (done){
-        break;
-      }
-
-
-      const chunk =
-        decoder.decode(
-          value,
-          {
-            stream:true
-          }
-        );
-
-
-      answer +=
-        chunk;
-
-
-      /*
-       * IMPORTANT:
-       *
-       * The response is rendered
-       * after EVERY received chunk.
-       */
-
-      renderRichText(
-        textEl,
-        answer
+        }
       );
 
 
-      scrollToBottom();
-
-    }
-
-
-    /*
-     * Flush remaining decoder data.
-     */
-
-    answer +=
-      decoder.decode();
+    answer =
+      answer.trim();
 
 
-    if (
-      answer.trim()
-    ){
+    /* =====================================================
+       AI RETURNED NOTHING
+    ====================================================== */
 
-      /* =================================================
-         SAVE ASSISTANT RESPONSE
-      ================================================== */
+    if(!answer){
 
-      const {
-        data:assistantMsg,
-        error:assistantErr
-      } =
-        await supabase
-          .from("am_messages")
-          .insert({
+      assistantUI.wrap.remove();
 
-            chat_id:
-              currentChat.id,
-
-            role:
-              "assistant",
-
-            content:
-              answer
-
-          })
-          .select()
-          .single();
-
-
-      if (assistantErr){
-
-        console.error(
-          "Failed to save assistant message:",
-          assistantErr
-        );
-
-      } else {
-
-        currentMessages.push(
-          assistantMsg
-        );
-
-      }
+      throw new Error(
+        "The AI returned an empty response."
+      );
 
     }
 
 
     /* =====================================================
-       RENAME EVERY 3 USER MESSAGES
+       SAVE ASSISTANT RESPONSE
     ====================================================== */
 
-    const totalUserMessages =
+    const assistantMsg =
+      await saveAssistantMessage(
+        answer
+      );
+
+
+    if(assistantMsg){
+
+      currentMessages.push(
+        assistantMsg
+      );
+
+    }
+
+
+    /* =====================================================
+       UPDATE CHAT TIME
+    ====================================================== */
+
+    const {
+      data:updatedChat,
+      error:updateError
+    } =
+      await supabase
+        .from("am_chats")
+        .update({
+
+          updated_at:
+            new Date().toISOString()
+
+        })
+        .eq(
+          "id",
+          currentChat.id
+        )
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .select()
+        .single();
+
+
+    if(!updateError && updatedChat){
+
+      currentChat =
+        updatedChat;
+
+
+      const index =
+        chats.findIndex(
+          chat =>
+            chat.id ===
+            updatedChat.id
+        );
+
+
+      if(index !== -1){
+
+        chats[index] =
+          updatedChat;
+
+      }
+
+
+      renderChatList();
+
+    }
+
+
+    /* =====================================================
+       TITLE LOGIC
+    ====================================================== */
+
+    const userMessageCount =
       currentMessages.filter(
         message =>
-          message.role ===
-          "user"
+          message.role === "user"
       ).length;
 
 
-    if (
-      totalUserMessages > 0 &&
-      totalUserMessages % 3 === 0
-    ){
+    /*
+     * FIRST PROMPT:
+     * Generate the chat title AFTER
+     * the AI has answered.
+     */
+
+    if(userMessageCount === 1){
 
       await generateChatTitle();
 
@@ -3533,22 +3834,22 @@ async function sendMessage(){
 
 
     /*
-     * Update chat timestamp.
+     * EVERY 3 USER MESSAGES:
+     *
+     * 3, 6, 9, 12...
      */
 
-    await supabase
-      .from("am_chats")
-      .update({
-        updated_at:
-          new Date().toISOString()
-      })
-      .eq(
-        "id",
-        currentChat.id
-      );
+    else if(
+      userMessageCount > 0 &&
+      userMessageCount % 3 === 0
+    ){
+
+      await generateChatTitle();
+
+    }
 
 
-  } catch (error){
+  }catch(error){
 
     console.error(
       "sendMessage error:",
@@ -3556,8 +3857,30 @@ async function sendMessage(){
     );
 
 
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : String(error);
+
+
     /*
-     * Restore text if sending failed.
+     * Remove empty assistant UI if
+     * the AI failed before generating.
+     */
+
+    if(
+      assistantUI &&
+      assistantUI.textEl &&
+      !assistantUI.textEl.textContent.trim()
+    ){
+
+      assistantUI.wrap.remove();
+
+    }
+
+
+    /*
+     * Restore text if something failed.
      */
 
     input.value =
@@ -3575,46 +3898,74 @@ async function sendMessage(){
       ) + "px";
 
 
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Something went wrong.";
-
-
     /*
-     * Display error in chat instead of
-     * creating an AI database message.
+     * Show the actual error in the UI.
      */
 
-    const assistantMessages =
-      messagesEl.querySelectorAll(
-        ".msg.assistant .msg-text"
-      );
+    const errorWrap =
+      document.createElement("div");
 
 
-    const lastAssistant =
-      assistantMessages[
-        assistantMessages.length - 1
-      ];
+    errorWrap.className =
+      "msg assistant";
 
 
-    if (lastAssistant){
-
-      lastAssistant.textContent =
-        "Error: " +
-        errorMessage;
-
-    } else {
-
-      alert(
-        "Could not send message: " +
-        errorMessage
-      );
-
-    }
+    const avatar =
+      document.createElement("div");
 
 
-  } finally {
+    avatar.className =
+      "avatar";
+
+
+    avatar.textContent =
+      "AM";
+
+
+    const body =
+      document.createElement("div");
+
+
+    body.className =
+      "msg-body";
+
+
+    const textEl =
+      document.createElement("div");
+
+
+    textEl.className =
+      "msg-text";
+
+
+    textEl.textContent =
+      "Error: " +
+      errorMessage;
+
+
+    body.appendChild(textEl);
+
+    errorWrap.appendChild(avatar);
+
+    errorWrap.appendChild(body);
+
+    messagesEl.appendChild(errorWrap);
+
+
+    console.error(
+      "Detailed error:",
+      {
+        error,
+        currentUser,
+        currentChat,
+        userMessageWasSaved
+      }
+    );
+
+
+    scrollToBottom();
+
+  }finally{
 
     sending = false;
 
@@ -3635,24 +3986,52 @@ newChatBtn.addEventListener(
   "click",
   async () => {
 
-    /*
-     * New chat creates an EMPTY chat.
-     *
-     * There is NO automatic AI greeting.
-     */
+    if(sending){
+      return;
+    }
 
-    await createNewChat();
+
+    try{
+
+      clearPendingImages();
+
+      input.value = "";
+
+      input.style.height =
+        "auto";
+
+
+      await createNewChat();
+
+      input.focus();
+
+    }catch(error){
+
+      console.error(
+        "New chat error:",
+        error
+      );
+
+
+      alert(
+        "Could not create chat:\n\n" +
+        (
+          error?.message ||
+          "Unknown error"
+        )
+      );
+
+    }
 
   }
 );
 
 
 /* =========================================================
-   INITIAL BUTTON STATE
+   INITIAL STATE
 ========================================================= */
 
 updateSendButton();
-
 
 </script>
 
