@@ -191,6 +191,21 @@ const SUPABASE_URL = 'https://inidxltybmadzgggvpxz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaWR4bHR5Ym1hZHpnZ2d2cHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMjMyOTMsImV4cCI6MjEwMjg5OTI5M30.7yrNe9mk_cj6YPi4adutrKfC0pDZxWLyUcsdvbnkSqY';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ── OpenRouter (called directly from the browser for now) ─────────────────
+// NOTE: this key is visible to anyone who views this page's source. Fine for
+// testing, but move this behind the chat-completion Supabase Edge Function
+// (given separately) before sharing this app with anyone else.
+const OPENROUTER_API_KEY = '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';
+const OPENROUTER_MODEL = 'openrouter/free';
+const SYSTEM_PROMPT =
+  "You are Artificial Maths, a helpful general-purpose AI assistant. " +
+  "You are especially good at mathematics, but you can help with coding, " +
+  "science, writing, research, ideas and general questions too. When the " +
+  "user sends an image, read any text in it (OCR) and/or analyze and " +
+  "describe its visual content before answering their question. Use " +
+  "LaTeX ($...$ for inline, $$...$$ for display) for any mathematical " +
+  "notation. Explain clearly and adapt to the user's level.";
+
 marked.setOptions({ breaks: true });
 
 // ── DOM refs ───────────────────────────────────────────────────────────────
@@ -468,20 +483,30 @@ async function uploadImage(file) {
 
 // ── Streaming ───────────────────────────────────────────────────────────
 async function streamChat(apiMessages, onDelta) {
-  const { data: { session } } = await supabase.auth.getSession();
-  const resp = await fetch(`${SUPABASE_URL}/functions/v1/chat-completion`, {
+  if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === 'YOUR_OPENROUTER_API_KEY') {
+    throw new Error('Add your OpenRouter API key to the OPENROUTER_API_KEY constant near the top of the script.');
+  }
+
+  const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
+      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session?.access_token || SUPABASE_ANON_KEY}`,
-      'apikey': SUPABASE_ANON_KEY
+      'HTTP-Referer': location.href,
+      'X-Title': 'Artificial Maths'
     },
-    body: JSON.stringify({ messages: apiMessages })
+    body: JSON.stringify({
+      model: OPENROUTER_MODEL,
+      stream: true,
+      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...apiMessages],
+      temperature: 0.7,
+      max_tokens: 2048
+    })
   });
 
   if (!resp.ok || !resp.body) {
     let message = `Request failed (${resp.status})`;
-    try { message = (await resp.json()).error || message; } catch (_) {}
+    try { message = (await resp.json())?.error?.message || message; } catch (_) {}
     throw new Error(message);
   }
 
