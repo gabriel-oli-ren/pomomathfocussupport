@@ -6528,7 +6528,7 @@ async function getAiMathsResponse(content,imageData,searchResults){
   const response=await fetch(AIMATHS_BASE_URL+'/chat/completions',{
     method:'POST',
     headers:{'Authorization':'Bearer '+AIMATHS_API_KEY,'Content-Type':'application/json','HTTP-Referer':window.location.origin,'X-Title':'Artificial Maths'},
-    body:JSON.stringify({model:selectedModel,messages:messages,max_tokens:2048})
+    body:JSON.stringify({model:selectedModel,messages:messages,max_tokens:512})
   });
   if(!response.ok){
     const error=await response.json();
