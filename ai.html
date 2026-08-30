@@ -784,6 +784,75 @@ textarea{
 
 
 /* =========================================================
+   SCROLL TO BOTTOM BUTTON
+========================================================= */
+
+.scroll-bottom-btn{
+  position:absolute;
+
+  left:50%;
+  bottom:132px;
+
+  transform:
+    translateX(-50%)
+    translateY(8px);
+
+  width:38px;
+  height:38px;
+
+  border-radius:50%;
+
+  background:#fff;
+
+  border:1px solid var(--border);
+
+  box-shadow:
+    0 4px 14px
+    rgba(0,0,0,.12);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+
+  z-index:30;
+
+  opacity:0;
+  pointer-events:none;
+
+  transition:
+    opacity .15s ease,
+    transform .15s ease;
+}
+
+.scroll-bottom-btn.visible{
+  opacity:1;
+  pointer-events:auto;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
+}
+
+.scroll-bottom-btn:hover{
+  background:#f7f7f7;
+}
+
+.scroll-bottom-btn svg{
+  width:18px;
+  height:18px;
+
+  stroke:var(--text);
+  stroke-width:2.2;
+  fill:none;
+
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+
+/* =========================================================
    MOBILE
 ========================================================= */
 
@@ -983,6 +1052,20 @@ textarea{
     </div>
 
   </div>
+
+
+  <button
+    class="scroll-bottom-btn"
+    id="scrollBottomBtn"
+    type="button"
+    aria-label="Scroll to bottom"
+  >
+
+    <svg viewBox="0 0 24 24">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+
+  </button>
 
 
   <!-- =====================================================
@@ -1243,6 +1326,9 @@ const emptyState =
 
 const chatScroll =
   document.getElementById("chatScroll");
+
+const scrollBottomBtn =
+  document.getElementById("scrollBottomBtn");
 
 const input =
   document.getElementById("input");
@@ -1913,7 +1999,9 @@ function renderMessages(){
   }
 
 
-  scrollToBottom();
+  scrollToBottom({
+    force:true
+  });
 
 }
 
@@ -2219,16 +2307,255 @@ function renderRichText(
 
 
 /* =========================================================
+   SMOOTH TYPING EFFECT
+========================================================= */
+
+/*
+ * The network can deliver chunks in bursts (a few
+ * characters, then a big blob, then nothing for a bit).
+ * Dumping every chunk straight into the DOM as it arrives
+ * looks jumpy/too fast.
+ *
+ * This wraps a target element and "smooths" the reveal:
+ * whenever new text arrives we just update the target,
+ * and a requestAnimationFrame loop reveals a small, steady
+ * number of characters per frame instead. If the network
+ * gets far ahead of what's on screen, the reveal speeds up
+ * a bit so it never lags noticeably behind the real answer.
+ */
+
+function createSmoothTyper(
+  element,
+  {
+    charsPerFrame = 2,
+    onRender = null
+  } = {}
+){
+
+  let target = "";
+  let shown = 0;
+  let rafId = null;
+  let streamEnded = false;
+
+
+  function renderShown(){
+
+    renderRichText(
+      element,
+      target.slice(0, shown)
+    );
+
+
+    if(onRender){
+      onRender();
+    }
+
+  }
+
+
+  function tick(){
+
+    rafId = null;
+
+
+    if(shown >= target.length){
+
+      if(streamEnded){
+
+        renderShown();
+
+      }
+
+      return;
+
+    }
+
+
+    const remaining =
+      target.length - shown;
+
+    /*
+     * Catch up faster the further behind we are, so a
+     * big burst of text doesn't take forever to appear.
+     */
+
+    const step =
+      Math.max(
+        charsPerFrame,
+        Math.ceil(remaining / 40)
+      );
+
+
+    shown =
+      Math.min(
+        target.length,
+        shown + step
+      );
+
+
+    renderShown();
+
+
+    rafId =
+      requestAnimationFrame(tick);
+
+  }
+
+
+  return {
+
+    update(newTarget){
+
+      target = newTarget;
+
+
+      if(rafId === null){
+
+        rafId =
+          requestAnimationFrame(tick);
+
+      }
+
+    },
+
+    finish(){
+
+      streamEnded = true;
+
+
+      if(rafId === null){
+
+        shown = target.length;
+
+        renderShown();
+
+      }
+
+    }
+
+  };
+
+}
+
+
+/* =========================================================
    SCROLL
 ========================================================= */
 
-function scrollToBottom(){
+/*
+ * How close (in px) to the bottom the user has to be
+ * for us to consider them "at the bottom" and therefore
+ * keep auto-scrolling while the AI streams text.
+ */
+
+const SCROLL_BOTTOM_THRESHOLD = 80;
+
+
+function isNearBottom(){
+
+  const distance =
+    chatScroll.scrollHeight -
+    chatScroll.scrollTop -
+    chatScroll.clientHeight;
+
+
+  return distance < SCROLL_BOTTOM_THRESHOLD;
+
+}
+
+
+function updateScrollBottomBtn(){
+
+  if(!scrollBottomBtn){
+    return;
+  }
+
+
+  if(isNearBottom()){
+
+    scrollBottomBtn.classList.remove("visible");
+
+  }else{
+
+    scrollBottomBtn.classList.add("visible");
+
+  }
+
+}
+
+
+/*
+ * scrollToBottom() is called a lot while the AI is
+ * streaming. If the user has scrolled up to read
+ * something earlier, we should NOT yank them back down -
+ * only "stick" to the bottom if they were already there.
+ *
+ * Pass force:true to always scroll (e.g. right after the
+ * user sends a message).
+ */
+
+function scrollToBottom(
+  {
+    force = false
+  } = {}
+){
+
+  const shouldStick =
+    force ||
+    isNearBottom();
+
+
+  if(!shouldStick){
+
+    updateScrollBottomBtn();
+
+    return;
+
+  }
+
 
   requestAnimationFrame(
     () => {
 
       chatScroll.scrollTop =
         chatScroll.scrollHeight;
+
+
+      updateScrollBottomBtn();
+
+    }
+  );
+
+}
+
+
+if(chatScroll){
+
+  chatScroll.addEventListener(
+    "scroll",
+    updateScrollBottomBtn,
+    {
+      passive:true
+    }
+  );
+
+}
+
+
+if(scrollBottomBtn){
+
+  scrollBottomBtn.addEventListener(
+    "click",
+    () => {
+
+      chatScroll.scrollTo({
+
+        top:
+          chatScroll.scrollHeight,
+
+        behavior:"smooth"
+
+      });
 
     }
   );
@@ -2335,6 +2662,9 @@ fileInput.addEventListener(
     }
 
 
+    let rejectedSvg = false;
+
+
     for(
       const file of files
     ){
@@ -2342,6 +2672,24 @@ fileInput.addEventListener(
       if(
         !file.type.startsWith("image/")
       ){
+
+        continue;
+
+      }
+
+
+      /*
+       * SVGs are XML, not a raster image. The vision
+       * model (via OpenRouter) rejects them with a
+       * confusing "did not return an image" error, so
+       * we filter them out before they ever get queued.
+       */
+
+      if(
+        file.type === "image/svg+xml"
+      ){
+
+        rejectedSvg = true;
 
         continue;
 
@@ -2379,6 +2727,16 @@ fileInput.addEventListener(
     renderImagePreviews();
 
     updateSendButton();
+
+
+    if(rejectedSvg){
+
+      alert(
+        "SVG images aren't supported. " +
+        "Please upload a PNG, JPEG, WEBP or similar image instead."
+      );
+
+    }
 
 
     /*
@@ -3628,7 +3986,9 @@ async function sendMessage(){
     );
 
 
-    scrollToBottom();
+    scrollToBottom({
+      force:true
+    });
 
 
     /* =====================================================
@@ -3653,7 +4013,9 @@ async function sendMessage(){
       `;
 
 
-    scrollToBottom();
+    scrollToBottom({
+      force:true
+    });
 
 
     /* =====================================================
@@ -3681,21 +4043,30 @@ async function sendMessage(){
     let answer = "";
 
 
+    const typer =
+      createSmoothTyper(
+        assistantUI.textEl,
+        {
+          onRender:
+            scrollToBottom
+        }
+      );
+
+
     answer =
       await readAIStream(
         response,
         streamedText => {
 
-          renderRichText(
-            assistantUI.textEl,
+          typer.update(
             streamedText
           );
 
-
-          scrollToBottom();
-
         }
       );
+
+
+    typer.finish();
 
 
     answer =
