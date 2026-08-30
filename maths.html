@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1057,76 +1056,6 @@ body:not(.authenticated) .dev-panel.active {
 .ai-welcome-icon{font-size:3em;animation:aiGlow 3s ease-in-out infinite;flex-shrink:0}
 @keyframes aiGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(102,126,234,.4))}50%{filter:drop-shadow(0 0 20px rgba(102,126,234,.8))}}
 
-/* ── ARTIFICIAL MATHS AI CSS ── */
-.aimaths-page{display:none;padding:24px}
-.aimaths-page.active{display:block}
-.aimaths-layout{display:flex;gap:20px;height:calc(100vh - 120px)}
-.aimaths-sidebar{width:280px;display:flex;flex-direction:column}
-.aimaths-sidebar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.aimaths-sidebar-header h3{color:#fff;font-size:1.1em;margin:0}
-.aimaths-new-btn{background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);color:#a78bfa;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all .2s}
-.aimaths-new-btn:hover{background:rgba(139,92,246,.3);border-color:rgba(139,92,246,.6)}
-.aimaths-conversations-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
-.aimaths-conversations-list::-webkit-scrollbar{width:4px}
-.aimaths-conversations-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
-.aimaths-conversation-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s}
-.aimaths-conversation-item:hover{background:rgba(255,255,255,.1)}
-.aimaths-conversation-item.active{background:rgba(139,92,246,.2);border-color:rgba(139,92,246,.4)}
-.aimaths-conversation-title{color:#fff;font-weight:600;font-size:.95em;margin-bottom:4px}
-.aimaths-conversation-date{color:rgba(255,255,255,.4);font-size:.8em}
-.aimaths-main{flex:1;display:flex;flex-direction:column;background:rgba(0,0,0,.3);border-radius:16px;overflow:hidden}
-.aimaths-chat-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(139,92,246,.1);border-bottom:1px solid rgba(139,92,246,.2)}
-.aimaths-chat-title{color:#fff;font-weight:700;font-size:1.1em}
-.aimaths-chat-actions{display:flex;gap:8px}
-.aimaths-action-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1.1em;transition:all .2s;display:flex;align-items:center;justify-content:center}
-.aimaths-action-btn:hover{background:rgba(255,255,255,.2)}
-.aimaths-action-btn.danger:hover{background:rgba(246,79,89,.2);border-color:rgba(246,79,89,.4)}
-.aimaths-action-btn.search-active{background:rgba(59,130,246,.3);border-color:rgba(59,130,246,.5)}
-.aimaths-model-select{margin-right:8px;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:.85em;cursor:pointer;transition:all .2s;outline:none}
-.aimaths-model-select:hover{background:rgba(255,255,255,.15)}
-.aimaths-model-select:focus{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.1)}
-.aimaths-model-select option{background:#1a1a24;color:#fff}
-.aimaths-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
-.aimaths-messages::-webkit-scrollbar{width:4px}
-.aimaths-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
-.aimaths-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:rgba(255,255,255,.5)}
-.aimaths-welcome-icon{font-size:4em;margin-bottom:16px}
-.aimaths-welcome-text h3{color:#fff;font-size:1.5em;margin-bottom:8px}
-.aimaths-welcome-text p{font-size:.95em;margin-bottom:20px;max-width:400px;line-height:1.6}
-.aimaths-welcome-tips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.aimaths-welcome-tips span{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);padding:8px 16px;border-radius:20px;font-size:.85em;color:rgba(255,255,255,.7)}
-.aimaths-message{display:flex;gap:12px;max-width:80%;animation:aimathsMsgIn .3s ease both}
-@keyframes aimathsMsgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.aimaths-message.user{align-self:flex-end;flex-direction:row-reverse}
-.aimaths-message.assistant{align-self:flex-start}
-.aimaths-message-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2em;flex-shrink:0}
-.aimaths-message.user .aimaths-message-avatar{background:linear-gradient(135deg,#667eea,#764ba2)}
-.aimaths-message.assistant .aimaths-message-avatar{background:linear-gradient(135deg,#8b5cf6,#ec4899)}
-.aimaths-message-content{background:rgba(255,255,255,.1);border-radius:12px;padding:12px 16px;color:#fff;line-height:1.5;max-width:100%}
-.aimaths-message.user .aimaths-message-content{background:linear-gradient(135deg,rgba(102,126,234,.3),rgba(118,75,162,.3))}
-.aimaths-message-image{max-width:200px;max-height:200px;border-radius:8px;margin-bottom:8px;display:block}
-.aimaths-message-search{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:12px;margin-top:8px}
-.aimaths-message-search h4{color:#60a5fa;font-size:.9em;margin:0 0 8px 0}
-.aimaths-message-search-result{background:rgba(255,255,255,.05);border-radius:6px;padding:8px;margin-bottom:6px}
-.aimaths-message-search-result a{color:#60a5fa;text-decoration:none;font-size:.85em;display:block}
-.aimaths-message-search-result a:hover{text-decoration:underline}
-.aimaths-input-area{padding:16px 20px;background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.1)}
-.aimaths-image-upload{margin-bottom:12px;position:relative}
-.aimaths-image-preview{max-width:100px;max-height:100px;border-radius:8px;object-fit:cover;display:block}
-.aimaths-clear-img{position:absolute;top:-8px;right:-8px;background:#f64f59;border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:.8em;display:flex;align-items:center;justify-content:center}
-.aimaths-clear-img:hover{background:#dc2626}
-.aimaths-input-row{display:flex;gap:12px}
-.aimaths-input{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 16px;color:#fff;font-family:inherit;font-size:.95em;resize:none;outline:none;min-height:48px;max-height:150px;line-height:1.5;transition:border-color .2s,background .2s;overflow:hidden}
-.aimaths-input::placeholder{color:rgba(255,255,255,.3)}
-.aimaths-input:focus{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.08)}
-.aimaths-send-btn{background:linear-gradient(135deg,#8b5cf6,#ec4899);border:none;color:#fff;width:48px;height:48px;border-radius:12px;cursor:pointer;font-size:1.2em;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.aimaths-send-btn:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(139,92,246,.4)}
-.aimaths-send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.aimaths-search-indicator{display:flex;align-items:center;gap:8px;color:#60a5fa;font-size:.85em;margin-top:8px}
-.aimaths-loading{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);font-size:.9em}
-.aimaths-loading::after{content:'';width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#8b5cf6;border-radius:50%;animation:aimathsSpin 1s linear infinite}
-@keyframes aimathsSpin{to{transform:rotate(360deg)}}
-
 /* ── MATHS SEARCH PAGE ── */
 .maths-search-page{display:none;position:fixed;inset:0;background:#0a0a0f;z-index:1000}
 .maths-search-page.active{display:flex;flex-direction:column}
@@ -1798,7 +1727,7 @@ body:not(.authenticated) .dev-panel.active {
   <div class="top-nav" id="topNav">
     <div class="site-name">Maths Support</div>
     <div class="search-container"><input type="text" class="search-bar" id="searchBar" placeholder="Search for games..."></div>
-    <button class="add-link-btn" onclick="showSection('aimaths')" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)"><span>🤖</span><span>Artificial Maths</span></button>
+    <a href="ai.html" target="_blank" class="add-link-btn" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;color:#fff;font-weight:600;font-size:14px;transition:all 0.2s;"><span>🤖</span><span>Artificial Maths</span></a>
     <button class="add-link-btn" onclick="openAddAppModal()"><span>＋</span><span>Add Link</span></button>
     <div class="user-badge" id="userBadge" onclick="toggleDropdown()">
       <div class="user-avatar-sm" id="userAvatarSm">?</div>
@@ -2258,69 +2187,6 @@ body:not(.authenticated) .dev-panel.active {
               <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">➤</button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ARTIFICIAL MATHS AI PAGE -->
-<div class="aimaths-page" id="aimathsPage">
-  <div class="aimaths-layout">
-    <div class="aimaths-sidebar">
-      <div class="aimaths-sidebar-header">
-        <h3>💬 Conversations</h3>
-        <button onclick="createNewAiConversation()" class="aimaths-new-btn">＋ New</button>
-      </div>
-      <div class="aimaths-conversations-list" id="aimathsConversationsList">
-        <!-- Conversations loaded dynamically -->
-      </div>
-    </div>
-    <div class="aimaths-main">
-      <div class="aimaths-chat-header">
-        <div class="aimaths-chat-title" id="aimathsChatTitle">New Conversation</div>
-        <div class="aimaths-chat-actions">
-          <select id="aimathsModelSelect" class="aimaths-model-select">
-            <option value="google/gemma-4-31b-it:free" selected>Gemma 4 31B (Free) 🆓</option>
-            <option value="anthropic/claude-sonnet-4-5">Claude Sonnet 4.5 ✨</option>
-            <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-            <option value="openai/gpt-4o">GPT-4o</option>
-            <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
-            <option value="google/gemini-2.0-flash-001">Gemini 2.0 Flash</option>
-            <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B</option>
-            <option value="deepseek/deepseek-chat">DeepSeek V3</option>
-          </select>
-          <button onclick="toggleAiImageUpload()" class="aimaths-action-btn" title="Upload Image">📷</button>
-          <button onclick="toggleAiSearchMode()" class="aimaths-action-btn" title="Enable Search">🔍</button>
-          <button onclick="deleteCurrentAiConversation()" class="aimaths-action-btn danger" title="Delete">🗑️</button>
-        </div>
-      </div>
-      <div class="aimaths-messages" id="aimathsMessages">
-        <div class="aimaths-welcome">
-          <div class="aimaths-welcome-icon">🤖</div>
-          <div class="aimaths-welcome-text">
-            <h3>Artificial Maths</h3>
-            <p>Ask me anything! I can help with homework, explain concepts, solve problems, and search the web.</p>
-            <div class="aimaths-welcome-tips">
-              <span>📷 Upload images of problems</span>
-              <span>🔍 Ask me to search the web</span>
-              <span>💬 Start a conversation</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="aimaths-input-area">
-        <div class="aimaths-image-upload" id="aimathsImageUpload" style="display:none">
-          <input type="file" id="aimathsImageInput" accept="image/*" onchange="handleAiImageUpload(event)">
-          <div class="aimaths-image-preview" id="aimathsImagePreview"></div>
-          <button onclick="clearAiImageUpload()" class="aimaths-clear-img">✕</button>
-        </div>
-        <div class="aimaths-input-row">
-          <textarea class="aimaths-input" id="aimathsInput" placeholder="Ask me anything..." rows="1"></textarea>
-          <button onclick="sendAiMathsMessage()" class="aimaths-send-btn" id="aimathsSendBtn">➤</button>
-        </div>
-        <div class="aimaths-search-indicator" id="aimathsSearchIndicator" style="display:none">
-          <span>🔍 Searching the web...</span>
         </div>
       </div>
     </div>
@@ -4116,7 +3982,6 @@ const tourSteps = [
   { target: '.games-grid', title: 'Games Library', desc: 'Browse and play your favorite games! Use the search bar to find specific games.', position: 'top' },
   { target: '#chatBtn', title: 'Chat in Sidebar', desc: 'Message your friends, share stickers, and maintain conversation streaks!', position: 'right' },
   { target: '.chat-messages', title: 'Message Area', desc: 'Send messages, use stickers, and view your conversation history.', position: 'right' },
-  { target: '#aimathsBtn', title: 'Artificial Maths AI', desc: 'Get help with homework, search the web, and upload images for AI assistance!', position: 'right' },
   { target: '#userBadge', title: 'Your Profile', desc: 'Access your account settings, view your profile, and sign out.', position: 'left' }
 ];
 
@@ -5070,7 +4935,7 @@ function showSection(section){
   document.getElementById('appsAdBottom').style.display = 'none';
   if(chatPollTimer&&section!=='chat'){clearInterval(chatPollTimer);chatPollTimer=null;}
   document.getElementById('gamesGrid').style.display='none';
-  ['appsPage','accountPage','friendsPage','shopPage','aimathsPage','mathssearchPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  ['appsPage','accountPage','friendsPage','shopPage','mathssearchPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   
   // Always ensure chat page and dev panel are closed when switching sections (unless explicitly opening them)
   if(section !== 'chat') {
@@ -5112,10 +4977,6 @@ function showSection(section){
     document.getElementById('shopBtn').classList.add('active');
     if(cas)cas.style.display='none';
     if(currentUser){ loadMyStickers(); loadPublicStickers(); }
-  }else if(section==='aimaths'){
-    document.getElementById('aimathsPage').classList.add('active');
-    if(cas)cas.style.display='none';
-    loadAiMathsConversations();
   }else if(section==='mathssearch'){
     document.getElementById('mathssearchPage').classList.add('active');
     document.getElementById('mathsSearchBtn').classList.add('active');
@@ -5192,7 +5053,6 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.activeElement.id==='sitePasswordInput')verifySitePassword();
   if(e.key==='Enter'&&document.activeElement.id==='sitePassInput')checkSitePassword();
   if(e.key==='Enter'&&!e.shiftKey&&document.activeElement.id==='chatMsgInput'){e.preventDefault();sendMessage();}
-  if(e.key==='Enter'&&!e.shiftKey&&document.activeElement.id==='aimathsInput'){e.preventDefault();sendAiMathsMessage();}
   if(e.key==='Enter'&&document.activeElement.id==='addCodeInput')sendFriendRequest();
   if(e.key==='Enter'&&document.activeElement.id==='loginUsername')document.getElementById('loginPassword').focus();
   if(e.key==='Enter'&&document.activeElement.id==='loginPassword')doLogin();
@@ -6268,360 +6128,6 @@ const AI_GH_BRANCH = 'main';
 const VERCEL_API = 'https://api.vercel.com';
 let aiMessages = [], aiIsThinking = false, aiMemory = [], aiLoadedFiles = {}, aiDeployCache = [];
 let vcToken = '', vcProjects = [], vcDeploymentsList = [];
-
-// ══════════════════════════════════════════════════════════════════
-// ARTIFICIAL MATHS AI CONFIGURATION
-// ══════════════════════════════════════════════════════════════════
-const AIMATHS_API_KEY = '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';
-const AIMATHS_BASE_URL = 'https://openrouter.ai/api/v1';
-const AIMATHS_MODEL = 'google/gemma-4-31b-it:free';
-const AIMATHS_SEARCH_API = 'https://api.duckduckgo.com/';
-let aimathsCurrentConversation = null;
-let aimathsConversations = [];
-let aimathsCurrentImage = null;
-let aimathsSearchEnabled = false;
-
-function aiStatus(msg){ const el=document.getElementById('aiActionStatus'); if(el)el.textContent=msg||''; }
-function aiTime(){ const n=new Date(); return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0'); }
-function vcTimeAgo(ts){ if(!ts)return'—'; const d=(Date.now()-ts)/1000; if(d<60)return Math.round(d)+'s ago'; if(d<3600)return Math.round(d/60)+'m ago'; if(d<86400)return Math.round(d/3600)+'h ago'; return Math.round(d/86400)+'d ago'; }
-function aiRenderContent(text){ /* ... keep existing implementation ... */ return escapeHtml(text); }
-function aiAppendMsg(role, content=''){ /* ... keep existing implementation ... */ }
-function aiShowThinking(){ /* ... keep existing implementation ... */ }
-function aiCopyCode(btn){ /* ... keep existing implementation ... */ }
-async function aiApplyCode(btn){ /* ... keep existing implementation ... */ }
-function aiGhHeaders(){ return ghToken?ghGetHeaders():{}; }
-async function aiRefreshFileTree(){ /* ... keep existing implementation ... */ }
-function aiRenderTreeItems(container, items, parentPath){ /* ... keep existing implementation ... */ }
-function aiFileIcon(n){ /* ... keep existing implementation ... */ return '📄'; }
-async function aiLoadFileIntoContext(item){ /* ... keep existing implementation ... */ }
-function aiRenderLoadedFilesList(){ /* ... keep existing implementation ... */ }
-function aiUnloadFile(path){ /* ... keep existing implementation ... */ }
-function aiUnloadAllFiles(){ /* ... keep existing implementation ... */ }
-async function aiRefreshDeployMini(){ /* ... keep existing implementation ... */ }
-async function aiLoadMemory(){ /* ... keep existing implementation ... */ }
-function aiRenderMemoryList(){ /* ... keep existing implementation ... */ }
-async function aiSaveMemory(text){ /* ... keep existing implementation ... */ }
-async function aiDeleteMemory(id){ /* ... keep existing implementation ... */ }
-async function aiClearMemory(){ /* ... keep existing implementation ... */ }
-function aiExtractMemories(text){ /* ... keep existing implementation ... */ }
-function aiQuick(prompt){ document.getElementById('aiChatInput').value=prompt; sendAiMessage(); }
-function aiClearChat(){ /* ... keep existing implementation ... */ }
-function aiSystemPrompt(){ /* ... keep existing implementation ... */ return ''; }
-async function sendAiMessage(){ /* ... keep existing implementation ... */ }
-
-// ══════════════════════════════════════════════════════════════════
-// ARTIFICIAL MATHS AI FUNCTIONS
-// ══════════════════════════════════════════════════════════════════
-async function loadAiMathsConversations(){
-  if(!currentUser) return;
-  try{
-    const{data,error}=await sb.from('ai_conversations').select('*').eq('user_id',currentUser.id);
-    if(error) throw error;
-    aimathsConversations=data||[];
-    renderAiMathsConversationsList();
-  }catch(e){
-    console.error('Error loading conversations:',e);
-  }
-}
-
-function renderAiMathsConversationsList(){
-  const list=document.getElementById('aimathsConversationsList');
-  if(!list) return;
-  if(!aimathsConversations.length){
-    list.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:20px">No conversations yet</div>';
-    return;
-  }
-  list.innerHTML='';
-  aimathsConversations.forEach(conv=>{
-    const item=document.createElement('div');
-    item.className='aimaths-conversation-item'+(aimathsCurrentConversation?.id===conv.id?' active':'');
-    // Use started_at if available, otherwise show no date
-    const dateStr = conv.started_at ? new Date(conv.started_at).toLocaleDateString() : '';
-    item.innerHTML=`<div class="aimaths-conversation-title">${escapeHtml(conv.title)}</div>${dateStr ? `<div class="aimaths-conversation-date">${dateStr}</div>` : ''}`;
-    item.onclick=()=>loadAiMathsConversation(conv.id);
-    list.appendChild(item);
-  });
-}
-
-async function createNewAiConversation(){
-  if(!currentUser) return;
-  // Check if we already have a current conversation to avoid duplicates
-  if(aimathsCurrentConversation){
-    clearAiMathsChat();
-    document.getElementById('aimathsChatTitle').textContent=aimathsCurrentConversation.title;
-    return;
-  }
-  try{
-    const{data,error}=await sb.from('ai_conversations').insert({
-      user_id:currentUser.id,
-      title:'New Conversation'
-    }).select().single();
-    if(error) throw error;
-    aimathsConversations.unshift(data);
-    aimathsCurrentConversation=data;
-    renderAiMathsConversationsList();
-    clearAiMathsChat();
-    document.getElementById('aimathsChatTitle').textContent=data.title;
-  }catch(e){
-    console.error('Error creating conversation:',e);
-    showToast('❌ Failed to create conversation: '+e.message);
-  }
-}
-
-async function loadAiMathsConversation(conversationId){
-  if(!currentUser) return;
-  try{
-    const{data:messages,error}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',conversationId);
-    if(error) throw error;
-    aimathsCurrentConversation=aimathsConversations.find(c=>c.id===conversationId);
-    renderAiMathsConversationsList();
-    clearAiMathsChat();
-    document.getElementById('aimathsChatTitle').textContent=aimathsCurrentConversation.title;
-    if(messages&&messages.length){
-      // Simple alternation for message roles since table doesn't have role field
-      let isUser = true;
-      messages.forEach(msg=>{
-        msg.role = isUser ? 'user' : 'assistant';
-        appendAiMathsMessage(msg);
-        isUser = !isUser;
-      });
-    }
-  }catch(e){
-    console.error('Error loading conversation:',e);
-  }
-}
-
-async function deleteCurrentAiConversation(){
-  if(!aimathsCurrentConversation) return;
-  if(!confirm('Delete this conversation?')) return;
-  try{
-    const{error}=await sb.from('ai_conversations').delete().eq('id',aimathsCurrentConversation.id);
-    if(error) throw error;
-    aimathsConversations=aimathsConversations.filter(c=>c.id!==aimathsCurrentConversation.id);
-    aimathsCurrentConversation=null;
-    renderAiMathsConversationsList();
-    clearAiMathsChat();
-    document.getElementById('aimathsChatTitle').textContent='New Conversation';
-    showToast('✅ Conversation deleted');
-  }catch(e){
-    console.error('Error deleting conversation:',e);
-    showToast('❌ Failed to delete conversation');
-  }
-}
-
-function clearAiMathsChat(){
-  const container=document.getElementById('aimathsMessages');
-  container.innerHTML=`<div class="aimaths-welcome"><div class="aimaths-welcome-icon">🤖</div><div class="aimaths-welcome-text"><h3>Artificial Maths</h3><p>Ask me anything! I can help with homework, explain concepts, solve problems, and search the web.</p><div class="aimaths-welcome-tips"><span>📷 Upload images of problems</span><span>🔍 Ask me to search the web</span><span>💬 Start a conversation</span></div></div></div>`;
-}
-
-function appendAiMathsMessage(msg){
-  const container=document.getElementById('aimathsMessages');
-  const welcome=container.querySelector('.aimaths-welcome');
-  if(welcome) welcome.remove();
-  const div=document.createElement('div');
-  div.className='aimaths-message '+msg.role;
-  let contentHtml=escapeHtml(msg.content);
-  if(msg.image_data){
-    contentHtml=`<img src="${msg.image_data}" class="aimaths-message-image">`+contentHtml;
-  }
-  div.innerHTML=`<div class="aimaths-message-avatar">${msg.role==='user'?'👤':'🤖'}</div><div class="aimaths-message-content">${contentHtml}</div>`;
-  if(msg.has_search&&msg.search_results){
-    const searchDiv=document.createElement('div');
-    searchDiv.className='aimaths-message-search';
-    searchDiv.innerHTML=`<h4>🔍 Web Search Results</h4>${msg.search_results.results?.map(r=>`<div class="aimaths-message-search-result"><a href="${r.url}" target="_blank">${escapeHtml(r.title)}</a></div>`).join('')||'<div style="color:rgba(255,255,255,.5)">No results found</div>'}`;
-    div.querySelector('.aimaths-message-content').appendChild(searchDiv);
-  }
-  container.appendChild(div);
-  container.scrollTop=container.scrollHeight;
-}
-
-async function sendAiMathsMessage(){
-  const input=document.getElementById('aimathsInput');
-  const sendBtn=document.getElementById('aimathsSendBtn');
-  if(!input || !sendBtn){
-    console.error('AI chat elements not found');
-    return;
-  }
-  const content=input.value.trim();
-  if(!content&&!aimathsCurrentImage) return;
-  if(!AIMATHS_API_KEY){
-    showAiMathsApiKeyModal();
-    return;
-  }
-  if(!aimathsCurrentConversation){
-    await createNewAiConversation();
-  }
-  input.disabled=true;
-  sendBtn.disabled=true;
-  const userMessage={role:'user',content:content};
-  try{
-    const{data:savedMsg,error}=await sb.from('ai_chat_messages').insert({
-      conversation_id:aimathsCurrentConversation.id,
-      user_id:currentUser.id,
-      content:content,
-      message_type:'text'
-    }).select().single();
-    if(error) throw error;
-    // Add role and image data locally for display (not saved to database)
-    savedMsg.role = 'user';
-    if(aimathsCurrentImage) savedMsg.image_data = aimathsCurrentImage;
-    appendAiMathsMessage(savedMsg);
-  }catch(e){
-    console.error('Error saving message:',e);
-    showToast('❌ Failed to save message: '+e.message);
-  }
-  input.value='';
-  aimathsCurrentImage=null;
-  document.getElementById('aimathsImageUpload').style.display='none';
-  document.getElementById('aimathsImagePreview').innerHTML='';
-  const loadingDiv=document.createElement('div');
-  loadingDiv.className='aimaths-message assistant';
-  loadingDiv.innerHTML=`<div class="aimaths-message-avatar">🤖</div><div class="aimaths-message-content"><div class="aimaths-loading">Thinking...</div></div>`;
-  document.getElementById('aimathsMessages').appendChild(loadingDiv);
-  let searchResults=null;
-  if(aimathsSearchEnabled&&content){
-    searchResults=await performWebSearch(content);
-  }
-  try{
-    const response=await getAiMathsResponse(content,aimathsCurrentImage,searchResults);
-    loadingDiv.remove();
-    const{data:assistantMsg,error}=await sb.from('ai_chat_messages').insert({
-      conversation_id:aimathsCurrentConversation.id,
-      user_id:currentUser.id,
-      content:response,
-      message_type:'text'
-    }).select().single();
-    if(error) throw error;
-    // Add role and search data locally for display (not saved to database)
-    assistantMsg.role = 'assistant';
-    assistantMsg.has_search = !!searchResults;
-    assistantMsg.search_results = searchResults;
-    appendAiMathsMessage(assistantMsg);
-    const{data:allMessages}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',aimathsCurrentConversation.id);
-    if(allMessages && allMessages.length===2){
-      const title=content.substring(0,50)+(content.length>50?'...':'');
-      await sb.from('ai_conversations').update({title:title}).eq('id',aimathsCurrentConversation.id);
-      aimathsCurrentConversation.title=title;
-      renderAiMathsConversationsList();
-      document.getElementById('aimathsChatTitle').textContent=title;
-    }
-  }catch(e){
-    console.error('Error getting AI response:',e);
-    loadingDiv.remove();
-    showToast('❌ Failed to get AI response: '+e.message);
-  }
-  input.disabled=false;
-  sendBtn.disabled=false;
-  input.focus();
-}
-
-async function getAiMathsResponse(content,imageData,searchResults){
-  const messages=[{role:'system',content:'You are Artificial Maths, a helpful AI assistant for a maths education platform. You help students with homework, explain concepts, solve problems, and provide educational support. Be friendly, clear, and encouraging. If search results are provided, use them to give accurate information.'}];
-  if(searchResults&&searchResults.results){
-    const searchContext=searchResults.results.map(r=>`- ${r.title}: ${r.snippet}`).join('\n');
-    messages.push({role:'system',content:`Here are some relevant search results:\n${searchContext}`});
-  }
-  if(aimathsCurrentConversation){
-    const{data:history}=await sb.from('ai_chat_messages').select('*').eq('conversation_id',aimathsCurrentConversation.id).limit(10);
-    if(history){
-      // Simple alternation for conversation history since table doesn't have role field
-      let isUser = true;
-      history.forEach(msg=>{
-        messages.push({role:isUser?'user':'assistant',content:msg.content});
-        isUser = !isUser;
-      });
-    }
-  }
-  if(imageData){
-    messages.push({role:'user',content:[{type:'text',text:content||'What do you see in this image?'},{type:'image_url',image_url:{url:imageData}}]});
-  }else{
-    messages.push({role:'user',content:content});
-  }
-  const modelSelect = document.getElementById('aimathsModelSelect');
-  const selectedModel = modelSelect ? modelSelect.value : AIMATHS_MODEL;
-  
-  const response=await fetch(AIMATHS_BASE_URL+'/chat/completions',{
-    method:'POST',
-    headers:{
-      'Authorization':'Bearer '+AIMATHS_API_KEY,
-      'Content-Type':'application/json',
-      'HTTP-Referer':window.location.origin,
-      'X-Title':'Artificial Maths'
-    },
-    body:JSON.stringify({
-      model:selectedModel,
-      messages:messages,
-      max_tokens:512
-    })
-  });
-  if(!response.ok){
-    const error=await response.json();
-    throw new Error(error.error?.message||'API request failed');
-  }
-  const data=await response.json();
-  return data.choices[0].message.content;
-}
-
-function toggleAiImageUpload(){
-  const upload=document.getElementById('aimathsImageUpload');
-  upload.style.display=upload.style.display==='none'?'block':'none';
-}
-
-function handleAiImageUpload(event){
-  const file=event.target.files[0];
-  if(!file) return;
-  if(file.size>5*1024*1024){
-    showToast('❌ Image must be under 5MB');
-    return;
-  }
-  const reader=new FileReader();
-  reader.onload=(e)=>{
-    aimathsCurrentImage=e.target.result;
-    const preview=document.getElementById('aimathsImagePreview');
-    preview.innerHTML=`<img src="${aimathsCurrentImage}" class="aimaths-image-preview">`;
-    showToast('⚠️ Image stored locally for this session only - not saved to cloud');
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearAiImageUpload(){
-  aimathsCurrentImage=null;
-  document.getElementById('aimathsImageInput').value='';
-  document.getElementById('aimathsImagePreview').innerHTML='';
-  document.getElementById('aimathsImageUpload').style.display='none';
-}
-
-function toggleAiSearchMode(){
-  aimathsSearchEnabled=!aimathsSearchEnabled;
-  const btn=event.target;
-  btn.style.background=aimathsSearchEnabled?'rgba(59,130,246,.3)':'rgba(255,255,255,.1)';
-  btn.style.borderColor=aimathsSearchEnabled?'rgba(59,130,246,.5)':'rgba(255,255,255,.2)';
-  btn.classList.toggle('search-active',aimathsSearchEnabled);
-  showToast(aimathsSearchEnabled?'🔍 Search enabled':'🔍 Search disabled');
-}
-
-async function performWebSearch(query){
-  try{
-    const response=await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`);
-    const data=await response.json();
-    return{query:query,results:data.RelatedTopics?.slice(0,5).map(topic=>({title:topic.Text||topic.FirstURL,url:topic.FirstURL,snippet:topic.Text?.substring(0,200)||''}))||[]};
-  }catch(e){
-    console.error('Search error:',e);
-    return{query:query,results:[]};
-  }
-}
-
-function showAiMathsApiKeyModal(){
-  showToast('⚠️ AI features require an API key to be configured.');
-}
-
-// Auto-resize textarea
-document.addEventListener('input',e=>{
-  if(e.target.id==='aimathsInput'){
-    e.target.style.height='auto';
-    e.target.style.height=e.target.scrollHeight+'px';
-  }
-});
 
 // ══════════════════════════════════════════════════════════════════
 // VERCEL PANEL
