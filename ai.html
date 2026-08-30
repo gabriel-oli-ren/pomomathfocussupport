@@ -2821,10 +2821,52 @@ async function callEdgeFunction(
         JSON.parse(text);
 
 
-      message =
-        json?.error ||
-        json?.message ||
-        text;
+      /*
+       * Error payloads can come in many shapes
+       * depending on the provider / edge function:
+       *
+       *   { error: "some string" }
+       *   { error: { message: "some string" } }
+       *   { message: "some string" }
+       *   { error: { error: { message: "..." } } }
+       *
+       * Walk through the common shapes and always
+       * end up with a plain string, so we never do
+       * `new Error(someObject)` (which produces the
+       * useless "[object Object]" message).
+       */
+
+      const candidate =
+        json?.error?.message ??
+        json?.error?.error?.message ??
+        json?.message ??
+        json?.error ??
+        json?.msg ??
+        null;
+
+
+      if(typeof candidate === "string" && candidate.trim()){
+
+        message = candidate;
+
+      }else if(candidate && typeof candidate === "object"){
+
+        try{
+
+          message =
+            JSON.stringify(candidate);
+
+        }catch{
+
+          message = text;
+
+        }
+
+      }else{
+
+        message = text;
+
+      }
 
     }catch{
 
@@ -2833,10 +2875,18 @@ async function callEdgeFunction(
     }
 
 
-    throw new Error(
-      message ||
-      `Edge Function returned HTTP ${response.status}`
-    );
+    if(
+      typeof message !== "string" ||
+      !message.trim()
+    ){
+
+      message =
+        `Edge Function returned HTTP ${response.status}`;
+
+    }
+
+
+    throw new Error(message);
 
   }
 
@@ -3789,10 +3839,68 @@ async function sendMessage(){
     );
 
 
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : String(error);
+    /*
+     * Errors can arrive in different shapes:
+     *
+     *   - a real Error/DOMException -> use .message
+     *   - a Supabase PostgrestError  -> plain object
+     *     with a .message (and .details/.hint/.code),
+     *     NOT an instance of Error
+     *   - a plain string
+     *   - something unexpected
+     *
+     * Extract a readable string in every case so we
+     * never show the useless "Error: [object Object]".
+     */
+
+    let errorMessage;
+
+
+    if(error instanceof Error){
+
+      errorMessage =
+        error.message;
+
+    }else if(typeof error === "string"){
+
+      errorMessage =
+        error;
+
+    }else if(
+      error &&
+      typeof error === "object" &&
+      typeof error.message === "string" &&
+      error.message.trim()
+    ){
+
+      errorMessage =
+        error.message +
+        (
+          error.hint
+            ? ` (${error.hint})`
+            : ""
+        );
+
+    }else if(error){
+
+      try{
+
+        errorMessage =
+          JSON.stringify(error);
+
+      }catch{
+
+        errorMessage =
+          "An unknown error occurred.";
+
+      }
+
+    }else{
+
+      errorMessage =
+        "An unknown error occurred.";
+
+    }
 
 
     /*
