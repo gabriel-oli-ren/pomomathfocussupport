@@ -5958,6 +5958,11 @@ async function runAppInit(){
 // ADMIN DEVELOPER PANEL
 // ══════════════════════════════════════════════════════════════════
 function isAdminUser(){return ADMIN_USER_IDS.includes(currentUser?.id) || currentProfile?.is_admin === true;}
+// Lock the reference so `isAdminUser = () => true` from devtools silently fails instead
+// of actually overriding the check. This raises the bar but is NOT the real fix — see
+// the RLS lockdown on admin_settings, which is what actually stops token exfiltration
+// even if this client-side guard is defeated some other way.
+try{Object.defineProperty(window,'isAdminUser',{value:isAdminUser,writable:false,configurable:false});}catch(e){}
 function openDevPanel(){if(!isAdminUser()) return;document.getElementById('devPanel').classList.add('active');document.body.style.overflow='hidden';setTimeout(ghRestoreSavedToken, 100);}
 function openDevPanelOriginal(){if(!isAdminUser()) return;document.getElementById('devPanel').classList.add('active');document.body.style.overflow='hidden';setTimeout(ghRestoreSavedToken, 100);}
 function closeDevPanel(){document.getElementById('devPanel').classList.remove('active');document.body.style.overflow='';}
@@ -5979,8 +5984,9 @@ function setGitHubRepo(newRepo){
 }
 
 function ghGetHeaders(){return { 'Authorization':'token '+ghToken, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' };}
-async function ghRestoreSavedToken(){if(!currentUser) return;try{const{data}=await sb.from('admin_settings').select('value').eq('key','github_token').maybeSingle();if(data?.value){ghToken=data.value;ghShowEditor();ghLoadFiles();}else{ghToken='';ghShowEditor();}}catch(e){console.warn('ghRestoreSavedToken:',e);ghToken='';ghShowEditor();}}
+async function ghRestoreSavedToken(){if(!currentUser||!isAdminUser())return;try{const{data}=await sb.from('admin_settings').select('value').eq('key','github_token').maybeSingle();if(data?.value){ghToken=data.value;ghShowEditor();ghLoadFiles();}else{ghToken='';ghShowEditor();}}catch(e){console.warn('ghRestoreSavedToken:',e);ghToken='';ghShowEditor();}}
 async function ghConnect(){
+  if(!isAdminUser()){console.warn('ghConnect: blocked, not an admin');return;}
   const repoInput=document.getElementById('ghRepoInput');
   if(repoInput && repoInput.value.trim()){
     setGitHubRepo(repoInput.value.trim());
