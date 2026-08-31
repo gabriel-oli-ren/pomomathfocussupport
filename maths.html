@@ -1495,20 +1495,29 @@ body:not(.authenticated) .dev-panel.active {
   
   console.log('Security: Initial protection active, waiting for Supabase validation');
   
-  // Prevent DOM manipulation attempts on auth overlay when not authenticated
+  // A hide attempt is legitimate if the user is fully authenticated, OR if they're a
+  // brand-new/unregistered user who just passed Google sign-in and is being routed into
+  // the onboarding flow (startOnboarding() sets 'onboarding-active' right before hiding
+  // the overlay). Anyone else attempting to hide it is treated as tampering.
+  function isLegitStateChange() {
+    return document.body.classList.contains('authenticated') ||
+           document.body.classList.contains('onboarding-active');
+  }
+  
+  // Prevent DOM manipulation attempts on auth overlay when not authenticated/onboarding
   const originalRemove = Element.prototype.remove;
   Element.prototype.remove = function() {
-    if (this.id === 'authOverlay' && !document.body.classList.contains('authenticated')) {
+    if (this.id === 'authOverlay' && !isLegitStateChange()) {
       console.warn('Security: Attempted to remove auth overlay blocked');
       return;
     }
     originalRemove.call(this);
   };
   
-  // Prevent style manipulation of auth overlay when not authenticated
+  // Prevent style manipulation of auth overlay when not authenticated/onboarding
   const originalSetAttribute = Element.prototype.setAttribute;
   Element.prototype.setAttribute = function(name, value) {
-    if (this.id === 'authOverlay' && !document.body.classList.contains('authenticated')) {
+    if (this.id === 'authOverlay' && !isLegitStateChange()) {
       if (name === 'style' || name === 'class') {
         const currentValue = this.getAttribute(name) || '';
         const newValue = currentValue + ' ' + value;
@@ -1524,10 +1533,10 @@ body:not(.authenticated) .dev-panel.active {
   // Set up MutationObserver to catch attempts to hide auth overlay when not authenticated
   setTimeout(() => {
     const authEl = document.getElementById('authOverlay');
-    if (authEl && !document.body.classList.contains('authenticated')) {
+    if (authEl && !isLegitStateChange()) {
       const observer = new MutationObserver(function(mutations) {
-        // Only block changes if still not authenticated
-        if (!document.body.classList.contains('authenticated')) {
+        // Only block changes if still not a legit state change
+        if (!isLegitStateChange()) {
           mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
               if (authEl.classList.contains('hidden')) {
@@ -2797,6 +2806,11 @@ function startOnboarding(user) {
   onboardingUser = user;
   onboardingStep = 1;
   
+  // Flag this as a legitimate state change so the security script's tamper
+  // protection doesn't revert the overlay hide below (see SECURITY SCRIPT).
+  // Only reached for new/unregistered users — see handleCredentialResponse().
+  document.body.classList.add('onboarding-active');
+  
   // Hide auth overlay and show onboarding overlay
   document.getElementById('authOverlay').classList.add('hidden');
   document.getElementById('onboardingOverlay').classList.add('active');
@@ -3172,6 +3186,10 @@ async function onboardingComplete() {
 }
 
 function completeAuthentication(user, profile) {
+  // Onboarding (if any) is over — the 'authenticated' class below is now the
+  // real, durable signal the security script relies on; drop the temporary flag.
+  document.body.classList.remove('onboarding-active');
+  
   // Store user session data using regular localStorage for compatibility
   localStorage.setItem('user_id', user.id);
   localStorage.setItem('username', profile.username);
@@ -3394,6 +3412,7 @@ async function doSignOut(e){
   
   // SECURITY: Remove authenticated class to hide content
   document.body.classList.remove('authenticated');
+  document.body.classList.remove('onboarding-active');
   
   // Show auth overlay again
   document.getElementById('authOverlay').classList.remove('hidden');
@@ -4781,6 +4800,7 @@ async function forceLogout(reason = 'Session expired') {
   
   // Hide all content
   document.body.classList.remove('authenticated');
+  document.body.classList.remove('onboarding-active');
   document.getElementById('userBadge').classList.remove('visible');
   stopClock();
   
