@@ -2716,14 +2716,14 @@ async function handleCredentialResponse(response) {
     const email = payload.email;
     
     // Validate email domain
-    const allowedDomains = ['@kcpupils.org', '@mathssupport.es'];
+    const allowedDomains = ['@kcpupils.org', '@mathssupport.es', '@gmail.com];
     const isAllowedDomain = allowedDomains.some(domain => email.toLowerCase().endsWith(domain));
     
     if (!isAllowedDomain) {
       const errorEl = document.getElementById('authError');
       errorEl.textContent = 'Access denied (system not working properly)';
       errorEl.classList.add('show');
-      console.error('Unauthorized attempt:', email);
+      console.error('Wrong attempt:', email);
       return;
     }
     
