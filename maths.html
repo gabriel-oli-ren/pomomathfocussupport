@@ -2753,6 +2753,29 @@ function initializeGoogleSignIn() {
   }
 }
 
+// ══════════════════════════════════════════════════════════════════
+// UNAUTHORISED ATTEMPT LOGGING
+// Stores every rejected (non-allowed domain) sign-in attempt in the
+// `unauthorised_atempts` table. Successful logins are never stored here.
+// ══════════════════════════════════════════════════════════════════
+async function logUnauthorisedAttempt(email, payload) {
+  try {
+    if (!sb) return;
+    const row = {
+      email: email || null,
+      domain: (email && email.includes('@')) ? email.split('@').pop().toLowerCase() : null,
+      name: (payload && payload.name) || null,
+      reason: 'domain_not_allowed',
+      user_agent: navigator.userAgent,
+      page_url: window.location.href
+    };
+    const { error } = await sb.from('unauthorised_atempts').insert(row);
+    if (error) console.warn('Could not log unauthorised attempt:', error.message);
+  } catch (e) {
+    console.warn('Could not log unauthorised attempt:', e);
+  }
+}
+
 async function handleCredentialResponse(response) {
   try {
     console.log('Google credential received, signing in with Supabase...');
@@ -2762,14 +2785,14 @@ async function handleCredentialResponse(response) {
     const email = payload.email;
     
     // Validate email domain
-    const allowedDomains = ['@kcpupils.org', '@mathssupport.es'];
+    const allowedDomains = ['@kcpupils.org', '@mathssupport.es', '@gmail.com'];
     const isAllowedDomain = allowedDomains.some(domain => email.toLowerCase().endsWith(domain));
     
     if (!isAllowedDomain) {
       const errorEl = document.getElementById('authError');
       errorEl.textContent = 'Access denied (system not working properly)';
       errorEl.classList.add('show');
-      console.error('Wrong attempt:', email);
+      logUnauthorisedAttempt(email, payload);
       return;
     }
     
