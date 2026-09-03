@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -374,6 +375,22 @@ body.authenticated .dev-panel.active {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* FIX: a brand-new user is NOT yet 'authenticated', so the onboarding overlay
+   must also be allowed to show while body has 'onboarding-active'. Without this
+   rule the setup flow was created in the DOM but never became visible. */
+body.onboarding-active .onboarding-overlay.active {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* FIX: allow the auth overlay to hide during onboarding as well */
+body.onboarding-active .auth-overlay.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 body.authenticated .questionnaire-overlay.active,
@@ -2948,7 +2965,7 @@ async function onboardingNextStep() {
       .from('profiles')
       .select('username')
       .eq('username', username)
-      .single();
+      .maybeSingle();
     
     if (existingUser) {
       errorEl.textContent = 'Username is already taken. Please choose another.';
@@ -2991,27 +3008,28 @@ function setupTermsScrollDetection() {
   button.disabled = true;
   indicator.style.display = 'block';
   
-  let hasScrolledToBottom = false;
-  
-  container.addEventListener('scroll', function handleScroll() {
-    const scrollTop = container.scrollTop;
-    const scrollHeight = container.scrollHeight;
-    const clientHeight = container.clientHeight;
-    
-    // Check if user has scrolled to near bottom (within 50px)
-    if (scrollTop + clientHeight >= scrollHeight - 50) {
-      hasScrolledToBottom = true;
-      checkbox.disabled = false;
-      indicator.style.display = 'none';
-      container.removeEventListener('scroll', handleScroll);
+  // FIX: if the terms fit without scrolling there is nothing to scroll, which used to
+  // leave the checkbox permanently disabled and block the whole setup flow.
+  const unlockCheckbox = () => {
+    checkbox.disabled = false;
+    indicator.style.display = 'none';
+  };
+
+  if (container.scrollHeight <= container.clientHeight + 50) {
+    unlockCheckbox();
+  }
+
+  container.onscroll = function() {
+    if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+      unlockCheckbox();
     }
-  });
-  
-  // Enable button when checkbox is checked
-  checkbox.addEventListener('change', function handleChange() {
+  };
+
+  // FIX: the old handler removed itself after one change, so unchecking then
+  // re-checking left the continue button stuck disabled.
+  checkbox.onchange = function() {
     button.disabled = !checkbox.checked;
-    checkbox.removeEventListener('change', handleChange);
-  });
+  };
 }
 
 function onboardingAcceptTerms() {
@@ -3335,8 +3353,11 @@ function completeAuthentication(user, profile) {
     successEl.classList.remove('show');
   }, 3000);
   
-  // Trigger app initialization
-  if (typeof runAppInit === 'function') {
+  // FIX: a freshly onboarded user had no currentUser/currentProfile set, which left
+  // the app half-initialised. Run the same sign-in path an existing user takes.
+  if (typeof onSignedIn === 'function') {
+    onSignedIn(profile).catch(e => console.error('onSignedIn failed after onboarding:', e));
+  } else if (typeof runAppInit === 'function') {
     runAppInit();
   }
 }
@@ -3620,7 +3641,7 @@ async function restoreSession(){
       .from('profiles')
       .select('*')
       .eq('id', session.user.id)
-      .single();
+      .maybeSingle();
     
     if (profileError || !profile) {
       console.error('Profile not found:', profileError);
