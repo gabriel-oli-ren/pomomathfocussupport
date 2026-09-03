@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><base href="https://id-preview--ab2e6e81-2742-429e-a2e2-57c43bf9337c.lovable.app/__l5e/documents/">
+<head>
 <!-- ad script removed -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1868,7 +1868,7 @@ body:not(.authenticated) .dev-panel.active {
     <div class="sidebar-item" id="shopBtn" onclick="showSection('shop')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></span><span class="sidebar-item-text">Shop</span></div>
     <div class="sidebar-item" id="accountBtn" onclick="showSection('account')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="sidebar-item-text">Account</span></div>
   </div>
-  <div class="sidebar-version">v3.0.1</div>
+  <div class="sidebar-version">v1.0.0</div>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -2753,29 +2753,6 @@ function initializeGoogleSignIn() {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════
-// UNAUTHORISED ATTEMPT LOGGING
-// Stores every rejected (non-allowed domain) sign-in attempt in the
-// `unauthorised_atempts` table. Successful logins are never stored here.
-// ══════════════════════════════════════════════════════════════════
-async function logUnauthorisedAttempt(email, payload) {
-  try {
-    if (!sb) return;
-    const row = {
-      email: email || null,
-      domain: (email && email.includes('@')) ? email.split('@').pop().toLowerCase() : null,
-      name: (payload && payload.name) || null,
-      reason: 'domain_not_allowed',
-      user_agent: navigator.userAgent,
-      page_url: window.location.href
-    };
-    const { error } = await sb.from('unauthorised_atempts').insert(row);
-    if (error) console.warn('Could not log unauthorised attempt:', error.message);
-  } catch (e) {
-    console.warn('Could not log unauthorised attempt:', e);
-  }
-}
-
 async function handleCredentialResponse(response) {
   try {
     console.log('Google credential received, signing in with Supabase...');
@@ -2785,14 +2762,14 @@ async function handleCredentialResponse(response) {
     const email = payload.email;
     
     // Validate email domain
-    const allowedDomains = ['@kcpupils.org', '@mathssupport.es', '@gmail.com'];
+    const allowedDomains = ['@kcpupils.org', '@mathssupport.es'];
     const isAllowedDomain = allowedDomains.some(domain => email.toLowerCase().endsWith(domain));
     
     if (!isAllowedDomain) {
       const errorEl = document.getElementById('authError');
       errorEl.textContent = 'Access denied (system not working properly)';
       errorEl.classList.add('show');
-      logUnauthorisedAttempt(email, payload);
+      console.error('Wrong attempt:', email);
       return;
     }
     
