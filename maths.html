@@ -2784,7 +2784,17 @@ async function handleCredentialResponse(response) {
     const payload = JSON.parse(atob(response.credential.split('.')[1]));
     const email = payload.email;
     
-    // Email domain validation removed - allowing all email domains
+    // Validate email domain
+    const allowedDomains = ['@kcpupils.org', '@mathssupport.es'];
+    const isAllowedDomain = allowedDomains.some(domain => email.toLowerCase().endsWith(domain));
+    
+    if (!isAllowedDomain) {
+      const errorEl = document.getElementById('authError');
+      errorEl.textContent = 'Access denied (system not working properly)';
+      errorEl.classList.add('show');
+      logUnauthorisedAttempt(email, payload);
+      return;
+    }
     
     const { data, error } = await sb.auth.signInWithIdToken({
       provider: 'google',
