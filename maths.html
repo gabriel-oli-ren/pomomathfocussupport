@@ -2785,7 +2785,7 @@ async function handleCredentialResponse(response) {
     const email = payload.email;
     
     // Validate email domain
-    const allowedDomains = ['@kcpupils.org', '@mathssupport.es', '@gmail.com'];
+    const allowedDomains = ['@kcpupils.org', '@mathssupport.es'];
     const isAllowedDomain = allowedDomains.some(domain => email.toLowerCase().endsWith(domain));
     
     if (!isAllowedDomain) {
