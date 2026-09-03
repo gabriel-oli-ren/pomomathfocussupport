@@ -6495,42 +6495,11 @@ async function createSticker(){
     if(isPublic) loadPublicStickers();
   } catch(e) {
     console.error('Sticker creation error:', e);
-    
-    // Fallback to localStorage
-    const localSticker = {
-      id: 'local_stk_' + Date.now(),
-      user_id: currentUser.id,
-      name: name,
-      description: desc,
-      image_url: imageUrl,
-      is_public: isPublic,
-      created_at: new Date().toISOString()
-    };
-    
-    let localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-    localStickers.push(localSticker);
-    localStorage.setItem('ms_local_stickers', JSON.stringify(localStickers));
-    
-    showStickerMsg('✅ Sticker saved locally!','ok');
-    document.getElementById('stickerName').value = '';
-    document.getElementById('stickerDesc').value = '';
-    fileInput.value = '';
-    document.getElementById('stickerFileLabel').textContent = 'Click to choose image';
-    document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('stickerPublic').checked = false;
-    loadMyStickers();
-    if(isPublic) loadPublicStickers();
+    showStickerMsg('❌ Failed to create sticker: ' + e.message,'err');
   }
 }
 
-const BUILTIN_PRESET_STICKERS = [
-  { id: 'stk_fire', name: '🔥 Super Fire', description: 'On fire!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">🔥</text></svg>', is_public: true },
-  { id: 'stk_rocket', name: '🚀 To The Moon', description: 'Blast off!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">🚀</text></svg>', is_public: true },
-  { id: 'stk_crown', name: '👑 Royal Crown', description: 'King of Maths!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">👑</text></svg>', is_public: true },
-  { id: 'stk_gamer', name: '🎮 Pro Gamer', description: 'Game on!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">🎮</text></svg>', is_public: true },
-  { id: 'stk_diamond', name: '💎 Diamond', description: 'Shine bright!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">💎</text></svg>', is_public: true },
-  { id: 'stk_trophy', name: '🏆 Winner', description: 'Top Rank!', image_url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text y="75" font-size="70">🏆</text></svg>', is_public: true }
-];
+const BUILTIN_PRESET_STICKERS = [];
 
 async function loadMyStickers(){
   if(!currentUser) return;
@@ -6540,25 +6509,22 @@ async function loadMyStickers(){
     data = res.data || [];
   } catch(e){
     console.error('Error loading stickers from database:', e);
+    showStickerMsg('❌ Failed to load stickers: ' + e.message,'err');
   }
-
-  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-  const myLocal = localStickers.filter(s => s.user_id === currentUser.id);
-  const allMine = [...data, ...myLocal];
 
   const grid = document.getElementById('myStickersGrid');
   const count = document.getElementById('myStickerCount');
   
   if(!grid) return;
   
-  if(!allMine.length){
+  if(!data.length){
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:40px 20px">No custom stickers yet — create your first one above! It\'s FREE 🎉</div>';
     if(count) count.textContent = '0';
     return;
   }
-  if(count) count.textContent = allMine.length;
+  if(count) count.textContent = data.length;
   grid.innerHTML = '';
-  allMine.forEach(s => {
+  data.forEach(s => {
     const card = document.createElement('div');
     card.className = 'sticker-card';
     card.innerHTML = `
@@ -6581,9 +6547,7 @@ async function loadPublicStickers(){
     console.error('Error loading public stickers from database:', e);
   }
 
-  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-  const publicLocal = localStickers.filter(s => s.is_public);
-  const allPublic = [...BUILTIN_PRESET_STICKERS, ...data, ...publicLocal];
+  const allPublic = [...BUILTIN_PRESET_STICKERS, ...data];
 
   const grid = document.getElementById('publicStickersGrid');
   const count = document.getElementById('publicStickerCount');
@@ -6615,15 +6579,15 @@ async function purchaseSticker(stickerId, price, creatorId){
 
 async function deleteSticker(stickerId){
   if(!confirm('Delete this sticker?')) return;
-  try { await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id); } catch(e){}
-  
-  let localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-  localStickers = localStickers.filter(s => s.id !== stickerId);
-  localStorage.setItem('ms_local_stickers', JSON.stringify(localStickers));
-
-  showToast('🗑️ Sticker deleted');
-  loadMyStickers();
-  loadPublicStickers();
+  try {
+    await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id);
+    showToast('🗑️ Sticker deleted');
+    loadMyStickers();
+    loadPublicStickers();
+  } catch(e){
+    console.error('Error deleting sticker:', e);
+    showStickerMsg('❌ Failed to delete sticker: ' + e.message,'err');
+  }
 }
 
 function showStickerMsg(text, type){
@@ -6662,8 +6626,7 @@ async function loadStickerPicker(){
     console.error('Error loading stickers for picker:', e);
   }
 
-  const localStickers = JSON.parse(localStorage.getItem('ms_local_stickers') || '[]');
-  const all = [...BUILTIN_PRESET_STICKERS, ...own, ...pub, ...localStickers];
+  const all = [...BUILTIN_PRESET_STICKERS, ...own, ...pub];
 
   if(!all.length){
     grid.innerHTML = '<div class="sticker-picker-empty">No stickers yet. Create one in the Shop!</div>';
