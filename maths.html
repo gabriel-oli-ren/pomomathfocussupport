@@ -2822,42 +2822,48 @@ async function handleCredentialResponse(response) {
       
       // Check if user has completed onboarding
       try {
+        console.log('Checking profile for user:', data.user.id);
         const { data: profileData, error: profileError } = await sb
           .from('profiles')
           .select('*')
           .eq('id', data.user.id)
           .maybeSingle();
         
+        console.log('Profile check result:', { profileData, profileError });
+        
         if (profileError) {
           console.error('Error checking profile:', profileError);
           // Only start onboarding if profile truly doesn't exist (PGRST116 error)
           if (profileError.code === 'PGRST116') {
-            console.log('Profile does not exist, starting onboarding...');
+            console.log('Profile does not exist (PGRST116), starting onboarding...');
             startOnboarding(data.user);
           } else {
-            // For other errors (permissions, network, etc), try to proceed with existing user data
-            console.warn('Profile check failed with non-existence error, attempting to proceed with user data...');
-            // Create a minimal profile from user metadata to proceed
+            // For other errors (permissions, network, etc), assume user exists and proceed with minimal data
+            console.warn('Profile check failed with permission error, assuming user exists and proceeding...');
+            console.warn('Error details:', profileError.message, profileError.code, profileError.hint);
+            // Create a minimal profile from user metadata to proceed without forcing onboarding
             const fallbackProfile = {
               id: data.user.id,
               email: data.user.email,
               username: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
               display_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
-              onboarding_completed: false // Flag to allow proper onboarding if needed
+              onboarding_completed: true // Assume completed to avoid blocking existing users
             };
-            startOnboarding(data.user);
+            completeAuthentication(data.user, fallbackProfile);
           }
         } else if (!profileData) {
           // Profile doesn't exist - first time user
-          console.log('Profile does not exist, starting onboarding...');
+          console.log('Profile data is null, starting onboarding...');
           startOnboarding(data.user);
         } else if (!profileData.onboarding_completed) {
           // User exists but hasn't completed onboarding
-          console.log('User needs onboarding, starting flow...');
+          console.log('User exists but onboarding_completed is false, starting flow...');
+          console.log('Profile data:', profileData);
           startOnboarding(data.user);
         } else {
           // User has completed onboarding, proceed normally
           console.log('User already completed onboarding, proceeding to app...');
+          console.log('Profile data:', profileData);
           completeAuthentication(data.user, profileData);
         }
       } catch (profileError) {
@@ -3740,8 +3746,8 @@ async function restoreSession(){
         startOnboarding(session.user);
         return null;
       }
-      // For other errors (permissions, network, etc), try to proceed with minimal session data
-      console.warn('Profile check failed with non-existence error, but user has valid session');
+      // For other errors (permissions, network, etc), assume user exists and proceed
+      console.warn('Profile check failed with permission error, assuming user exists and proceeding...');
       // Create a minimal profile from session to proceed without forcing onboarding
       const fallbackProfile = {
         id: session.user.id,
