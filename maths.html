@@ -243,7 +243,7 @@ body {
 
 /* SECURITY: Hide all main content by default - only shown after authentication */
 .sidebar, .main-content, .dev-panel, .questionnaire-overlay,
-.onboarding-overlay, .sitepass-overlay, .timetable-alert-overlay {
+.onboarding-overlay, .sitepass-overlay, .timetable-alert-overlay, .game-suggestion-overlay {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -276,6 +276,97 @@ body.authenticated .chat-page.active {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* Game suggestion overlay only shows when both authenticated AND has active class */
+body.authenticated .game-suggestion-overlay.active {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Game suggestion overlay - same as chat overlay behavior */
+.game-suggestion-overlay {
+  display: none !important;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.game-suggestion-overlay.active {
+  display: flex !important;
+}
+
+.game-suggestion-box {
+  width: 100%;
+  max-width: 900px;
+  height: 85vh;
+  max-height: 700px;
+  background: linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  border: 1.5px solid rgba(255,255,255,.12);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.game-suggestion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  background: rgba(0,0,0,.2);
+}
+
+.game-suggestion-title {
+  font-size: 1.3em;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.game-suggestion-close {
+  background: rgba(255,255,255,.1);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.2em;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-suggestion-close:hover {
+  background: rgba(239,68,68,.3);
+  transform: scale(1.05);
+}
+
+.game-suggestion-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-suggestion-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff;
 }
 
 /* Dev panel only shows when both authenticated AND has active class */
@@ -525,6 +616,8 @@ body:not(.authenticated) .auth-overlay.hidden {
 .sidebar-badge{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:#f64f59;color:#fff;font-size:.65em;font-weight:700;padding:2px 7px;border-radius:10px;min-width:18px;text-align:center;display:none}
 .sidebar:hover .sidebar-badge{display:block}
 .sidebar-badge.has-count{display:block}
+.sidebar-version{position:absolute;bottom:20px;left:20px;opacity:0;transition:opacity .2s;font-size:.75em;color:rgba(255,255,255,.4);white-space:nowrap}
+.sidebar:hover .sidebar-version{opacity:1}
 
 .main-content{margin-left:60px;padding:40px;transition:margin-left .2s;min-height:100vh;position:relative;background:linear-gradient(135deg,#f5f7fa 0%,#e4e8ec 100%);will-change:transform}
 .top-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:40px;padding:15px 20px;background:rgba(255,255,255,.97);border-radius:15px;box-shadow:0 4px 6px rgba(0,0,0,.1);flex-wrap:wrap}
@@ -1568,7 +1661,7 @@ body:not(.authenticated) .dev-panel.active {
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-box">
     <div class="demo-mode-badge" id="demoModeBadge" style="display:none">Demo Mode</div>
-    <div class="auth-logo">🎮</div>
+    <div class="auth-logo"><img src="maths-logo.png" alt="Maths Support" style="width: 80px; height: 80px; border-radius: 12px;"></div>
     <h2>Maths Support</h2>
     <div class="auth-sub">Sign in with your google account to access Maths Support</div>
     
@@ -1602,7 +1695,7 @@ body:not(.authenticated) .dev-panel.active {
   <div class="onboarding-grid"></div>
   
   <div class="onboarding-card">
-    <div class="onboarding-icon">🎮</div>
+    <div class="onboarding-icon"><img src="maths-logo.png" alt="Maths Support" style="width: 68px; height: 68px; border-radius: 16px;"></div>
     <h2 class="onboarding-title">Welcome to Maths Support</h2>
     <p class="onboarding-sub">Let's set up your account to get started</p>
     
@@ -1694,13 +1787,13 @@ body:not(.authenticated) .dev-panel.active {
   <div class="questionnaire-card" id="questionnaireCard">
     <div class="q-loading" id="qLoading"><div class="q-spinner"></div><p>Loading questionnaire...</p></div>
     <div id="qFormContent" style="display:none">
-      <div class="q-header"><div class="q-badge">🎮 Game Suggestions</div><h2 id="qTitle">Before you enter...</h2><p id="qDescription">Take 1 minute to help us improve Maths Support!</p></div>
+      <div class="q-header"><div class="q-badge"><img src="maths-logo.png" alt="Maths Support" style="width: 20px; height: 20px; border-radius: 4px; vertical-align: middle; margin-right: 4px;"> Game Suggestions</div><h2 id="qTitle">Before you enter...</h2><p id="qDescription">Take 1 minute to help us improve Maths Support!</p></div>
       <div class="q-progress-wrap"><div class="q-progress-label"><span>Progress</span><span id="qProgressText">0%</span></div><div class="q-progress-bar"><div class="q-progress-fill" id="qProgressFill" style="width:0%"></div></div></div>
       <div id="qQuestionsContainer"></div>
-      <button class="q-submit-btn" id="qSubmitBtn" onclick="submitQuestionnaire()">🎮 Submit &amp; Enter</button>
+      <button class="q-submit-btn" id="qSubmitBtn" onclick="submitQuestionnaire()"><img src="maths-logo.png" alt="Maths Support" style="width: 20px; height: 20px; border-radius: 4px; vertical-align: middle; margin-right: 4px;"> Submit &amp; Enter</button>
       <button class="q-skip-btn" onclick="skipQuestionnaire()">Skip &rarr;</button>
     </div>
-    <div class="q-thankyou" id="qThankyou"><div class="q-thankyou-icon">🎮</div><h3>Thanks for the suggestion!</h3><p>We'll look into adding your requested games. Enjoy the platform!</p><button class="q-enter-btn" onclick="closeQuestionnaire()">Enter Site →</button></div>
+    <div class="q-thankyou" id="qThankyou"><div class="q-thankyou-icon"><img src="maths-logo.png" alt="Maths Support" style="width: 60px; height: 60px; border-radius: 12px;"></div><h3>Thanks for the suggestion!</h3><p>We'll look into adding your requested games. Enjoy the platform!</p><button class="q-enter-btn" onclick="closeQuestionnaire()">Enter Site →</button></div>
   </div>
 </div>
 
@@ -1729,6 +1822,7 @@ body:not(.authenticated) .dev-panel.active {
     <div class="sidebar-item" id="shopBtn" onclick="showSection('shop')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></span><span class="sidebar-item-text">Shop</span></div>
     <div class="sidebar-item" id="accountBtn" onclick="showSection('account')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="sidebar-item-text">Account</span></div>
   </div>
+  <div class="sidebar-version">v1.0.0</div>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -1748,6 +1842,7 @@ body:not(.authenticated) .dev-panel.active {
         <div class="dropdown-item" onclick="showSection('friends');closeDropdown()"><span>👥</span> Friends</div>
         <div class="dropdown-item" onclick="showSection('chat');closeDropdown()"><span>💬</span> Chat</div>
         <div class="dropdown-item" onclick="openExperimental();closeDropdown()"><span>🧪</span> Experimental</div>
+        <div class="dropdown-item" onclick="openGameSuggestion();closeDropdown()"><span>🎮</span> Suggest a Game</div>
         <div class="dropdown-item" onclick="toggleTheme();closeDropdown()"><span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span></div>
         <div class="dropdown-item danger" onclick="doSignOut(event)"><span>🚪</span> Sign Out</div>
       </div>
@@ -2151,6 +2246,19 @@ body:not(.authenticated) .dev-panel.active {
       <button class="game-banner-skip-btn" id="bannerSkipBtn" onclick="skipGameBanner()" disabled>Please wait <span id="skipCountdown">5</span>s...</button>
     </div>
   </div>
+
+<!-- GAME SUGGESTION OVERLAY -->
+<div class="game-suggestion-overlay" id="gameSuggestionOverlay">
+  <div class="game-suggestion-box">
+    <div class="game-suggestion-header">
+      <div class="game-suggestion-title"><span>🎮</span> Suggest a Game</div>
+      <button class="game-suggestion-close" onclick="closeGameSuggestion()">✕</button>
+    </div>
+    <div class="game-suggestion-content">
+      <iframe class="game-suggestion-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSeF6q5CnTvBYsx-KSaITnoU9q9oOJrX3As8y_ZDsnsay_1wmg/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    </div>
+  </div>
+</div>
 
 <!-- OVERLAY CHAT MODAL -->
 <div class="chat-page" id="chatPage">
@@ -2640,43 +2748,8 @@ async function handleCredentialResponse(response) {
     } else {
       console.log('Sesión iniciada con Google:', data.user);
       
-      // First, try to manually create profile if it doesn't exist
-      try {
-        const { data: existingProfile } = await sb
-          .from('profiles')
-          .select('id')
-          .eq('id', data.user.id)
-          .maybeSingle();
-        
-        if (!existingProfile) {
-          console.log('Profile does not exist, creating manually...');
-          const tempUsername = 'temp_' + Math.random().toString(36).substring(2, 10);
-          const tempFriendCode = Math.random().toString(36).substring(2, 7).toUpperCase();
-          
-          // Direct insert since RLS is disabled
-          const { error: insertError } = await sb
-            .from('profiles')
-            .insert({
-              id: data.user.id,
-              email: data.user.email || 'unknown@example.com',
-              username: tempUsername,
-              display_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'New User',
-              friend_code: tempFriendCode,
-              onboarding_completed: false,
-              terms_accepted: false,
-              terms_accepted_at: null
-            });
-          
-          if (insertError) {
-            console.error('Profile creation failed:', insertError);
-          } else {
-            console.log('Profile created successfully');
-          }
-        }
-      } catch (manualError) {
-        console.error('Error in manual profile creation:', manualError);
-        // Continue anyway - the onboarding flow might handle this
-      }
+      // Skip manual profile creation - let the onboarding flow handle it
+      // This avoids RLS permission issues during initial sign-in
       
       // Check if user has completed onboarding
       try {
@@ -2684,9 +2757,14 @@ async function handleCredentialResponse(response) {
           .from('profiles')
           .select('*')
           .eq('id', data.user.id)
-          .single();
+          .maybeSingle();
         
-        if (profileError || !profileData || !profileData.onboarding_completed) {
+        if (profileError) {
+          console.error('Error checking profile:', profileError);
+          // If there's a permission error, start onboarding to create profile
+          console.log('Profile check failed due to permissions, starting onboarding...');
+          startOnboarding(data.user);
+        } else if (!profileData || !profileData.onboarding_completed) {
           // User needs to complete onboarding
           console.log('User needs onboarding, starting flow...');
           startOnboarding(data.user);
@@ -2697,7 +2775,7 @@ async function handleCredentialResponse(response) {
         }
       } catch (profileError) {
         console.error('Error checking profile:', profileError);
-        // If profile doesn't exist, trigger onboarding
+        // If profile doesn't exist or there's an error, trigger onboarding
         console.log('Profile check failed, starting onboarding...');
         startOnboarding(data.user);
       }
@@ -3127,7 +3205,7 @@ async function onboardingComplete() {
         .from('profiles')
         .select('friend_code')
         .eq('friend_code', customFriendCode)
-        .single();
+        .maybeSingle();
       
       if (existingCode) {
         errorEl.textContent = 'This friend code is already taken. Please choose another.';
@@ -3149,7 +3227,7 @@ async function onboardingComplete() {
   errorEl.classList.remove('show');
   
   try {
-    // Update existing profile (created by trigger) with onboarding data
+    // First try to update existing profile
     const profileData = {
       username: onboardingUser.username,
       display_name: onboardingUser.display_name,
@@ -3160,24 +3238,58 @@ async function onboardingComplete() {
       updated_at: new Date().toISOString()
     };
     
-    const { data: profile, error: profileError } = await sb
+    let profile;
+    let profileError;
+    
+    // Try update first
+    const updateResult = await sb
       .from('profiles')
       .update(profileData)
       .eq('id', onboardingUser.id)
       .select()
-      .single();
+      .maybeSingle();
     
-    if (profileError) {
-      throw profileError;
+    profile = updateResult.data;
+    profileError = updateResult.error;
+    
+    // If update fails (profile doesn't exist), try insert instead
+    if (profileError || !profile) {
+      console.log('Profile update failed, trying insert instead...');
+      const insertData = {
+        id: onboardingUser.id,
+        email: onboardingUser.email,
+        username: onboardingUser.username,
+        display_name: onboardingUser.display_name,
+        friend_code: finalFriendCode,
+        friend_code_last_changed: new Date().toISOString(),
+        onboarding_completed: true,
+        terms_accepted: true,
+        terms_accepted_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      const insertResult = await sb
+        .from('profiles')
+        .insert(insertData)
+        .select()
+        .single();
+      
+      profile = insertResult.data;
+      profileError = insertResult.error;
+      
+      if (profileError) {
+        throw profileError;
+      }
     }
     
-    console.log('Profile updated successfully:', profile);
+    console.log('Profile created/updated successfully:', profile);
     
     // Complete authentication
     completeAuthentication(onboardingUser, profile);
     
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error('Error creating/updating profile:', error);
     errorEl.textContent = 'Error creating account: ' + error.message;
     errorEl.classList.add('show');
     btn.disabled = false;
@@ -4948,8 +5060,8 @@ function showSection(section){
   const gc=document.getElementById('gameContainer');
   const gameIsActive = gc.classList.contains('active');
   
-  // Don't close game when opening chat - chat is already an overlay
-  if(section !== 'chat' && gameIsActive) closeGame();
+  // Don't close game when opening chat or game suggestion - they are overlays
+  if(section !== 'chat' && section !== 'gameSuggestion' && gameIsActive) closeGame();
   
   document.getElementById('gamesAdBottom').style.display = 'none';
   document.getElementById('appsAdBottom').style.display = 'none';
@@ -4957,9 +5069,12 @@ function showSection(section){
   document.getElementById('gamesGrid').style.display='none';
   ['appsPage','accountPage','friendsPage','shopPage','mathssearchPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   
-  // Always ensure chat page and dev panel are closed when switching sections (unless explicitly opening them)
+  // Always ensure chat page, game suggestion overlay, and dev panel are closed when switching sections (unless explicitly opening them)
   if(section !== 'chat') {
     document.getElementById('chatPage').classList.remove('active');
+  }
+  if(section !== 'gameSuggestion') {
+    document.getElementById('gameSuggestionOverlay').classList.remove('active');
   }
   if(section !== 'dev') {
     document.getElementById('devPanel').classList.remove('active');
@@ -6766,6 +6881,16 @@ observer.observe(document.body, { attributes: true });
     if(c){const i=document.getElementById('expPreviewClick');i.src=c;i.style.display='block';document.getElementById('expLabelClick').innerHTML='<strong>Current clicking cursor</strong><small>Click to replace</small>';}
   };
   window.closeExperimental=function(){document.getElementById('expOverlay').classList.remove('active');};
+
+  // Game suggestion overlay functions
+  window.openGameSuggestion=function(){
+    showSection('gameSuggestion');
+    document.getElementById('gameSuggestionOverlay').classList.add('active');
+  };
+  window.closeGameSuggestion=function(){
+    document.getElementById('gameSuggestionOverlay').classList.remove('active');
+    showSection('home');
+  };
 
   async function uploadOne(file,kind){
     const ext=(file.name.split('.').pop()||'png').toLowerCase();
