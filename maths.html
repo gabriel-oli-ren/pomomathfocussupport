@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1704,6 +1703,36 @@ body:not(.authenticated) .dev-panel.active {
   </div>
 </div>
 
+<script>
+// Auth overlay detach/attach helpers: on successful signup the overlay element is
+// fully removed from the DOM (not just hidden), and re-inserted when sign-out or
+// an auth failure requires the login screen again.
+(function(){
+  let placeholder = null;
+  window.detachAuthOverlay = function() {
+    const el = document.getElementById('authOverlay');
+    if (!el) return;
+    if (!placeholder) placeholder = document.createComment('authOverlay');
+    window.__authOverlayNode = el;
+    el.parentNode.insertBefore(placeholder, el);
+    el.parentNode.removeChild(el);
+  };
+  window.attachAuthOverlay = function() {
+    let el = document.getElementById('authOverlay');
+    if (!el && window.__authOverlayNode) {
+      el = window.__authOverlayNode;
+      if (placeholder && placeholder.parentNode) {
+        placeholder.parentNode.insertBefore(el, placeholder);
+      } else {
+        document.body.appendChild(el);
+      }
+    }
+    return el || null;
+  };
+})();
+</script>
+
+
 <!-- ONBOARDING OVERLAY -->
 <div class="onboarding-overlay" id="onboardingOverlay">
   <div class="onboarding-blob onboarding-blob-1"></div>
@@ -2907,7 +2936,7 @@ function startOnboarding(user) {
   document.body.classList.add('onboarding-active');
   
   // Hide auth overlay and show onboarding overlay
-  document.getElementById('authOverlay').classList.add('hidden');
+  if (window.detachAuthOverlay) window.detachAuthOverlay();
   document.getElementById('onboardingOverlay').classList.add('active');
   
   // Reset onboarding UI
@@ -3338,7 +3367,7 @@ function completeAuthentication(user, profile) {
   document.getElementById('onboardingOverlay').classList.remove('active');
   
   // SECURITY: Hide auth overlay and show main content
-  document.getElementById('authOverlay').classList.add('hidden');
+  if (window.detachAuthOverlay) window.detachAuthOverlay();
   
   // Ensure chat page and dev panel are not automatically opened after authentication
   document.getElementById('chatPage').classList.remove('active');
@@ -3548,7 +3577,7 @@ async function doSignOut(e){
   document.body.classList.remove('onboarding-active');
   
   // Show auth overlay again
-  document.getElementById('authOverlay').classList.remove('hidden');
+  (window.attachAuthOverlay ? window.attachAuthOverlay() : document.getElementById('authOverlay'))?.classList.remove('hidden');
   
   // Re-render Google button
   setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
@@ -3564,7 +3593,7 @@ async function onSignedIn(profile){
   // SECURITY: Start continuous session validation
   startSessionValidation();
   
-  document.getElementById('authOverlay').classList.add('hidden');
+  if (window.detachAuthOverlay) window.detachAuthOverlay();
   renderUserBadge();
   populateAccountPage();
   
@@ -3615,7 +3644,7 @@ async function restoreSession(){
       console.log('No Supabase session found, user needs to sign in');
       // SECURITY: Ensure body doesn't have authenticated class
       document.body.classList.remove('authenticated');
-      document.getElementById('authOverlay').classList.remove('hidden');
+      (window.attachAuthOverlay ? window.attachAuthOverlay() : document.getElementById('authOverlay'))?.classList.remove('hidden');
       setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
       return null;
     }
@@ -3630,7 +3659,7 @@ async function restoreSession(){
       } else if (event === 'SIGNED_OUT') {
         console.log('User signed out');
         document.body.classList.remove('authenticated');
-        document.getElementById('authOverlay').classList.remove('hidden');
+        (window.attachAuthOverlay ? window.attachAuthOverlay() : document.getElementById('authOverlay'))?.classList.remove('hidden');
       } else if (event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed successfully');
       }
@@ -3653,7 +3682,7 @@ async function restoreSession(){
       }
       // SECURITY: Ensure body doesn't have authenticated class
       document.body.classList.remove('authenticated');
-      document.getElementById('authOverlay').classList.remove('hidden');
+      (window.attachAuthOverlay ? window.attachAuthOverlay() : document.getElementById('authOverlay'))?.classList.remove('hidden');
       setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
       return null;
     }
@@ -3686,7 +3715,7 @@ async function restoreSession(){
     console.error('Session restore exception:', e);
     // SECURITY: Ensure body doesn't have authenticated class
     document.body.classList.remove('authenticated');
-    document.getElementById('authOverlay').classList.remove('hidden');
+    (window.attachAuthOverlay ? window.attachAuthOverlay() : document.getElementById('authOverlay'))?.classList.remove('hidden');
     setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
     return null;
   }
@@ -4938,7 +4967,7 @@ async function forceLogout(reason = 'Session expired') {
   stopClock();
   
   // Show auth overlay
-  document.getElementById('authOverlay').classList.remove('hidden');
+  (window.attachAuthOverlay ? window.attachAuthOverlay() : document.getElementById('authOverlay'))?.classList.remove('hidden');
   
   // Re-render Google button
   setTimeout(() => renderGoogleButton('googleSignInButton'), 500);
