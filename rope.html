@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Amazing Strange Rope Police - Fullscreen</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+        #gameContainer {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+        /* Pantalla de carga simple */
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            z-index: 10;
+        }
+        /* Ocultar la pantalla de carga cuando el juego esté listo */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading">Cargando juego...</div>
+    <div id="gameContainer"></div>
+
+    <!-- Cargador de Unity WebGL desde el servidor original -->
+    <script src="https://rawcdn.githack.com/cadd1d/retd/adfb3d1e688db0863b7148a79734e5a09109bd33/g/assets/amazing-rope-police/spiderUnityLoader.js"></script>
+
+    <script>
+        // Ocultar la pantalla de carga cuando el juego comience
+        const loadingElement = document.getElementById('loading');
+        
+        // Instanciar el juego en pantalla completa
+        var gameInstance = UnityLoader.instantiate(
+            "gameContainer", 
+            "https://rawcdn.githack.com/cadd1d/retd/adfb3d1e688db0863b7148a79734e5a09109bd33/g/assets/amazing-rope-police/spider.json",
+            {
+                onProgress: function(instance, progress) {
+                    // Mostrar progreso en la pantalla de carga
+                    if (progress < 1) {
+                        loadingElement.innerText = "Cargando: " + Math.round(progress * 100) + "%";
+                    } else {
+                        loadingElement.innerText = "¡Listo!";
+                        // Ocultar la pantalla de carga cuando termine
+                        setTimeout(() => {
+                            loadingElement.classList.add('hidden');
+                        }, 500);
+                    }
+                }
+            }
+        );
+
+        // Función para manejar el redimensionamiento (Unity ya lo hace, pero por si acaso)
+        window.addEventListener('resize', function() {
+            // Unity WebGL maneja el redimensionamiento automáticamente
+        });
+    </script>
+
+</body>
+</html>
