@@ -2854,54 +2854,27 @@ async function handleCredentialResponse(response) {
       // Check if user has completed onboarding
       try {
         console.log('Checking profile for user:', data.user.id);
-        const { data: profileData, error: profileError } = await sb
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .maybeSingle();
-        
-        console.log('Profile check result:', { profileData, profileError });
-        
+        const { profile: profileData, error: profileError } = await fetchProfileRobust(data.user);
+
         if (profileError) {
-          console.error('Error checking profile:', profileError);
-          // Only start onboarding if profile truly doesn't exist (PGRST116 error)
-          if (profileError.code === 'PGRST116') {
-            console.log('Profile does not exist (PGRST116), starting onboarding...');
-            startOnboarding(data.user);
-          } else {
-            // For other errors (permissions, network, etc), assume user exists and proceed with minimal data
-            console.warn('Profile check failed with permission error, assuming user exists and proceeding...');
-            console.warn('Error details:', profileError.message, profileError.code, profileError.hint);
-            // Create a minimal profile from user metadata to proceed without forcing onboarding
-            const fallbackProfile = {
-              id: data.user.id,
-              email: data.user.email,
-              username: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
-              display_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
-              onboarding_completed: true // Assume completed to avoid blocking existing users
-            };
-            completeAuthentication(data.user, fallbackProfile);
-          }
+          // The lookup FAILED. That does not mean the user is new, so NEVER start onboarding here
+          // (that is what created a brand new account on every sign-in).
+          console.error('Profile lookup failed, proceeding with fallback profile:', profileError);
+          completeAuthentication(data.user, makeFallbackProfile(data.user));
         } else if (!profileData) {
-          // Profile doesn't exist - first time user
-          console.log('Profile data is null, starting onboarding...');
+          console.log('No profile row for this user - first time, starting onboarding');
           startOnboarding(data.user);
-        } else if (!profileData.onboarding_completed) {
-          // User exists but hasn't completed onboarding
-          console.log('User exists but onboarding_completed is false, starting flow...');
-          console.log('Profile data:', profileData);
+        } else if (!profileIsComplete(profileData)) {
+          console.log('Profile exists but is incomplete, starting onboarding', profileData);
           startOnboarding(data.user);
         } else {
-          // User has completed onboarding, proceed normally
-          console.log('User already completed onboarding, proceeding to app...');
-          console.log('Profile data:', profileData);
+          repairOnboardingFlag(profileData);
+          console.log('Returning user, proceeding to app', profileData);
           completeAuthentication(data.user, profileData);
         }
       } catch (profileError) {
         console.error('Unexpected error checking profile:', profileError);
-        // As a safety fallback, start onboarding
-        console.log('Unexpected profile check error, starting onboarding as fallback...');
-        startOnboarding(data.user);
+        completeAuthentication(data.user, makeFallbackProfile(data.user));
       }
     }
   } catch (error) {
@@ -3003,6 +2976,44 @@ function updateUserUI(user) {
 let onboardingUser = null;
 let onboardingStep = 1;
 let generatedFriendCode = '';
+
+// ---------------------------------------------------------------------
+// PROFILE LOOKUP HELPERS (fix: returning users were sent through onboarding again)
+// A profile query that FAILS (network, RLS, missing column) is NOT the same as
+// "this user has no profile". Only a clean query that returns no row means new user.
+// ---------------------------------------------------------------------
+async function fetchProfileRobust(user) {
+  let lastErr = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, error } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if (!error) return { profile: data || null, error: null };
+    lastErr = error;
+    console.warn('Profile lookup failed (attempt ' + (attempt + 1) + '):', error.message, error.code);
+    await new Promise(r => setTimeout(r, 400 * (attempt + 1)));
+  }
+  return { profile: null, error: lastErr };
+}
+
+// A profile that already has a username + friend code is a finished account,
+// even if the onboarding_completed flag is missing/false for some reason.
+function profileIsComplete(p) {
+  return !!p && (p.onboarding_completed === true || (!!p.username && !!p.friend_code));
+}
+
+// Repair the flag in the background so we never ask again.
+function repairOnboardingFlag(p) {
+  if (!p || p.onboarding_completed === true) return;
+  p.onboarding_completed = true;
+  try {
+    sb.from('profiles').update({ onboarding_completed: true }).eq('id', p.id)
+      .then(({ error }) => { if (error) console.warn('Could not repair onboarding flag:', error.message); });
+  } catch (e) {}
+}
+
+function makeFallbackProfile(user) {
+  const nm = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+  return { id: user.id, email: user.email, username: nm, display_name: nm, onboarding_completed: true };
+}
 
 function startOnboarding(user) {
   onboardingUser = user;
@@ -3353,21 +3364,13 @@ async function onboardingComplete() {
   
   try {
     // First check if profile already exists and has completed onboarding
-    const { data: existingProfile, error: checkError } = await sb
-      .from('profiles')
-      .select('onboarding_completed')
-      .eq('id', onboardingUser.id)
-      .maybeSingle();
+    const { profile: existingProfile } = await fetchProfileRobust(onboardingUser);
     
-    // If profile exists and already completed onboarding, skip onboarding
-    if (existingProfile && existingProfile.onboarding_completed) {
+    // If profile exists and is already finished, NEVER overwrite it - just sign in with it
+    if (existingProfile && profileIsComplete(existingProfile)) {
       console.log('User already completed onboarding, skipping onboarding process...');
-      const { data: fullProfile } = await sb
-        .from('profiles')
-        .select('*')
-        .eq('id', onboardingUser.id)
-        .single();
-      completeAuthentication(onboardingUser, fullProfile);
+      repairOnboardingFlag(existingProfile);
+      completeAuthentication(onboardingUser, existingProfile);
       return;
     }
     
@@ -3763,41 +3766,22 @@ async function restoreSession(){
     });
     
     // Get user profile from profiles table
-    const { data: profile, error: profileError } = await sb
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .maybeSingle();
-    
-    if (profileError || !profile) {
-      console.error('Profile not found:', profileError);
-      // Only trigger onboarding if profile truly doesn't exist (PGRST116 error)
-      if (profileError && profileError.code === 'PGRST116') {
-        console.log('Profile does not exist, user needs onboarding');
-        startOnboarding(session.user);
-        return null;
-      }
-      // For other errors (permissions, network, etc), assume user exists and proceed
-      console.warn('Profile check failed with permission error, assuming user exists and proceeding...');
-      // Create a minimal profile from session to proceed without forcing onboarding
-      const fallbackProfile = {
-        id: session.user.id,
-        email: session.user.email,
-        username: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-        display_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-        onboarding_completed: true // Assume completed to avoid forcing onboarding for permission errors
-      };
-      console.log('Proceeding with fallback profile due to permission error');
-      return fallbackProfile;
+    const { profile, error: profileError } = await fetchProfileRobust(session.user);
+
+    if (profileError) {
+      // Lookup failed (not "no row"): keep the user signed in, never re-run onboarding.
+      console.warn('Profile lookup failed on session restore, using fallback profile:', profileError.message);
+      return makeFallbackProfile(session.user);
     }
-    
-    // Check if user has completed onboarding
-    if (!profile.onboarding_completed) {
-      console.log('User exists but needs onboarding');
+
+    if (!profile || !profileIsComplete(profile)) {
+      console.log('No finished profile for this user, onboarding needed');
       startOnboarding(session.user);
       return null;
     }
-    
+
+    repairOnboardingFlag(profile);
+
     // Store session data using regular localStorage for compatibility
     localStorage.setItem('user_id', profile.id);
     localStorage.setItem('username', profile.username);
