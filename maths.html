@@ -1894,9 +1894,12 @@ body:not(.authenticated) .dev-panel.active {
   <div class="sidebar-menu">
     <div class="sidebar-item active" id="homeBtn" onclick="showSection('home')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span><span class="sidebar-item-text">Home</span></div>
     <div class="sidebar-item" id="appsBtn" onclick="showSection('apps')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></span><span class="sidebar-item-text">Apps</span></div>
-    <div class="sidebar-item sidebar-item-maintenance" id="friendsBtn"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span class="sidebar-item-text">Friends</span><span class="sidebar-badge" id="friendsBadge" style="display:none">0</span></div>
-    <div class="sidebar-item sidebar-item-maintenance" id="chatBtn"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="sidebar-chat-badge" id="sidebarChatBadge" style="display:none">0</span></span><span class="sidebar-item-text">Chat</span><span class="sidebar-badge" id="chatBadge" style="display:none">0</span></div>
-    <div class="sidebar-item sidebar-item-maintenance" id="shopBtn"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></span><span class="sidebar-item-text">Shop</span></div>
+    <div class="sidebar-item" id="friendsBtn" onclick="showSection('friends')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span class="sidebar-item-text">Friends</span><span class="sidebar-badge" id="friendsBadge" style="display:none">0</span></div>
+    <div class="sidebar-item" id="chatBtn" onclick="showSection('chat')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="sidebar-chat-badge" id="sidebarChatBadge" style="display:none">0</span></span><span class="sidebar-item-text">Chat</span><span class="sidebar-badge" id="chatBadge" style="display:none">0</span></div>
+    <div class="sidebar-item" id="shopBtn" onclick="showSection('shop')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></span><span class="sidebar-item-text">Shop</span></div>
+    <div class="sidebar-item" id="passBtn" onclick="showSection('pass')"><span class="sidebar-item-icon">🏅</span><span class="sidebar-item-text">Maths Pass</span></div>
+    <div class="sidebar-item" id="leaderboardBtn" onclick="showSection('leaderboard')"><span class="sidebar-item-icon">🏆</span><span class="sidebar-item-text">Leaderboard</span></div>
+    <div class="sidebar-item" id="customizeBtn" onclick="showSection('customize')"><span class="sidebar-item-icon">🎨</span><span class="sidebar-item-text">Customize</span></div>
     <div class="sidebar-item" id="accountBtn" onclick="showSection('account')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="sidebar-item-text">Account</span></div>
   </div>
   <div class="sidebar-version">v3.0.1</div>
@@ -2067,7 +2070,7 @@ body:not(.authenticated) .dev-panel.active {
     <div class="friends-grid">
       <div class="page-card">
         <h3>➕ Add a Friend</h3>
-        <input type="text" class="add-code-input" id="addCodeInput" placeholder="Enter 6-char code" maxlength="6">
+        <input type="text" class="add-code-input" id="addCodeInput" placeholder="Enter friend code" maxlength="20">
         <button class="add-btn" onclick="sendFriendRequest()">Send Request</button>
         <div class="page-msg" id="addFriendMsg"></div>
         <div class="section-sub-title">⏳ Pending Requests</div>
@@ -2092,7 +2095,7 @@ body:not(.authenticated) .dev-panel.active {
       <div class="sticker-create-form" style="margin-top:14px">
         <input type="text" id="stickerName" class="account-field" placeholder="Sticker name (e.g. Happy Dog 🐶)" maxlength="30" style="font-size:.95em">
         <input type="text" id="stickerDesc" class="account-field" placeholder="Description (optional)" maxlength="100" style="font-size:.93em">
-        <div class="sticker-file-area" onclick="document.getElementById('stickerImage').click()">
+        <div class="sticker-file-area" onclick="if(!event.target.closest('label'))document.getElementById('stickerImage').click()">
           <label class="sticker-file-label" for="stickerImage"><span style="font-size:2em">📁</span><span id="stickerFileLabel">Click to choose image</span><span style="color:#aaa;font-size:.8em;font-weight:400">PNG, JPG, GIF, WebP · max 2MB</span></label>
           <input type="file" id="stickerImage" accept="image/*">
         </div>
@@ -2693,6 +2696,263 @@ body:not(.authenticated) .dev-panel.active {
 </div>
 
 <script>
+// =====================================================================
+// SECURE CHAT (end-to-end encryption) - Maths Support
+// ECDH P-256 key agreement -> HKDF-SHA256 -> AES-256-GCM per conversation.
+// The private key never leaves the browser unencrypted: it is wrapped with
+// a key derived from the user's chat PIN (PBKDF2-SHA256, 310k iterations)
+// and only the wrapped copy is stored in Supabase (user_key_backups).
+// The server (and any admin with database access) only ever sees ciphertext.
+// =====================================================================
+function createE2EE(getSb, notify) {
+  const te = new TextEncoder(), td = new TextDecoder();
+  const PREFIX = 'e2ee1:';
+  const subtle = (typeof self !== 'undefined' && self.crypto ? self.crypto : globalThis.crypto).subtle;
+  const rnd = (n) => (typeof self !== 'undefined' && self.crypto ? self.crypto : globalThis.crypto).getRandomValues(new Uint8Array(n));
+  const EC = { name: 'ECDH', namedCurve: 'P-256' };
+
+  const b64 = (buf) => { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); };
+  const unb64 = (str) => { const s = atob(str); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+  const cleanJwk = (j) => ({ kty: 'EC', crv: 'P-256', x: j.x, y: j.y });
+
+  let uid = null, priv = null, pubJwk = null, ready = false;
+  const peerPub = {}, shared = {};
+
+  // ---------- IndexedDB (non-extractable private key cache, per user) ----------
+  function idb() {
+    return new Promise((res, rej) => {
+      if (typeof indexedDB === 'undefined') { rej(new Error('no indexedDB')); return; }
+      const r = indexedDB.open('ms_e2ee', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('keys');
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  }
+  async function idbGet(k) {
+    try { const db = await idb(); return await new Promise((res, rej) => { const q = db.transaction('keys').objectStore('keys').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+    catch (e) { return undefined; }
+  }
+  async function idbPut(k, v) {
+    try { const db = await idb(); await new Promise((res, rej) => { const t = db.transaction('keys', 'readwrite'); t.objectStore('keys').put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
+    catch (e) { /* private browsing etc: key just stays in memory for this session */ }
+  }
+  async function idbDel(k) {
+    try { const db = await idb(); await new Promise((res, rej) => { const t = db.transaction('keys', 'readwrite'); t.objectStore('keys').delete(k); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
+    catch (e) {}
+  }
+
+  // ---------- PIN wrapping ----------
+  async function pinKey(pin, salt) {
+    const base = await subtle.importKey('raw', te.encode(pin), 'PBKDF2', false, ['deriveKey']);
+    return subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+
+  function reset() { priv = null; pubJwk = null; ready = false; for (const k in shared) delete shared[k]; for (const k in peerPub) delete peerPub[k]; }
+
+  async function serverPub(id) {
+    const { data, error } = await getSb().from('user_keys').select('public_jwk').eq('user_id', id).maybeSingle();
+    if (error) throw error;
+    return data ? cleanJwk(data.public_jwk) : null;
+  }
+
+  // Returns 'ready' | 'locked' (backup exists, PIN needed) | 'none' (never set up)
+  async function init(userId) {
+    if (uid === userId && ready) return 'ready';
+    reset(); uid = userId;
+    const sbc = getSb();
+    const cached = await idbGet(uid);
+    if (cached && cached.priv && cached.pub) {
+      // make sure the cached key still matches what is published (PIN may have been reset on another device)
+      let srv = null;
+      try { srv = await serverPub(uid); } catch (e) { srv = cached.pub; /* offline: trust cache */ }
+      if (srv && srv.x === cached.pub.x && srv.y === cached.pub.y) { priv = cached.priv; pubJwk = cleanJwk(cached.pub); ready = true; return 'ready'; }
+      await idbDel(uid);
+    }
+    const { data } = await sbc.from('user_key_backups').select('user_id').eq('user_id', uid).maybeSingle();
+    return data ? 'locked' : 'none';
+  }
+
+  async function create(pin) {
+    if (!uid) throw new Error('Not signed in');
+    if (typeof pin !== 'string' || pin.length < 6) throw new Error('PIN must be at least 6 characters');
+    const kp = await subtle.generateKey(EC, true, ['deriveBits']);
+    const pkcs8 = await subtle.exportKey('pkcs8', kp.privateKey);
+    const pj = cleanJwk(await subtle.exportKey('jwk', kp.publicKey));
+    const salt = rnd(16), iv = rnd(12);
+    const wrapped = await subtle.encrypt({ name: 'AES-GCM', iv }, await pinKey(pin, salt), pkcs8);
+    const sbc = getSb();
+    // backup FIRST so a published public key always has a recoverable private key
+    const e1 = (await sbc.from('user_key_backups').upsert({ user_id: uid, wrapped_private: b64(wrapped), salt: b64(salt), iv: b64(iv), updated_at: new Date().toISOString() })).error;
+    if (e1) throw e1;
+    const e2 = (await sbc.from('user_keys').upsert({ user_id: uid, public_jwk: pj, updated_at: new Date().toISOString() })).error;
+    if (e2) throw e2;
+    priv = await subtle.importKey('pkcs8', pkcs8, EC, false, ['deriveBits']);
+    pubJwk = pj; ready = true;
+    for (const k in shared) delete shared[k];
+    await idbPut(uid, { priv, pub: pj });
+  }
+
+  async function unlock(pin) {
+    if (!uid) throw new Error('Not signed in');
+    const sbc = getSb();
+    const { data, error } = await sbc.from('user_key_backups').select('*').eq('user_id', uid).maybeSingle();
+    if (error) throw error;
+    if (!data) throw new Error('No key backup found');
+    let pkcs8;
+    try { pkcs8 = await subtle.decrypt({ name: 'AES-GCM', iv: unb64(data.iv) }, await pinKey(pin, unb64(data.salt)), unb64(data.wrapped_private)); }
+    catch (e) { throw new Error('Wrong PIN'); }
+    const pj = await serverPub(uid);
+    priv = await subtle.importKey('pkcs8', pkcs8, EC, false, ['deriveBits']);
+    pubJwk = pj; ready = true;
+    for (const k in shared) delete shared[k];
+    await idbPut(uid, { priv, pub: pj });
+  }
+
+  async function lock() { // used on sign-out: forget the key on this device
+    const id = uid; reset(); uid = null;
+    if (id) await idbDel(id);
+  }
+
+  async function peerKeyJwk(id, fresh) {
+    if (!fresh && peerPub[id]) return peerPub[id];
+    const j = await serverPub(id);
+    if (j) peerPub[id] = j; else delete peerPub[id];
+    return j;
+  }
+
+  async function keyFor(id) {
+    if (!ready) throw new Error('LOCKED');
+    const j = await peerKeyJwk(id, false);
+    if (!j) return null;
+    const ck = id + ':' + j.x + j.y;
+    if (shared[ck]) return shared[ck];
+    const pub = await subtle.importKey('jwk', j, EC, false, []);
+    const bits = await subtle.deriveBits({ name: 'ECDH', public: pub }, priv, 256);
+    const hk = await subtle.importKey('raw', bits, 'HKDF', false, ['deriveKey']);
+    const key = await subtle.deriveKey({ name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32), info: te.encode('maths-support-chat-v1') }, hk, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    shared[ck] = key;
+    return key;
+  }
+
+  const isEnc = (s) => typeof s === 'string' && s.startsWith(PREFIX);
+
+  async function encrypt(peerId, plain, senderId, receiverId) {
+    const key = await keyFor(peerId);
+    if (!key) throw new Error('NO_PEER_KEY');
+    const iv = rnd(12);
+    const ct = await subtle.encrypt({ name: 'AES-GCM', iv, additionalData: te.encode(senderId + '>' + receiverId) }, key, te.encode(plain));
+    return PREFIX + b64(iv) + ':' + b64(ct);
+  }
+
+  async function decrypt(m) {
+    if (!isEnc(m.content)) return m.content;
+    const other = m.sender_id === uid ? m.receiver_id : m.sender_id;
+    const key = await keyFor(other);
+    if (!key) throw new Error('NO_PEER_KEY');
+    const parts = m.content.slice(PREFIX.length).split(':');
+    if (parts.length !== 2) throw new Error('BAD_FORMAT');
+    const pt = await subtle.decrypt({ name: 'AES-GCM', iv: unb64(parts[0]), additionalData: te.encode(m.sender_id + '>' + m.receiver_id) }, key, unb64(parts[1]));
+    return td.decode(pt);
+  }
+
+  // Short human-comparable code for a public key (people can compare it out loud)
+  async function fingerprint(jwk) {
+    const h = new Uint8Array(await subtle.digest('SHA-256', te.encode(jwk.x + '.' + jwk.y)));
+    let hex = ''; for (let i = 0; i < 10; i++) hex += h[i].toString(16).padStart(2, '0');
+    return hex.toUpperCase().match(/.{1,4}/g).join(' ');
+  }
+  async function myFingerprint() { return pubJwk ? fingerprint(pubJwk) : null; }
+
+  // Trust-on-first-use: remember each friend's key code, report if it changes later
+  async function checkPeer(peerId) {
+    const j = await peerKeyJwk(peerId, true);
+    for (const k in shared) if (k.startsWith(peerId + ':')) delete shared[k];
+    if (!j) return { hasKey: false };
+    const fp = await fingerprint(j);
+    let changed = false, first = true;
+    try {
+      const k = 'ms_e2ee_fp_' + uid + '_' + peerId;
+      const old = localStorage.getItem(k);
+      if (old) { first = false; changed = old !== fp; }
+      if (!old) localStorage.setItem(k, fp);
+    } catch (e) {}
+    return { hasKey: true, fp, changed, first };
+  }
+  function trustPeer(peerId, fp) { try { localStorage.setItem('ms_e2ee_fp_' + uid + '_' + peerId, fp); } catch (e) {} }
+
+  // ---------- PIN dialog ----------
+  function promptUser(state) {
+    return new Promise((resolve) => {
+      const ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:2147483000;background:rgba(10,12,28,.78);display:flex;align-items:center;justify-content:center;padding:16px;font-family:inherit';
+      const card = document.createElement('div');
+      card.style.cssText = 'background:#fff;color:#1b1f3b;border-radius:18px;max-width:380px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.45)';
+      const mk = (tag, css, text) => { const e = document.createElement(tag); if (css) e.style.cssText = css; if (text) e.textContent = text; return e; };
+      const inpCss = 'width:100%;box-sizing:border-box;padding:12px 14px;border:2px solid #dfe3f5;border-radius:10px;font-size:1em;margin:6px 0;font-family:inherit';
+      const btnCss = 'border:none;border-radius:10px;padding:12px 16px;font-weight:800;cursor:pointer;font-family:inherit;font-size:.95em';
+      let mode = state === 'locked' ? 'unlock' : 'create';
+      function render() {
+        card.innerHTML = '';
+        card.appendChild(mk('div', 'font-size:2em', '\uD83D\uDD12'));
+        card.appendChild(mk('div', 'font-size:1.15em;font-weight:800;margin:6px 0', mode === 'create' ? 'Set up secure chat' : 'Unlock secure chat'));
+        card.appendChild(mk('div', 'font-size:.88em;color:#555;line-height:1.45;margin-bottom:10px',
+          mode === 'create'
+            ? 'Your private messages are end-to-end encrypted: nobody but you and your friend can read them, not even the admins. Choose a chat PIN (min. 6 characters). You need it on new devices. If you forget it, old messages cannot be recovered.'
+            : 'Enter your chat PIN to read and send private messages on this device.'));
+        const p1 = mk('input', inpCss); p1.type = 'password'; p1.placeholder = 'Chat PIN'; p1.autocomplete = 'off';
+        card.appendChild(p1);
+        let p2 = null;
+        if (mode === 'create') { p2 = mk('input', inpCss); p2.type = 'password'; p2.placeholder = 'Repeat PIN'; p2.autocomplete = 'off'; card.appendChild(p2); }
+        const err = mk('div', 'color:#c0392b;font-size:.85em;min-height:1.2em;margin:4px 0');
+        card.appendChild(err);
+        const row = mk('div', 'display:flex;gap:10px;margin-top:6px');
+        const cancel = mk('button', btnCss + ';background:#eef0fb;color:#333', 'Not now');
+        const ok = mk('button', btnCss + ';background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;flex:1', mode === 'create' ? 'Create' : 'Unlock');
+        row.appendChild(cancel); row.appendChild(ok); card.appendChild(row);
+        if (mode === 'unlock') {
+          const forgot = mk('div', 'margin-top:12px;font-size:.8em;color:#888;cursor:pointer;text-decoration:underline', 'Forgot PIN? Reset (old messages become unreadable)');
+          forgot.onclick = () => { if (confirm('Reset secure chat? You will NOT be able to read your old private messages any more.')) { mode = 'create'; render(); } };
+          card.appendChild(forgot);
+        }
+        cancel.onclick = () => { ov.remove(); resolve(false); };
+        const submit = async () => {
+          err.textContent = '';
+          try {
+            if (mode === 'create') {
+              if (p1.value.length < 6) { err.textContent = 'PIN must be at least 6 characters.'; return; }
+              if (p1.value !== p2.value) { err.textContent = 'PINs do not match.'; return; }
+              ok.disabled = true; ok.textContent = 'Creating...';
+              await create(p1.value);
+            } else {
+              ok.disabled = true; ok.textContent = 'Unlocking...';
+              await unlock(p1.value);
+            }
+            ov.remove(); resolve(true);
+          } catch (e) { err.textContent = e.message || 'Something went wrong'; ok.disabled = false; ok.textContent = mode === 'create' ? 'Create' : 'Unlock'; }
+        };
+        ok.onclick = submit;
+        (p2 || p1).addEventListener('keydown', (ev) => { if (ev.key === 'Enter') submit(); });
+        setTimeout(() => p1.focus(), 50);
+      }
+      render();
+      ov.appendChild(card); document.body.appendChild(ov);
+    });
+  }
+
+  async function ensure(userId) {
+    if (ready && uid === userId) return true;
+    const st = await init(userId);
+    if (st === 'ready') return true;
+    return promptUser(st);
+  }
+
+  return { PREFIX, isEnc, init, ensure, create, unlock, lock, encrypt, decrypt, checkPeer, trustPeer, fingerprint, myFingerprint,
+           get ready() { return ready; }, get userId() { return uid; } };
+}
+
+const E2EE = createE2EE(() => sb);
+</script>
+<script>
 // ══════════════════════════════════════════════════════════════════
 // SUPABASE SETUP
 // ══════════════════════════════════════════════════════════════════
@@ -2861,6 +3121,7 @@ async function handleCredentialResponse(response) {
           // (that is what created a brand new account on every sign-in).
           console.error('Profile lookup failed, proceeding with fallback profile:', profileError);
           completeAuthentication(data.user, makeFallbackProfile(data.user));
+          try{ showToast('Profile could not be loaded: ' + (profileError.message || profileError.code) + ' (your data is NOT saved until this is fixed)'); }catch(e){}
         } else if (!profileData) {
           console.log('No profile row for this user - first time, starting onboarding');
           startOnboarding(data.user);
@@ -3176,7 +3437,7 @@ async function checkFriendCodeCooldown() {
 }
 
 // Function to check friend code cooldown for existing users (account page)
-async function checkExistingUserFriendCodeCooldown() {
+async function checkOnboardingFriendCodeCooldown() {
   const cooldownEl = document.getElementById('friendCodeCooldown');
   const customInput = document.getElementById('customFriendCode');
   
@@ -3307,7 +3568,7 @@ async function updateFriendCode() {
     
     // Disable input for cooldown period
     document.getElementById('customFriendCode').disabled = true;
-    checkExistingUserFriendCodeCooldown();
+    checkOnboardingFriendCodeCooldown();
     
   } catch (error) {
     console.error('Error updating friend code:', error);
@@ -3404,7 +3665,7 @@ async function onboardingComplete() {
       console.log('Profile update failed, trying insert instead...');
       const insertData = {
         id: onboardingUser.id,
-        email: onboardingUser.email,
+        email: null,
         username: onboardingUser.username,
         display_name: onboardingUser.display_name,
         friend_code: finalFriendCode,
@@ -3658,6 +3919,7 @@ async function doSignOut(e){
   
   // Sign out from Supabase auth to clear session from localStorage
   try {
+    try{ await E2EE.lock(); }catch(e){}
     await sb.auth.signOut();
     console.log('User signed out, session cleared from localStorage');
   } catch (error) {
@@ -3706,6 +3968,7 @@ async function onSignedIn(profile){
   subscribeToChat();
   subscribeToTyping();
   loadCustomApps();
+  loadPassData().then(()=>loadCustomizations()).catch(()=>{});
   if(sessionStorage.getItem('questionnaire_done')!=='true')checkAndShowQuestionnaire();
   setTimeout(updateChatBadge,800);
   setTimeout(loadChatBadges,900);
@@ -3771,6 +4034,7 @@ async function restoreSession(){
     if (profileError) {
       // Lookup failed (not "no row"): keep the user signed in, never re-run onboarding.
       console.warn('Profile lookup failed on session restore, using fallback profile:', profileError.message);
+      try{ setTimeout(()=>showToast('Profile could not be loaded: ' + (profileError.message || profileError.code)), 1500); }catch(e){}
       return makeFallbackProfile(session.user);
     }
 
@@ -3954,32 +4218,46 @@ let friendshipMap = {};
 
 async function startFriendPolling(){await loadFriends();if(friendsPollTimer)clearInterval(friendsPollTimer);friendsPollTimer=setInterval(loadFriends,7000);}
 
+let lastFriendsSig=null;
+const profileCache=new Map();
+
+async function getProfiles(ids){
+  const need=ids.filter(id=>!profileCache.has(id)||Date.now()-profileCache.get(id).t>60000);
+  if(need.length){
+    const{data,error}=await sb.from('profiles').select('id,username,display_name,role,friend_code,is_admin').in('id',need);
+    if(error)console.warn('getProfiles error',error);
+    else(data||[]).forEach(p=>profileCache.set(p.id,{p,t:Date.now()}));
+  }
+  const out={};
+  ids.forEach(id=>{const c=profileCache.get(id);if(c)out[id]=c.p;});
+  return out;
+}
+
 async function loadFriends(){
   if(!currentUser)return;
-  let all = [];
-  try {
-    const{data:allDb}=await sb.from('friendships').select('id,status,user_id,friend_id,identity_revealed').or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`);
-    all = allDb || [];
-  } catch(e) { 
-    console.warn('Supabase loadFriends error, using local fallback:', e);
-    all = [];
-  }
-
-  const localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-  const mergedAll = [...all, ...localFriends];
-
-  const accepted=mergedAll.filter(f=>f.status==='accepted');
-  const pendingIn=mergedAll.filter(f=>f.status==='pending'&&f.friend_id===currentUser.id);
-  const pendingReveal=mergedAll.filter(f=>f.status==='reveal_requested'&&f.friend_id===currentUser.id);
+  const me=currentUser.id;
+  const{data,error}=await sb.from('friendships').select('id,status,user_id,friend_id,identity_revealed,reveal_requested_by').or(`user_id.eq.${me},friend_id.eq.${me}`);
+  if(error){console.warn('loadFriends error:',error);return;}
+  const all=data||[];
+  const sig=JSON.stringify(all.map(f=>[f.id,f.status,f.identity_revealed,f.reveal_requested_by]).sort());
+  const accepted=all.filter(f=>f.status==='accepted');
+  const pendingIn=all.filter(f=>f.status==='pending'&&f.friend_id===me);
+  const pendingOut=all.filter(f=>f.status==='pending'&&f.user_id===me);
+  const pendingReveal=accepted.filter(f=>f.reveal_requested_by&&f.reveal_requested_by!==me&&!f.identity_revealed);
   friendshipMap={};
   accepted.forEach(f=>{const friendId=otherProfile(f);if(friendId)friendshipMap[friendId]=f;});
-  renderFriendsList(accepted);
-  renderPendingList(pendingIn,pendingReveal);
-  renderChatList(accepted);
   const fb=document.getElementById('friendsBadge');
   const cnt=pendingIn.length+pendingReveal.length;
   fb.textContent=cnt;fb.style.display=cnt>0?'block':'none';
-  loadChatBadges();
+  if(sig!==lastFriendsSig){
+    lastFriendsSig=sig;
+    const ids=[...new Set(all.map(otherProfile))];
+    const profs=await getProfiles(ids);
+    renderFriendsList(accepted,profs);
+    renderPendingList(pendingIn,pendingOut,pendingReveal,profs);
+    renderChatList(accepted,profs);
+  }
+  refreshUnread();
 }
 
 function otherProfile(f){return f.user_id===currentUser.id?f.friend_id:f.user_id;}
@@ -3987,159 +4265,117 @@ function otherProfile(f){return f.user_id===currentUser.id?f.friend_id:f.user_id
 function getDisplayInfo(profile, friendship){
   const name=profile.display_name||profile.username||'User';
   const role=profile.role;
-  if(!role) return {shown:name,username:'@'+profile.username,badge:''};
+  if(!role) return {shown:name,username:'@'+(profile.username||'user'),badge:''};
   const isRevealed=friendship?.identity_revealed===true;
-  const r=ROLES[role];
-  if(isRevealed) return {shown:name,username:'@'+profile.username,badge:roleBadgeHTML(role)};
+  const r=ROLES[role]||{label:'Member'};
+  if(isRevealed) return {shown:name,username:'@'+(profile.username||'user'),badge:roleBadgeHTML(role)};
   return {shown:r.label,username:null,badge:roleBadgeHTML(role)};
 }
 
-function renderFriendsList(accepted){
+function buildFriendRow(avatarTxt,nameHtml,subHtml,buttons,avatarStyle){
+  const div=document.createElement('div');div.className='friend-item';
+  div.innerHTML=`<div class="fi-avatar"${avatarStyle?` style="${avatarStyle}"`:''}>${escapeHtml(avatarTxt)}</div><div class="fi-info"><div class="fi-name">${nameHtml}</div><div class="fi-sub">${subHtml}</div></div>`;
+  (buttons||[]).forEach(b=>{
+    const btn=document.createElement('button');btn.className='fi-btn '+(b.cls||'');btn.textContent=b.label;
+    if(b.disabled)btn.disabled=true;
+    btn.addEventListener('click',b.fn);div.appendChild(btn);
+  });
+  return div;
+}
+
+function renderFriendsList(accepted,profs){
   const el=document.getElementById('friendsList');
-  if(!accepted.length){el.innerHTML='<div class="empty-list">No friends yet — share your code!</div>';return;}
+  profs=profs||{};
+  if(!accepted.length){el.innerHTML='<div class="empty-list">No friends yet \u2013 share your code!</div>';return;}
   el.innerHTML='';
-  
   accepted.forEach(f=>{
-    const friendId = f.user_id === currentUser.id ? f.friend_id : f.user_id;
-    const div=document.createElement('div');div.className='friend-item';
-    div.innerHTML=`<div class="fi-avatar">?</div><div class="fi-info"><div class="fi-name">Loading...</div><div class="fi-sub">@${friendId}</div></div><button class="fi-btn chat" onclick="openChatWith('${friendId}','User')">💬</button>`;
-    el.appendChild(div);
-    
-    // Load profile data asynchronously
-    sb.from('profiles').select('*').eq('id', friendId).maybeSingle().then(({data: p}) => {
-      if(p){
-        const di=getDisplayInfo(p,f);
-        const revealBtn=di.username===null?`<button class="fi-btn reveal" onclick="requestReveal('${f.id}','${p.id}')">🔍 Who?</button>`:'';
-        div.innerHTML=`<div class="fi-avatar">${initials(di.shown)}</div><div class="fi-info"><div class="fi-name">${di.shown}${di.badge}</div><div class="fi-sub">${di.username||'Identity hidden'}</div></div>${revealBtn}<button class="fi-btn chat" onclick="openChatWith('${p.id}','${di.shown}')">💬</button>`;
-      }
-    }).catch(e => {
-      console.error('Error loading friend profile:', e);
-      div.innerHTML=`<div class="fi-avatar">?</div><div class="fi-info"><div class="fi-name">Error loading</div><div class="fi-sub">@${friendId}</div></div><button class="fi-btn chat" onclick="openChatWith('${friendId}','User')">💬</button>`;
-    });
+    const friendId=otherProfile(f);
+    const p=profs[friendId];
+    if(!p){el.appendChild(buildFriendRow('?','Unknown user','',[{cls:'',label:'\u2715',fn:()=>removeFriend(f.id)}]));return;}
+    const di=getDisplayInfo(p,f);
+    const btns=[];
+    if(di.username===null){
+      const asked=f.reveal_requested_by===currentUser.id;
+      btns.push({cls:'reveal',label:asked?'Requested':'\uD83D\uDD75\uFE0F Who?',disabled:asked,fn:()=>requestReveal(f.id)});
+    }
+    btns.push({cls:'chat',label:'\uD83D\uDCAC',fn:()=>{showSection('chat');openChatWith(p.id,di.shown);}});
+    btns.push({cls:'',label:'\u2715',fn:()=>removeFriend(f.id)});
+    el.appendChild(buildFriendRow(initials(di.shown),escapeHtml(di.shown)+di.badge,escapeHtml(di.username||'Identity hidden'),btns));
   });
 }
 
-function renderPendingList(pending,pendingReveal){
+function renderPendingList(pendingIn,pendingOut,pendingReveal,profs){
   const el=document.getElementById('pendingList');
-  const all=[...pending,...(pendingReveal||[])];
-  if(!all.length){el.innerHTML='<div class="empty-list">No pending requests</div>';return;}
+  profs=profs||{};
+  if(!pendingIn.length&&!pendingOut.length&&!pendingReveal.length){el.innerHTML='<div class="empty-list">No pending requests</div>';return;}
   el.innerHTML='';
-  pending.forEach(f=>{
-    const requesterId = f.user_id === currentUser.id ? f.user_id : f.friend_id;
-    const name = requesterId === currentUser.id ? 'You' : 'Unknown User';
-    const div=document.createElement('div');div.className='friend-item';
-    div.innerHTML=`<div class="fi-avatar">${initials(name)}</div><div class="fi-info"><div class="fi-name">${name}</div><div class="fi-sub">@${requesterId === currentUser.id ? currentUser.username : 'user'}</div></div><button class="fi-btn accept" onclick="acceptFriend('${f.id}')">✓</button>`;
-    el.appendChild(div);
+  const nm=(id)=>{const p=profs[id];return p?(p.display_name||p.username||'User'):'Unknown user';};
+  pendingIn.forEach(f=>{
+    const name=nm(f.user_id);
+    el.appendChild(buildFriendRow(initials(name),escapeHtml(name),'Wants to be your friend',[
+      {cls:'accept',label:'\u2713',fn:()=>acceptFriend(f.id)},
+      {cls:'',label:'\u2715',fn:()=>declineFriend(f.id)}
+    ]));
   });
-  (pendingReveal||[]).forEach(f=>{
-    const requesterId = f.user_id === currentUser.id ? f.user_id : f.friend_id;
-    const name = requesterId === currentUser.id ? 'You' : 'Unknown User';
-    const div=document.createElement('div');div.className='friend-item';
-    div.innerHTML=`<div class="fi-avatar" style="background:linear-gradient(135deg,#f64f59,#c0392b)">${initials(name)}</div><div class="fi-info"><div class="fi-name">${name}</div><div class="fi-sub">Wants to know who you are</div></div><button class="fi-btn accept" onclick="confirmRevealFromRequest('${f.id}')">Reveal</button>`;
-    el.appendChild(div);
+  pendingOut.forEach(f=>{
+    const name=nm(f.friend_id);
+    el.appendChild(buildFriendRow(initials(name),escapeHtml(name),'Request sent \u2013 waiting',[
+      {cls:'',label:'Cancel',fn:()=>declineFriend(f.id)}
+    ]));
+  });
+  pendingReveal.forEach(f=>{
+    const name=nm(otherProfile(f));
+    el.appendChild(buildFriendRow(initials(name),escapeHtml(name),'Wants to know who you are',[
+      {cls:'accept',label:'Reveal',fn:()=>confirmRevealFromRequest(f.id)}
+    ],'background:linear-gradient(135deg,#f64f59,#c0392b)'));
   });
 }
 
 async function sendFriendRequest(){
-  const code=document.getElementById('addCodeInput').value.trim().toUpperCase();
-  if(code.length!==5){showMsg('addFriendMsg','Please enter a valid 5-character code.','err');return;}
-  if(currentProfile&&code===currentProfile.friend_code){showMsg('addFriendMsg',"That's your own code!",'err');return;}
-  
-  let target = null;
-  try {
-    const{data}=await sb.from('profiles').select('id,username,display_name').eq('friend_code',code).maybeSingle();
-    target = data;
-  } catch(e){
-    console.error('Error finding user by friend code:', e);
-  }
-
-  if(!target){
-    // Try demo users fallback
-    const demoFound = demoUsers.find(u => u.friend_code === code);
-    if(demoFound) target = demoFound;
-  }
-
+  const input=document.getElementById('addCodeInput');
+  const code=input.value.trim().toUpperCase();
+  if(!/^[A-Z0-9_-]{3,20}$/.test(code)){showMsg('addFriendMsg','Please enter a valid friend code.','err');return;}
+  if(currentProfile&&code===(currentProfile.friend_code||'').toUpperCase()){showMsg('addFriendMsg',"That's your own code!",'err');return;}
+  const me=currentUser.id;
+  const{data:target,error:findErr}=await sb.from('profiles').select('id,username,display_name').eq('friend_code',code).maybeSingle();
+  if(findErr){showMsg('addFriendMsg','Could not look up that code: '+findErr.message,'err');return;}
   if(!target){showMsg('addFriendMsg','No user found with that code.','err');return;}
-
-  try {
-    const{error}=await sb.from('friendships').insert({user_id:currentUser.id,friend_id:target.id,status:'pending'});
-    if(error) throw error;
-    showMsg('addFriendMsg',`✅ Friend request sent to @${target.username || 'User'}!`,'ok');
-  } catch(e) {
-    console.warn('Friendships insert error, using local fallback:', e);
-    
-    // Check if it's an RLS error
-    if(e.message && e.message.includes('row-level security')) {
-      showMsg('addFriendMsg','⚠️ Using local mode due to permissions. Request saved locally.','ok');
-    }
-    
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    if(!localFriends.some(f => f.friend_id === target.id || f.user_id === target.id)){
-      localFriends.push({
-        id: 'local_f_' + Date.now(),
-        user_id: currentUser.id,
-        friend_id: target.id,
-        status: 'accepted',
-        identity_revealed: true
-      });
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-      showMsg('addFriendMsg',`✅ Friend added locally with @${target.username || 'User'}!`,'ok');
-    } else {
-      showMsg('addFriendMsg','⚠️ Already friends with this user!','ok');
-    }
+  if(target.id===me){showMsg('addFriendMsg',"That's your own code!",'err');return;}
+  const tName=target.display_name||target.username||'that user';
+  const{data:existing,error:exErr}=await sb.from('friendships').select('id,status,user_id,friend_id').or(`and(user_id.eq.${me},friend_id.eq.${target.id}),and(user_id.eq.${target.id},friend_id.eq.${me})`);
+  if(exErr){showMsg('addFriendMsg','Error: '+exErr.message,'err');return;}
+  const ex=(existing||[])[0];
+  if(ex){
+    if(ex.status==='accepted'){showMsg('addFriendMsg','You are already friends with '+tName+'.','ok');}
+    else if(ex.status==='pending'&&ex.user_id===target.id){
+      const{error}=await sb.from('friendships').update({status:'accepted'}).eq('id',ex.id);
+      if(error){showMsg('addFriendMsg','Error: '+error.message,'err');return;}
+      showMsg('addFriendMsg','\u2705 '+tName+' had already asked you \u2013 you are now friends!','ok');
+    }else{showMsg('addFriendMsg','Request already sent to '+tName+'.','ok');}
+  }else{
+    const{error}=await sb.from('friendships').insert({user_id:me,friend_id:target.id,status:'pending'});
+    if(error){showMsg('addFriendMsg','Could not send request: '+error.message,'err');return;}
+    showMsg('addFriendMsg','\u2705 Friend request sent to '+tName+'!','ok');
   }
-
-  document.getElementById('addCodeInput').value='';
+  input.value='';
+  lastFriendsSig=null;
   await loadFriends();
 }
 
-async function acceptFriend(friendshipId){
-  try {
-    await sb.from('friendships').update({status:'accepted'}).eq('id',friendshipId);
-    await loadFriends();
-  } catch(e) {
-    console.error('Error accepting friend:', e);
-    // Update local friendship
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    const friendship = localFriends.find(f => f.id === friendshipId);
-    if(friendship) {
-      friendship.status = 'accepted';
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-      await loadFriends();
-    }
-  }
+async function friendAction(promise,okMsg){
+  const{error}=await promise;
+  if(error){showToast('Error: '+error.message);return false;}
+  if(okMsg)showToast(okMsg);
+  lastFriendsSig=null;
+  await loadFriends();
+  return true;
 }
+function acceptFriend(id){return friendAction(sb.from('friendships').update({status:'accepted'}).eq('id',id),'\u2705 Friend added!');}
+function declineFriend(id){return friendAction(sb.from('friendships').delete().eq('id',id),null);}
+function removeFriend(id){if(!confirm('Remove this friend?'))return;return friendAction(sb.from('friendships').delete().eq('id',id),'Friend removed');}
+function requestReveal(id){return friendAction(sb.from('friendships').update({reveal_requested_by:currentUser.id}).eq('id',id),'\uD83D\uDD75\uFE0F Reveal request sent!');}
+function confirmRevealFromRequest(id){return friendAction(sb.from('friendships').update({identity_revealed:true,reveal_requested_by:null}).eq('id',id),'\u2705 Identity revealed!');}
 
-async function requestReveal(friendshipId, targetUserId){
-  try {
-    await sb.from('friendships').update({status:'reveal_requested'}).eq('id',friendshipId);
-    showMsg('addFriendMsg','🔍 Reveal request sent!','ok');
-    await loadFriends();
-  } catch(e) {
-    console.error('Error requesting reveal:', e);
-    showMsg('addFriendMsg','⚠️ Could not send reveal request. Using local mode.','ok');
-  }
-}
-
-async function confirmRevealFromRequest(friendshipId){
-  try {
-    await sb.from('friendships').update({status:'accepted',identity_revealed:true}).eq('id',friendshipId);
-    showMsg('addFriendMsg','✅ Identity revealed!','ok');
-    await loadFriends();
-  } catch(e) {
-    console.error('Error confirming reveal:', e);
-    showMsg('addFriendMsg','⚠️ Could not confirm reveal. Using local mode.','ok');
-    // Update local friendship
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    const friendship = localFriends.find(f => f.id === friendshipId);
-    if(friendship) {
-      friendship.status = 'accepted';
-      friendship.identity_revealed = true;
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-      await loadFriends();
-    }
-  }
-}
 
 // ══════════════════════════════════════════════════════════════════
 // STREAK & PET SYSTEM
@@ -4224,25 +4460,36 @@ async function loadStreakForConvo(friendId){
 // ══════════════════════════════════════════════════════════════════
 let renderedMsgIds = new Set();
 
+let unreadByFriend={}, unreadTotal=0;
+
+function applyUnreadBadges(){
+  document.querySelectorAll('.cli-unread').forEach(b=>{
+    const id=b.id.replace('unread-','');
+    const n=unreadByFriend[id]||0;
+    b.textContent=n;b.style.display=n>0?'inline-block':'none';
+  });
+}
+
 function loadChatBadges() {
   const sidebarBadge = document.getElementById('sidebarChatBadge');
-  
-  if(!sidebarBadge || !friendshipMap) return;
-  
-  try {
-    const totalUnread = Object.values(friendshipMap || {})
-      .filter(f => f.status === 'accepted')
-      .reduce((sum, f) => sum + (f.unread_count || 0), 0);
-    
-    if(totalUnread > 0) {
-      sidebarBadge.textContent = totalUnread;
-      sidebarBadge.style.display = 'block';
-    } else {
-      sidebarBadge.style.display = 'none';
-    }
-  } catch(e) {
-    console.error('Error loading chat badges:', e);
+  if(sidebarBadge){
+    sidebarBadge.textContent = unreadTotal;
+    sidebarBadge.style.display = unreadTotal > 0 ? 'block' : 'none';
   }
+  const badge=document.getElementById('chatBadge'),topBadge=document.getElementById('chatTopBadge'),topNum=document.getElementById('chatTopBadgeNum');
+  if(badge){badge.textContent=unreadTotal;badge.style.display=unreadTotal>0?'block':'none';}
+  if(topBadge){topBadge.style.display=unreadTotal>0?'flex':'none';if(topNum)topNum.textContent=unreadTotal;}
+  applyUnreadBadges();
+}
+
+async function refreshUnread(){
+  if(!currentUser)return;
+  const{data,error}=await sb.from('messages').select('sender_id').eq('receiver_id',currentUser.id).neq('status','read').limit(1000);
+  if(error)return;
+  unreadByFriend={};
+  (data||[]).forEach(r=>{unreadByFriend[r.sender_id]=(unreadByFriend[r.sender_id]||0)+1;});
+  unreadTotal=(data||[]).length;
+  loadChatBadges();
 }
 
 let tourStep = 0;
@@ -4358,23 +4605,17 @@ if (savedTheme === 'light') {
   document.getElementById('themeText').textContent = 'Light Mode';
 }
 
-function renderChatList(accepted){
+function renderChatList(accepted,profs){
+  profs=profs||{};
   const el=document.getElementById('chatList');
   el.innerHTML='';
   const iAmAdmin = ADMIN_USER_IDS.includes(currentUser?.id) || currentProfile?.is_admin;
   if(!iAmAdmin){
-    const adminFriend = accepted.find(f=>{ const friendId=otherProfile(f); return friendId; });
     const adminBtn = document.createElement('div');
     adminBtn.className='chat-admin-btn';
     adminBtn.id='chat-admin-contact-btn';
-    if(adminFriend){
-      const friendId=otherProfile(adminFriend);
-      adminBtn.innerHTML=`<div class="chat-admin-btn-avatar">👑</div><div class="chat-admin-btn-info"><div class="chat-admin-btn-name">Talk to Admin <span class="role-badge admin">👑 Admin</span></div><div class="chat-admin-btn-sub">Tap to open chat</div></div>`;
-      adminBtn.onclick=()=>openChatWith(friendId,'Admin');
-    } else {
-      adminBtn.innerHTML=`<div class="chat-admin-btn-avatar">👑</div><div class="chat-admin-btn-info"><div class="chat-admin-btn-name">Talk to Admin <span class="role-badge admin">👑 Admin</span></div><div class="chat-admin-btn-sub" id="adminBtnSub">Tap to open chat</div></div>`;
-      adminBtn.onclick=contactAdmin;
-    }
+    adminBtn.innerHTML=`<div class="chat-admin-btn-avatar">\uD83D\uDEE1\uFE0F</div><div class="chat-admin-btn-info"><div class="chat-admin-btn-name">Talk to Admin <span class="role-badge admin">\uD83D\uDEE1\uFE0F Admin</span></div><div class="chat-admin-btn-sub" id="adminBtnSub">Tap to open chat</div></div>`;
+    adminBtn.onclick=contactAdmin;
     el.appendChild(adminBtn);
     const div=document.createElement('div');div.className='chat-admin-divider';el.appendChild(div);
   }
@@ -4384,39 +4625,31 @@ function renderChatList(accepted){
     empty.textContent='Add friends to start chatting';
     el.appendChild(empty);return;
   }
-  
   accepted.forEach(f=>{
     const friendId=otherProfile(f);
+    const p=profs[friendId];
     const div=document.createElement('div');
-    div.className='chat-list-item';
     div.id='cli-'+friendId;
-    div.innerHTML=`<div class="cli-avatar">?</div><div class="cli-info"><div class="cli-name">Loading...</div><div class="cli-sub">@${friendId}</div></div>`;
+    if(!p){
+      div.className='chat-list-item';
+      div.innerHTML='<div class="cli-avatar">?</div><div class="cli-info"><div class="cli-name">Unknown user</div></div>';
+      el.appendChild(div);return;
+    }
+    const di=getDisplayInfo(p,f);
+    const sd=(streakCache[p.id]||{}).streak||0;
+    const streakBadge=sd>0?`<span class="cli-streak">\uD83D\uDD25${sd}</span>`:'';
+    div.className='chat-list-item'+(activeChatFriendId===p.id?' active':'');
+    div.innerHTML=`<div class="cli-avatar">${escapeHtml(initials(di.shown))}<div class="cli-online-dot" style="display:none" id="dot-${p.id}"></div></div><div class="cli-info"><div class="cli-name">${escapeHtml(di.shown)}${di.badge}${streakBadge}</div><div class="cli-last-msg" id="last-msg-${p.id}">Tap to chat</div></div><div class="cli-meta"><span class="cli-time" id="last-time-${p.id}"></span><span class="cli-unread" id="unread-${p.id}" style="display:none;background:#f64f59;color:#fff;border-radius:10px;padding:1px 7px;font-size:.7em;font-weight:800;margin-top:3px"></span></div>`;
+    div.onclick=()=>openChatWith(p.id,di.shown);
     el.appendChild(div);
-    
-    // Load profile data asynchronously
-    sb.from('profiles').select('*').eq('id', friendId).maybeSingle().then(({data: p}) => {
-      if(p){
-        const di=getDisplayInfo(p,f);
-        const sData=streakCache[p.id]||{};const sd=sData.streak||0;
-        const streakBadge=sd>0?`<span class="cli-streak">🔥${sd}</span>`:'';
-        div.className='chat-list-item'+(activeChatFriendId===p.id?' active':'');
-        div.id='cli-'+p.id;
-        div.innerHTML=`<div class="cli-avatar">${initials(di.shown)}<div class="cli-online-dot" style="display:none" id="dot-${p.id}"></div></div><div class="cli-info"><div class="cli-name">${di.shown}${di.badge}${streakBadge}</div><div class="cli-last-msg" id="last-msg-${p.id}">Tap to chat</div></div><div class="cli-meta"><span class="cli-time" id="last-time-${p.id}"></span></div>`;
-        div.onclick=()=>openChatWith(p.id,di.shown);
-        
-        // Load friend presence
-        getFriendPresence(p.id).then(presence=>{
-          if(presence&&presence.game_name){
-            const lmEl=document.getElementById('last-msg-'+p.id);
-            if(lmEl)lmEl.innerHTML='<span style="color:#4ade80;font-weight:700">🎮 '+escapeHtml(presence.game_name)+'</span>';
-          }
-        });
+    getFriendPresence(p.id).then(presence=>{
+      if(presence&&presence.game_name){
+        const lmEl=document.getElementById('last-msg-'+p.id);
+        if(lmEl)lmEl.innerHTML='<span style="color:#4ade80;font-weight:700">\uD83C\uDFAE '+escapeHtml(presence.game_name)+'</span>';
       }
-    }).catch(e => {
-      console.error('Error loading chat friend profile:', e);
-      div.innerHTML=`<div class="cli-avatar">?</div><div class="cli-info"><div class="cli-name">Error loading</div><div class="cli-last-msg">@${friendId}</div></div>`;
-    });
+    }).catch(()=>{});
   });
+  applyUnreadBadges();
 }
 
 async function contactAdmin(){
@@ -4425,61 +4658,88 @@ async function contactAdmin(){
   if(sub)sub.textContent='Opening Admin Chat...';
   if(btn)btn.style.pointerEvents='none';
   try{
-    let adminId = 'admin_sys';
-    let adminName = '🛡️ Maths Support Admin';
-    
-    try {
-      const{data:admins}=await sb.from('profiles').select('id,username,display_name,role,is_admin,friend_code').or('role.eq.admin,is_admin.eq.true').neq('id',currentUser.id);
-      if(admins && admins.length){
-        adminId = admins[0].id;
-        adminName = admins[0].display_name || admins[0].username || 'Admin';
-      }
-    } catch(e1){
-      console.warn('Error fetching admin users:', e1);
-    }
-
-    // Auto-add Admin to local friendships to bypass RLS
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    if(!localFriends.some(f => f.friend_id === adminId || f.user_id === adminId)){
-      localFriends.push({
-        id: 'admin_friendship_' + Date.now(),
-        user_id: currentUser.id,
-        friend_id: adminId,
-        status: 'accepted',
-        identity_revealed: true
-      });
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-    }
-    
-    await loadFriends();
-    openChatWith(adminId, adminName);
-    
-    if(sub)sub.textContent='Tap to open chat';
-    if(btn)btn.style.pointerEvents='auto';
+    const{data:admins,error}=await sb.from('profiles').select('id,username,display_name').or('role.eq.admin,is_admin.eq.true').neq('id',currentUser.id);
+    if(error)throw error;
+    if(!admins||!admins.length){showToast('No admin is available to chat right now.');return;}
+    const a=admins[0];
+    showSection('chat');
+    openChatWith(a.id,a.display_name||a.username||'Admin');
   }catch(e){
     console.error('contactAdmin error:',e);
-    // Fallback to system admin
-    let localFriends = JSON.parse(localStorage.getItem('ms_local_friendships') || '[]');
-    const adminId = 'admin_sys';
-    const adminName = '🛡️ Maths Support Admin';
-    
-    if(!localFriends.some(f => f.friend_id === adminId || f.user_id === adminId)){
-      localFriends.push({
-        id: 'admin_friendship_fallback_' + Date.now(),
-        user_id: currentUser.id,
-        friend_id: adminId,
-        status: 'accepted',
-        identity_revealed: true
-      });
-      localStorage.setItem('ms_local_friendships', JSON.stringify(localFriends));
-    }
-    
-    await loadFriends();
-    openChatWith(adminId, adminName);
-    
+    showToast('Could not open the admin chat: '+(e.message||e));
+  }finally{
     if(sub)sub.textContent='Tap to open chat';
     if(btn)btn.style.pointerEvents='auto';
   }
+}
+
+let secureEnsurePromise=null;
+function ensureSecureChat(){
+  if(E2EE.ready&&E2EE.userId===currentUser.id)return Promise.resolve(true);
+  if(!secureEnsurePromise)secureEnsurePromise=E2EE.ensure(currentUser.id).catch(e=>{console.error('E2EE ensure failed',e);return false;}).finally(()=>{secureEnsurePromise=null;});
+  return secureEnsurePromise;
+}
+
+function escAttr(str){return escapeHtml(String(str==null?'':str)).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function isSafeStickerUrl(u){
+  try{
+    if(typeof u!=='string')return false;
+    const x=new URL(u);
+    return x.protocol==='https:'&&u.startsWith(SUPABASE_URL+'/storage/v1/object/public/stickers/');
+  }catch(e){return false;}
+}
+
+async function decodeMsg(m){
+  const d={...m};
+  if(m.sender_id==='__broadcast__'){d._kind='text';d._text=m.content||'';return d;}
+  if(!E2EE.isEnc(m.content)){
+    if(m.content_type==='sticker'&&m.sticker_url){d._kind='sticker';d._url=m.sticker_url;d._text=m.content||'';}
+    else{d._kind='text';d._text=m.content||'';}
+    d._legacy=true;return d;
+  }
+  if(!E2EE.ready){d._kind='locked';return d;}
+  try{
+    const pt=await E2EE.decrypt(m);
+    let p=null;try{p=JSON.parse(pt);}catch(e){}
+    if(p&&p.k==='s'){d._kind='sticker';d._url=p.u;d._text=p.n||'Sticker';}
+    else{d._kind='text';d._text=(p&&typeof p.t==='string')?p.t:pt;}
+  }catch(e){d._kind='error';}
+  return d;
+}
+
+function secureBannerEl(){
+  let el=document.getElementById('e2eeBanner');
+  if(!el){
+    const msgs=document.getElementById('chatMessages');
+    el=document.createElement('div');el.id='e2eeBanner';
+    el.style.cssText='font-size:.74em;padding:6px 12px;text-align:center;background:rgba(102,126,234,.14);border-bottom:1px solid rgba(127,127,127,.2)';
+    msgs.parentNode.insertBefore(el,msgs);
+  }
+  return el;
+}
+
+async function refreshSecureBanner(friendId){
+  const el=secureBannerEl();
+  el.innerHTML='';
+  try{
+    if(!E2EE.ready){
+      el.appendChild(document.createTextNode('\uD83D\uDD12 Secure chat is locked. '));
+      const a=document.createElement('a');a.href='#';a.textContent='Unlock';a.style.cssText='font-weight:800;text-decoration:underline';
+      a.onclick=async ev=>{ev.preventDefault();if(await ensureSecureChat()){loadMessages(friendId);refreshSecureBanner(friendId);}};
+      el.appendChild(a);return;
+    }
+    const r=await E2EE.checkPeer(friendId);
+    if(activeChatFriendId!==friendId)return;
+    if(!r.hasKey){el.textContent='\u26A0\uFE0F This person has not set up secure chat yet. You can message them once they do.';return;}
+    if(r.changed){
+      el.appendChild(document.createTextNode('\u26A0\uFE0F Their security code changed (new device or reset). Code: '+r.fp+' '));
+      const a=document.createElement('a');a.href='#';a.textContent='I trust it';a.style.cssText='font-weight:800;text-decoration:underline';
+      a.onclick=ev=>{ev.preventDefault();E2EE.trustPeer(friendId,r.fp);refreshSecureBanner(friendId);};
+      el.appendChild(a);return;
+    }
+    el.textContent='\uD83D\uDD12 End-to-end encrypted \u00B7 security code '+r.fp;
+  }catch(e){el.textContent='\uD83D\uDD12 Encryption status unavailable';}
 }
 
 function openChatWith(friendId, friendName){
@@ -4494,108 +4754,54 @@ function openChatWith(friendId, friendName){
   document.getElementById('chatConvoName').textContent=friendName;
   document.getElementById('typingAvatar').textContent=initials(friendName);
   document.getElementById('typingLabel').textContent=friendName+' is typing...';
-  loadMessages(friendId);
   loadStreakForConvo(friendId);
   if(chatPollTimer)clearInterval(chatPollTimer);
   chatPollTimer=setInterval(()=>{if(activeChatFriendId)pollNewMessages(activeChatFriendId);},5000);
+  (async()=>{
+    await ensureSecureChat();
+    if(activeChatFriendId!==friendId)return;
+    await loadMessages(friendId);
+    refreshSecureBanner(friendId);
+  })();
 }
 
 function openChatMain(){
-  // Open main chat interface in new tab
   const chatUrl = window.location.href.split('?')[0] + '?chat=main';
   window.open(chatUrl, '_blank');
 }
 
-function openChatWithOriginal(friendId, friendName){
-  // Original chat functionality for new tab mode
-  activeChatFriendId=friendId;activeChatFriendName=friendName;
-  renderedMsgIds=new Set();lastMsgId=null;
-  document.getElementById('typingIndicator')?.classList.remove('visible');
-  document.querySelectorAll('.chat-list-item').forEach(el=>el.classList.remove('active'));
-  const cli=document.getElementById('cli-'+friendId);if(cli)cli.classList.add('active');
-  document.getElementById('chatNoConvo').style.display='none';
-  document.getElementById('chatConvo').classList.add('open');
-  document.getElementById('chatConvoAvatar').textContent=initials(friendName);
-  document.getElementById('chatConvoName').textContent=friendName;
-  document.getElementById('typingAvatar').textContent=initials(friendName);
-  document.getElementById('typingLabel').textContent=friendName+' is typing...';
-  loadMessages(friendId);
-  loadStreakForConvo(friendId);
-  if(chatPollTimer)clearInterval(chatPollTimer);
-  chatPollTimer=setInterval(()=>{if(activeChatFriendId)pollNewMessages(activeChatFriendId);},5000);
-}
+function openChatWithOriginal(friendId, friendName){ openChatWith(friendId, friendName); }
 
 async function loadMessages(friendId){
   const container=document.getElementById('chatMessages');
-  container.innerHTML='';renderedMsgIds=new Set();
-  
-  let msgs = [], broadcasts = [];
-  
-  // Special handling for admin chat to avoid RLS issues
-  if(friendId === 'admin_sys' || friendId.includes('admin')) {
-    // Load admin messages from local storage
-    const adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
-    msgs = adminMessages.filter(m => 
-      (m.sender_id === currentUser.id && m.receiver_id === friendId) ||
-      (m.sender_id === friendId && m.receiver_id === currentUser.id)
-    );
-    
-    // Also try to load from Supabase for non-system admin
-    if(friendId !== 'admin_sys') {
-      try {
-        const dbMsgs = await sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200);
-        if(dbMsgs.data) {
-          // Merge with local messages, avoiding duplicates
-          const localIds = new Set(adminMessages.map(m => m.id));
-          const newDbMsgs = dbMsgs.data.filter(m => !localIds.has(m.id));
-          msgs = [...msgs, ...newDbMsgs];
-        }
-      } catch(e) {
-        console.warn('Error loading admin messages from database:', e);
-      }
-    }
-    
-    // Load broadcasts
-    try {
-      const broadcastData = await sb.from('broadcast_messages').select('*').order('created_at',{ascending:true});
-      broadcasts = broadcastData.data || [];
-    } catch(e) {
-      console.warn('Error loading broadcasts:', e);
-    }
-  } else {
-    // Normal message loading for regular friends
-    try {
-      const[{data:dbMsgs},{data:broadcastData}] = await Promise.all([
-        sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(200),
-        sb.from('broadcast_messages').select('*').order('created_at',{ascending:true})
-      ]);
-      msgs = dbMsgs || [];
-      broadcasts = broadcastData || [];
-    } catch(e) {
-      console.warn('Error loading messages, using local fallback:', e);
-      // Fallback to local messages
-      const localMessages = JSON.parse(localStorage.getItem('ms_local_messages') || '[]');
-      msgs = localMessages.filter(m => 
-        (m.sender_id === currentUser.id && m.receiver_id === friendId) ||
-        (m.sender_id === friendId && m.receiver_id === currentUser.id)
-      );
-      broadcasts = [];
-    }
+  container.innerHTML='';renderedMsgIds=new Set();lastMsgId=null;
+  const myId=currentUser.id;
+  const [mRes,bRes]=await Promise.all([
+    sb.from('messages').select('*').or(`and(sender_id.eq.${myId},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${myId})`).order('created_at',{ascending:false}).limit(200),
+    sb.from('broadcast_messages').select('*').order('created_at',{ascending:false}).limit(20)
+  ]);
+  if(friendId!==activeChatFriendId)return;
+  if(mRes.error){
+    console.error('Error loading messages:',mRes.error);
+    container.innerHTML='<div class="chat-empty-msgs"><span>\u26A0\uFE0F</span><span>Could not load messages. Check your connection.</span></div>';
+    return;
   }
-  
-  const allMsgs=[...msgs.map(m=>({...m,_type:'personal'})),...broadcasts.map(m=>({...m,_type:'broadcast',sender_id:'__broadcast__',receiver_id:null}))].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-  if(!allMsgs.length){container.innerHTML='<div class="chat-empty-msgs"><span>👋</span><span>Say hello!</span></div>';return;}
+  const msgs=(mRes.data||[]).slice().reverse();
+  const broadcasts=bRes.data?bRes.data.slice().reverse():[];
+  const decoded=await Promise.all(msgs.map(decodeMsg));
+  if(friendId!==activeChatFriendId)return;
+  const allMsgs=[...decoded.map(m=>({...m,_type:'personal'})),...broadcasts.map(m=>({...m,_type:'broadcast',sender_id:'__broadcast__',receiver_id:null}))].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  if(!allMsgs.length){container.innerHTML='<div class="chat-empty-msgs"><span>\uD83D\uDC4B</span><span>Say hello!</span></div>';return;}
   let lastDate=null;
   allMsgs.forEach(m=>{
     const mDate=new Date(m.created_at).toDateString();
     if(mDate!==lastDate){appendDateDivider(container,m.created_at);lastDate=mDate;}
     if(m._type==='broadcast') appendBroadcastBubble(m);
-    else appendBubble(m);
-    if(m.id)lastMsgId=m.id;
+    else{appendBubble(m);lastMsgId=m.id;}
   });
   container.scrollTop=container.scrollHeight;
   markMessagesRead(friendId);
-  if(msgs&&msgs.length)updateLastMsgPreview(friendId,msgs[msgs.length-1]);
+  if(decoded.length)updateLastMsgPreview(friendId,decoded[decoded.length-1]);
 }
 
 function appendBroadcastBubble(m){
@@ -4628,20 +4834,24 @@ async function sendBroadcast(){
 
 async function pollNewMessages(friendId){
   if(!friendId||!currentUser)return;
-  let query=sb.from('messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true});
+  const myId=currentUser.id;
+  let query=sb.from('messages').select('*').or(`and(sender_id.eq.${myId},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${myId})`).order('created_at',{ascending:true});
   if(lastMsgId){query=query.gt('id',lastMsgId);}else{query=query.limit(50);}
-  const{data}=await query;
-  if(!data||!data.length)return;
+  const{data,error}=await query;
+  if(error||!data||!data.length)return;
+  if(friendId!==activeChatFriendId)return;
+  const decoded=await Promise.all(data.map(decodeMsg));
+  if(friendId!==activeChatFriendId)return;
   const container=document.getElementById('chatMessages');
   const wasAtBottom=container.scrollHeight-container.scrollTop-container.clientHeight<60;
-  data.forEach(m=>{
+  decoded.forEach(m=>{
     if(renderedMsgIds.has(m.id))return;
     appendBubble(m);
     lastMsgId=m.id;
   });
   if(wasAtBottom)container.scrollTop=container.scrollHeight;
   if(data.some(m=>m.sender_id===friendId)){markMessagesRead(friendId);}
-  updateLastMsgPreview(friendId,data[data.length-1]);
+  updateLastMsgPreview(friendId,decoded[decoded.length-1]);
   updateTickStatuses();
 }
 
@@ -4661,10 +4871,16 @@ function appendBubble(m){
   group.className='msg-group '+(isMe?'me':'them');
   group.dataset.msgId=m.id;
   const tickClass=isMe?getTickClass(m.status):'';
-  const tickHtml=isMe?`<span class="msg-tick ${tickClass}" id="tick-${m.id}"></span>`:'';
-  const isSticker=m.content_type==='sticker'&&m.sticker_url;
-  const bubbleContent=isSticker?`<img src="${escapeHtml(m.sticker_url)}" alt="sticker" onerror="this.style.display='none'">`:`<div class="bubble-content">${escapeHtml(m.content||'')}</div>`;
-  group.innerHTML=`<div class="bubble-row">${!isMe?`<div class="msg-group-avatar">${initials(activeChatFriendName)}</div>`:''}<div class="chat-bubble ${isMe?'me':'them'}${isSticker?' bubble-sticker':''}">${bubbleContent}<div class="bubble-footer"><span class="bubble-time">${formatTime(m.created_at)}</span>${tickHtml}</div></div></div>`;
+  const tickHtml=isMe?`<span class="msg-tick ${tickClass}" id="tick-${escAttr(m.id)}"></span>`:'';
+  const kind=m._kind||'text';
+  const isSticker=kind==='sticker'&&isSafeStickerUrl(m._url);
+  let inner;
+  if(isSticker)inner=`<img src="${escAttr(m._url)}" alt="sticker" onerror="this.style.display='none'">`;
+  else if(kind==='locked')inner=`<div class="bubble-content" style="opacity:.7;font-style:italic">\uD83D\uDD12 Encrypted message (unlock secure chat to read it)</div>`;
+  else if(kind==='error')inner=`<div class="bubble-content" style="opacity:.7;font-style:italic">\u26A0\uFE0F This message could not be decrypted</div>`;
+  else if(kind==='sticker')inner=`<div class="bubble-content">[sticker]</div>`;
+  else inner=`<div class="bubble-content">${escapeHtml(m._text||'')}</div>`;
+  group.innerHTML=`<div class="bubble-row">${!isMe?`<div class="msg-group-avatar">${escapeHtml(initials(activeChatFriendName))}</div>`:''}<div class="chat-bubble ${isMe?'me':'them'}${isSticker?' bubble-sticker':''}">${inner}<div class="bubble-footer"><span class="bubble-time">${formatTime(m.created_at)}</span>${tickHtml}</div></div></div>`;
   container.appendChild(group);
 }
 
@@ -4687,103 +4903,59 @@ async function markMessagesRead(friendId){
   updateChatBadge();
 }
 
-function updateLastMsgPreview(friendId,msg){
+async function updateLastMsgPreview(friendId,msg){
   if(!msg)return;
+  const d=msg._kind?msg:await decodeMsg(msg);
   const el=document.getElementById('last-msg-'+friendId);
   const tel=document.getElementById('last-time-'+friendId);
-  const prefix=msg.sender_id===currentUser.id?'You: ':'';
-  const text=msg.content_type==='sticker'?'🎨 Sticker':(msg.content||'').substring(0,40)+((msg.content||'').length>40?'…':'');
+  const prefix=d.sender_id===currentUser.id?'You: ':'';
+  let text;
+  if(d._kind==='sticker')text='\uD83D\uDDBC\uFE0F Sticker';
+  else if(d._kind==='locked')text='\uD83D\uDD12 Encrypted message';
+  else if(d._kind==='error')text='\u26A0\uFE0F Unreadable message';
+  else{const t=d._text||'';text=t.substring(0,40)+(t.length>40?'\u2026':'');}
   if(el)el.textContent=prefix+text;
-  if(tel)tel.textContent=formatTime(msg.created_at);
+  if(tel)tel.textContent=formatTime(d.created_at);
+}
+
+function chatErrorText(e){
+  const msg = (e && e.message) || String(e || '');
+  if(msg === 'NO_PEER_KEY') return '\uD83D\uDD12 This person has not set up secure chat yet, so the message was not sent.';
+  if(msg === 'LOCKED') return '\uD83D\uDD12 Unlock secure chat first.';
+  if(/row-level security|violates/i.test(msg)) return 'You can only message your friends (or an admin).';
+  return 'Message failed: ' + msg;
 }
 
 async function sendMessage(){
   const input=document.getElementById('chatMsgInput');
   const content=input.value.trim();
   if(!content||!activeChatFriendId)return;
+  const peer=activeChatFriendId;
+  const btn=document.getElementById('chatSendBtn');
   input.value='';input.style.height='';
-  document.getElementById('chatSendBtn').disabled=true;
-  
-  let data = null, error = null;
-  
-  // Special handling for admin chat to avoid RLS issues
-  if(activeChatFriendId === 'admin_sys' || activeChatFriendId.includes('admin')) {
-    // Use local storage for admin messages
-    data = {
-      id: 'msg_admin_' + Date.now(),
-      sender_id: currentUser.id,
-      receiver_id: activeChatFriendId,
-      content: content,
-      status: 'sent',
-      created_at: new Date().toISOString()
-    };
-    
-    // Store in local admin messages
-    let adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
-    adminMessages.push(data);
-    localStorage.setItem('ms_admin_messages', JSON.stringify(adminMessages));
-  } else {
-    try {
-      const res = await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:activeChatFriendId,content,status:'sending'}).select().single();
-      data = res.data; error = res.error;
-    } catch(e){ error = e; }
-
-    if(error || !data){
-      console.warn('Message send error, using local fallback:', error);
-      data = {
-        id: 'msg_loc_' + Date.now(),
-        sender_id: currentUser.id,
-        receiver_id: activeChatFriendId,
-        content: content,
-        status: 'sent',
-        created_at: new Date().toISOString()
-      };
-      
-      // Store in local messages
-      let localMessages = JSON.parse(localStorage.getItem('ms_local_messages') || '[]');
-      localMessages.push(data);
-      localStorage.setItem('ms_local_messages', JSON.stringify(localMessages));
+  btn.disabled=true;
+  try{
+    if(!await ensureSecureChat()){ input.value=content; showToast('\uD83D\uDD12 Unlock secure chat to send messages.'); return; }
+    const enc=await E2EE.encrypt(peer, JSON.stringify({k:'t',t:content}), currentUser.id, peer);
+    const {data,error}=await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:peer,content:enc,content_type:'text',status:'sent'}).select().single();
+    if(error||!data)throw (error||new Error('Send failed'));
+    const d={...data,_kind:'text',_text:content};
+    if(activeChatFriendId===peer){
+      appendBubble(d);
+      lastMsgId=data.id;
+      const container=document.getElementById('chatMessages');
+      if(container)container.scrollTop=container.scrollHeight;
     }
-  }
-
-  document.getElementById('chatSendBtn').disabled=false;
-  appendBubble(data);
-  lastMsgId=data.id;
-  const container=document.getElementById('chatMessages');
-  if(container) container.scrollTop=container.scrollHeight;
-  
-  // Only try to update status in Supabase for non-admin messages
-  if(activeChatFriendId !== 'admin_sys' && !activeChatFriendId.includes('admin')) {
-    try { await sb.from('messages').update({status:'sent'}).eq('id',data.id); } catch(e){}
-  }
-  
-  const tick=document.getElementById('tick-'+data.id);
-  if(tick)tick.className='msg-tick sent';
-  try { updateStreak(activeChatFriendId); } catch(e){}
-  try { broadcastTyping(false); } catch(e){}
-  updateLastMsgPreview(activeChatFriendId,{...data,content});
-  
-  try { await addXP('message_sent'); } catch(e){}
-
-  // Admin Auto-Reply
-  if(activeChatFriendId === 'admin_sys' || activeChatFriendId.includes('admin')){
-    setTimeout(() => {
-      const reply = {
-        id: 'reply_' + Date.now(),
-        sender_id: activeChatFriendId,
-        receiver_id: currentUser.id,
-        content: '👋 ¡Hola! Un administrador ha recibido tu mensaje y te responderá lo antes posible.',
-        status: 'sent',
-        created_at: new Date().toISOString()
-      };
-      appendBubble(reply);
-      if(container) container.scrollTop=container.scrollHeight;
-      
-      // Store admin reply in local messages
-      let adminMessages = JSON.parse(localStorage.getItem('ms_admin_messages') || '[]');
-      adminMessages.push(reply);
-      localStorage.setItem('ms_admin_messages', JSON.stringify(adminMessages));
-    }, 1000);
+    updateLastMsgPreview(peer,d);
+    try{ updateStreak(peer); }catch(e){}
+    try{ broadcastTyping(false); }catch(e){}
+    try{ await addXP('message_sent'); }catch(e){}
+  }catch(e){
+    console.error('sendMessage error:',e);
+    input.value=content;
+    showToast(chatErrorText(e));
+  }finally{
+    btn.disabled=false;
   }
 }
 
@@ -4811,25 +4983,27 @@ async function checkFriendTyping(){
 
 function subscribeToTyping(){
   if(typingRealtime){sb.removeChannel(typingRealtime);}
-  typingRealtime=sb.channel('typing-'+currentUser?.id).on('postgres_changes',{event:'*',schema:'public',table:'typing_status',filter:`receiver_id=eq.${currentUser.id}`},()=>{checkFriendTyping();}).subscribe();
-  setInterval(checkFriendTyping,3000);
+  typingRealtime=sb.channel('typing-'+currentUser.id).on('postgres_changes',{event:'*',schema:'public',table:'typing_status',filter:`receiver_id=eq.${currentUser.id}`},()=>{checkFriendTyping();}).subscribe();
+  if(window._typingPoll)clearInterval(window._typingPoll);
+  window._typingPoll=setInterval(checkFriendTyping,3000);
 }
 
 function subscribeToChat(){
   if(chatRealtime){sb.removeChannel(chatRealtime);chatRealtime=null;}
   chatRealtime=sb.channel('inbox-'+currentUser.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`receiver_id=eq.${currentUser.id}`},payload=>{
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`receiver_id=eq.${currentUser.id}`},async payload=>{
       const m=payload.new;
       if(activeChatFriendId&&m.sender_id===activeChatFriendId){
-        if(!renderedMsgIds.has(m.id)){
-          const container=document.getElementById('chatMessages');
-          const wasAtBottom=container.scrollHeight-container.scrollTop-container.clientHeight<80;
-          appendBubble(m);lastMsgId=m.id;
-          if(wasAtBottom)container.scrollTop=container.scrollHeight;
-          markMessagesRead(activeChatFriendId);
-          updateLastMsgPreview(activeChatFriendId,m);
-        }
-      }else{updateChatBadge();}
+        if(renderedMsgIds.has(m.id))return;
+        const d=await decodeMsg(m);
+        if(renderedMsgIds.has(m.id)||activeChatFriendId!==m.sender_id)return;
+        const container=document.getElementById('chatMessages');
+        const wasAtBottom=container.scrollHeight-container.scrollTop-container.clientHeight<80;
+        appendBubble(d);lastMsgId=m.id;
+        if(wasAtBottom)container.scrollTop=container.scrollHeight;
+        markMessagesRead(activeChatFriendId);
+        updateLastMsgPreview(activeChatFriendId,d);
+      }else{refreshUnread();}
     })
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'messages',filter:`sender_id=eq.${currentUser.id}`},payload=>{
       const m=payload.new;
@@ -4842,20 +5016,12 @@ function subscribeToChat(){
         const wasAtBottom=container.scrollHeight-container.scrollTop-container.clientHeight<80;
         appendBroadcastBubble(payload.new);
         if(wasAtBottom)container.scrollTop=container.scrollHeight;
-      }else{updateChatBadge();}
+      }else{refreshUnread();}
     })
     .subscribe();
 }
 
-async function updateChatBadge(){
-  if(!currentUser)return;
-  const{count}=await sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',currentUser.id).neq('status','read');
-  const badge=document.getElementById('chatBadge'),topBadge=document.getElementById('chatTopBadge'),topNum=document.getElementById('chatTopBadgeNum');
-  const n=count||0;
-  badge.textContent=n;badge.style.display=n>0?'block':'none';
-  if(topBadge){topBadge.style.display=n>0?'flex':'none';if(topNum)topNum.textContent=n;}
-  loadChatBadges();
-}
+async function updateChatBadge(){ return refreshUnread(); }
 
 document.getElementById('chatMsgInput').addEventListener('input',function(){this.style.height='';this.style.height=Math.min(this.scrollHeight,140)+'px';handleTypingInput();});
 
@@ -5030,6 +5196,7 @@ async function forceLogout(reason = 'Session expired') {
   
   // Sign out from Supabase to clear session from localStorage
   try {
+    try{ await E2EE.lock(); }catch(e){}
     await sb.auth.signOut();
     console.log('Supabase session cleared');
   } catch (error) {
@@ -5195,12 +5362,6 @@ async function initializeGrannyGame(){const canvas=document.querySelector('#unit
 // SECTION NAVIGATION
 // ══════════════════════════════════════════════════════════════════
 function showSection(section){
-  // Prevent access to sections under maintenance
-  const maintenanceSections = ['friends', 'chat', 'shop'];
-  if (maintenanceSections.includes(section)) {
-    console.log('Section under maintenance:', section);
-    return; // Don't allow access to maintenance sections
-  }
   
   const gc=document.getElementById('gameContainer');
   const gameIsActive = gc.classList.contains('active');
@@ -5212,7 +5373,7 @@ function showSection(section){
   document.getElementById('appsAdBottom').style.display = 'none';
   if(chatPollTimer&&section!=='chat'){clearInterval(chatPollTimer);chatPollTimer=null;}
   document.getElementById('gamesGrid').style.display='none';
-  ['appsPage','accountPage','friendsPage','shopPage','mathssearchPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  ['appsPage','accountPage','friendsPage','shopPage','mathssearchPage','passPage','leaderboardPage','customizationPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   
   // Always ensure chat page, game suggestion overlay, and dev panel are closed when switching sections (unless explicitly opening them)
   if(section !== 'chat') {
@@ -5225,7 +5386,7 @@ function showSection(section){
     document.getElementById('devPanel').classList.remove('active');
   }
   
-  ['homeBtn','appsBtn','accountBtn','friendsBtn','chatBtn','shopBtn','mathsSearchBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  ['homeBtn','appsBtn','accountBtn','friendsBtn','chatBtn','shopBtn','mathsSearchBtn','passBtn','leaderboardBtn','customizeBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   document.getElementById('topNav').classList.remove('minimal');
   const cas=document.querySelector('.custom-apps-section');
   if(section==='home'){
@@ -5257,6 +5418,21 @@ function showSection(section){
     document.getElementById('shopBtn').classList.add('active');
     if(cas)cas.style.display='none';
     if(currentUser){ loadMyStickers(); loadPublicStickers(); }
+  }else if(section==='pass'){
+    document.getElementById('passPage').classList.add('active');
+    document.getElementById('passBtn')?.classList.add('active');
+    if(cas)cas.style.display='none';
+    loadPassData();
+  }else if(section==='leaderboard'){
+    document.getElementById('leaderboardPage').classList.add('active');
+    document.getElementById('leaderboardBtn')?.classList.add('active');
+    if(cas)cas.style.display='none';
+    loadLeaderboard();
+  }else if(section==='customize'){
+    document.getElementById('customizationPage').classList.add('active');
+    document.getElementById('customizeBtn')?.classList.add('active');
+    if(cas)cas.style.display='none';
+    loadPassData().then(()=>loadCustomizations());
   }else if(section==='mathssearch'){
     document.getElementById('mathssearchPage').classList.add('active');
     document.getElementById('mathsSearchBtn').classList.add('active');
@@ -5383,65 +5559,22 @@ const XP_REWARDS = {
 // Level requirements
 const LEVEL_REQUIREMENTS = [0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500, 6600, 7800, 9100, 10500, 12000, 13600, 15300, 17100, 19000];
 
+function mpBalance() { return passData ? (passData.total_xp - (passData.spent || 0)) : 0; }
+
 async function loadPassData() {
   if (!currentUser) return;
-  
   try {
     const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
     if (useDemo) {
-      // Demo mode - load from localStorage
       const demoPass = JSON.parse(localStorage.getItem('demo_pass_' + currentUser.id) || 'null');
-      if (demoPass) {
-        passData = demoPass;
-        updatePassUI();
-      } else {
-        // Create new pass
-        passData = {
-          id: 'demo_pass_' + currentUser.id,
-          user_id: currentUser.id,
-          level: 1,
-          xp: 0,
-          xp_to_next: 100,
-          total_xp: 0,
-          season: 1,
-          premium_tier: 0
-        };
-        localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
-        updatePassUI();
-      }
+      passData = demoPass || { id: 'demo_pass_' + currentUser.id, user_id: currentUser.id, level: 1, xp: 0, xp_to_next: 100, total_xp: 0, spent: 0, season: 1, premium_tier: 0 };
+      localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
     } else {
-      const { data, error } = await sb.from('maths_pass').select('*').eq('user_id', currentUser.id).eq('season', 1).maybeSingle();
-      
-      if (error) {
-        console.error('Error loading pass data:', error);
-        return;
-      }
-      
-      if (!data) {
-        // Create new pass
-        const { data: newPass, error: insertError } = await sb.from('maths_pass').insert({
-          user_id: currentUser.id,
-          level: 1,
-          xp: 0,
-          xp_to_next: 100,
-          total_xp: 0,
-          season: 1,
-          premium_tier: 0
-        }).select().single();
-        
-        if (insertError) {
-          console.error('Error creating pass:', insertError);
-          return;
-        }
-        
-        passData = newPass;
-      } else {
-        passData = data;
-      }
-      
-      updatePassUI();
+      const { data, error } = await sb.rpc('ensure_pass');
+      if (error) { console.error('Error loading pass data:', error); return; }
+      passData = Array.isArray(data) ? data[0] : data;
     }
+    updatePassUI();
   } catch (e) {
     console.error('Exception loading pass data:', e);
   }
@@ -5449,43 +5582,30 @@ async function loadPassData() {
 
 async function addXP(activityType, amount = null) {
   if (!currentUser || !passData) return;
-  
-  const xpToAdd = amount || XP_REWARDS[activityType] || 0;
-  if (xpToAdd <= 0) return;
-  
   try {
     const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    // Log activity
-    await logActivity(activityType, xpToAdd);
-    
-    // Update pass data
-    passData.xp += xpToAdd;
-    passData.total_xp += xpToAdd;
-    
-    // Check for level up
-    while (passData.xp >= passData.xp_to_next && passData.level < LEVEL_REQUIREMENTS.length) {
-      passData.xp -= passData.xp_to_next;
-      passData.level += 1;
-      passData.xp_to_next = LEVEL_REQUIREMENTS[passData.level] || passData.xp_to_next * 1.5;
-      
-      showToast(`🎉 Level Up! You are now Level ${passData.level}!`);
-    }
-    
     if (useDemo) {
+      const xpToAdd = amount || XP_REWARDS[activityType] || 0;
+      if (xpToAdd <= 0) return;
+      passData.xp += xpToAdd; passData.total_xp += xpToAdd;
+      while (passData.xp >= passData.xp_to_next && passData.level < LEVEL_REQUIREMENTS.length) {
+        passData.xp -= passData.xp_to_next; passData.level += 1;
+        passData.xp_to_next = LEVEL_REQUIREMENTS[passData.level] || passData.xp_to_next * 1.5;
+        showToast(`\uD83C\uDF89 Level Up! You are now Level ${passData.level}!`);
+      }
       localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
     } else {
-      await sb.from('maths_pass').update({
-        xp: passData.xp,
-        total_xp: passData.total_xp,
-        level: passData.level,
-        xp_to_next: passData.xp_to_next
-      }).eq('id', passData.id);
+      // XP amounts and daily limits are decided by the database, not the browser
+      const before = passData.level;
+      const { data, error } = await sb.rpc('award_xp', { p_activity: activityType });
+      if (error) { console.warn('award_xp failed:', error.message); return; }
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row) return;
+      passData = row;
+      if (passData.level > before) showToast(`\uD83C\uDF89 Level Up! You are now Level ${passData.level}!`);
     }
-    
     updatePassUI();
     checkAchievements();
-    
   } catch (e) {
     console.error('Error adding XP:', e);
   }
@@ -5514,7 +5634,7 @@ function updatePassUI() {
   if (!passData) return;
   
   // Update currency display
-  document.getElementById('passMP').textContent = passData.total_xp; // Using XP as MP for demo
+  document.getElementById('passMP').textContent = mpBalance();
   document.getElementById('passXP').textContent = passData.total_xp;
   
   // Update level badge
@@ -5572,35 +5692,27 @@ function getTierRewards(level) {
   return rewards[level] || { name: 'Tier ' + level, description: 'Custom rewards' };
 }
 
+let unlockedAch = null;
+
 async function checkAchievements() {
   if (!currentUser || !passData) return;
-  
   try {
     const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    if (!useDemo) {
-      // Check level achievements
-      const { data: achievements } = await sb.from('achievements').select('*').eq('achievement_type', 'level');
-      
-      for (const achievement of achievements || []) {
-        const requirement = achievement.requirement_data.level;
-        if (passData.level >= requirement) {
-          // Check if already unlocked
-          const { data: existing } = await sb.from('user_achievements').select('*')
-            .eq('user_id', currentUser.id)
-            .eq('achievement_id', achievement.id)
-            .maybeSingle();
-          
-          if (!existing) {
-            await sb.from('user_achievements').insert({
-              user_id: currentUser.id,
-              achievement_id: achievement.id
-            });
-            
-            showToast(`🏆 Achievement Unlocked: ${achievement.name}! +${achievement.xp_reward} XP`);
-            await addXP('achievement', achievement.xp_reward);
-          }
-        }
+    if (useDemo) return;
+    if (!unlockedAch || unlockedAch.uid !== currentUser.id) {
+      const { data } = await sb.from('user_achievements').select('achievement_id').eq('user_id', currentUser.id);
+      unlockedAch = { uid: currentUser.id, ids: new Set((data || []).map(r => r.achievement_id)) };
+    }
+    const { data: achievements } = await sb.from('achievements').select('*').eq('achievement_type', 'level');
+    for (const achievement of achievements || []) {
+      if (unlockedAch.ids.has(achievement.id)) continue;
+      const requirement = achievement.requirement_data && achievement.requirement_data.level;
+      if (requirement == null || passData.level < requirement) continue;
+      unlockedAch.ids.add(achievement.id);   // never retry the same one in a loop
+      const { data: ok, error } = await sb.rpc('unlock_achievement', { p_achievement_id: achievement.id });
+      if (!error && ok) {
+        showToast(`\uD83C\uDFC6 Achievement Unlocked: ${achievement.name}!`);
+        await addXP('achievement');
       }
     }
   } catch (e) {
@@ -5608,7 +5720,6 @@ async function checkAchievements() {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════
 // LEADERBOARD SYSTEM
 // ══════════════════════════════════════════════════════════════════
 let currentLeaderboardTab = 'xp';
@@ -5711,29 +5822,27 @@ let equippedItems = {};
 
 async function loadCustomizations() {
   if (!currentUser) return;
-  
   try {
     const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
+    ownedItems = [];
+    equippedItems = {};
     if (useDemo) {
-      // Demo mode - load from localStorage
       ownedItems = JSON.parse(localStorage.getItem('demo_custom_items_' + currentUser.id) || '[]');
       equippedItems = JSON.parse(localStorage.getItem('demo_equipped_items_' + currentUser.id) || '{}');
     } else {
-      const { data: owned } = await sb.from('user_customizations')
+      const { data: owned, error } = await sb.from('user_customizations')
         .select('*, customization_items(*)')
         .eq('user_id', currentUser.id);
-      
+      if (error) { console.error('Error loading customizations:', error); }
       if (owned) {
         ownedItems = owned;
         owned.forEach(item => {
-          if (item.equipped) {
+          if (item.equipped && item.customization_items) {
             equippedItems[item.customization_items.item_type] = item.customization_items;
           }
         });
       }
     }
-    
     loadCustomizationItems(currentCustomTab);
     updateCustomizationPreview();
   } catch (e) {
@@ -5778,7 +5887,7 @@ function renderCustomizationGrid(items) {
   items.forEach(item => {
     const isOwned = ownedItems.some(owned => owned.item_id === item.id);
     const isEquipped = equippedItems[currentCustomTab]?.id === item.id;
-    const canAfford = passData && passData.total_xp >= item.cost_mp;
+    const canAfford = passData && mpBalance() >= item.cost_mp;
     const meetsLevel = passData && passData.level >= item.level_requirement;
     
     const div = document.createElement('div');
@@ -5787,9 +5896,9 @@ function renderCustomizationGrid(items) {
     div.innerHTML = `
       <div class="custom-rarity ${item.rarity}">${item.rarity}</div>
       ${isOwned ? '<div class="custom-badge">✓</div>' : ''}
-      <div class="custom-icon">${item.icon_url}</div>
-      <div class="custom-name">${item.name}</div>
-      <div class="custom-desc">${item.description || ''}</div>
+      <div class="custom-icon">${escAttr(item.icon_url)}</div>
+      <div class="custom-name">${escAttr(item.name)}</div>
+      <div class="custom-desc">${escAttr(item.description || '')}</div>
       <div class="custom-price ${item.cost_mp === 0 ? 'custom-free' : ''}">
         ${item.cost_mp === 0 ? 'FREE' : `${item.cost_mp} MP`}
       </div>
@@ -5814,56 +5923,19 @@ function renderCustomizationGrid(items) {
 }
 
 async function buyCustomization(itemId) {
-  if (!currentUser || !passData) return;
-  
+  if (!currentUser || !passData) { showToast('Loading your Maths Pass... try again in a moment.'); return; }
   try {
     const useDemo = DEMO_MODE || window.DEMO_MODE_FALLBACK || !sb;
-    
-    let item;
-    
-    if (useDemo) {
-      // Find demo item
-      const demoItems = [
-        { id: 'demo_basic_frame', name: 'Basic Frame', item_type: 'avatar_frame', rarity: 'common', cost_mp: 0, icon_url: '🔵' },
-        { id: 'demo_silver_frame', name: 'Silver Frame', item_type: 'avatar_frame', rarity: 'rare', cost_mp: 100, icon_url: '🔶' },
-        { id: 'demo_gold_frame', name: 'Gold Frame', item_type: 'avatar_frame', rarity: 'epic', cost_mp: 500, icon_url: '🟡' }
-      ];
-      item = demoItems.find(i => i.id === itemId);
-    } else {
-      const { data } = await sb.from('customization_items').select('*').eq('id', itemId).single();
-      item = data;
-    }
-    
-    if (!item) return;
-    
-    if (passData.total_xp < item.cost_mp) {
-      showToast('❌ Not enough Maths Points!');
-      return;
-    }
-    
-    // Deduct MP
-    passData.total_xp -= item.cost_mp;
-    
-    if (useDemo) {
-      ownedItems.push({ item_id: itemId, item_type: item.item_type, equipped: false });
-      localStorage.setItem('demo_custom_items_' + currentUser.id, JSON.stringify(ownedItems));
-      localStorage.setItem('demo_pass_' + currentUser.id, JSON.stringify(passData));
-    } else {
-      await sb.from('maths_pass').update({ total_xp: passData.total_xp }).eq('id', passData.id);
-      await sb.from('user_customizations').insert({
-        user_id: currentUser.id,
-        item_id: itemId,
-        equipped: false
-      });
-    }
-    
-    showToast(`✅ Purchased ${item.name}!`);
+    if (useDemo) { showToast('Shop is unavailable offline.'); return; }
+    const { data, error } = await sb.rpc('buy_customization', { p_item_id: itemId });
+    if (error) { showToast('\u274C ' + (error.message || 'Purchase failed')); return; }
+    if (data) passData = Array.isArray(data) ? data[0] : data;
+    showToast('\u2705 Purchased!');
     updatePassUI();
-    loadCustomizationItems(currentCustomTab);
-    
+    await loadCustomizations();
   } catch (e) {
     console.error('Error buying customization:', e);
-    showToast('❌ Purchase failed');
+    showToast('\u274C Purchase failed');
   }
 }
 
@@ -5889,6 +5961,7 @@ async function equipCustomization(itemId) {
     
     if (!item) return;
     
+    if (!ownedItems.some(o => o.item_id === itemId)) { showToast('You do not own this item yet.'); return; }
     // Unequip current item of same type
     const currentEquipped = equippedItems[item.item_type];
     if (currentEquipped) {
@@ -6541,23 +6614,7 @@ async function rejectRegistration(requestId){
 let passSeasonData = null, passUserData = null, passUserItems = [], shopItems = [], saleTimerInterval = null;
 const XP_RATES = { daily_login: 20, chat_message: 5, streak_bonus: 15 };
 
-async function initUserPass(){ /* ... keep existing implementation ... */ }
-async function awardPassXP(reason, amount, refId=null){ /* ... keep existing implementation ... */ }
-async function awardChatXP(msgId){ if(!msgId) return; await awardPassXP('chat_message', XP_RATES.chat_message, String(msgId)); }
-function getPassLevel(totalXP, tiers){ /* ... keep existing implementation ... */ return 1; }
-function getXPForNextLevel(totalXP, tiers){ /* ... keep existing implementation ... */ return {current:0, needed:100, nextLevel:2}; }
-function updatePassBadgeUI(){ /* ... keep existing implementation ... */ }
-function updateAccountTagDisplay(){ /* ... keep existing implementation ... */ }
-function refreshAccountTagDisplay(){ updateAccountTagDisplay(); }
-async function loadPassData(){ /* ... keep existing implementation ... */ }
-function renderTierGrid(tiers, currentLevel){ /* ... keep existing implementation ... */ }
-async function loadShopData(){ /* ... keep existing implementation ... */ }
-function renderShopGrid(items, ownedItems){ /* ... keep existing implementation ... */ }
-async function buyShopItem(itemId, price, isFree){ /* ... keep existing implementation ... */ }
-async function equipShopItem(itemId, isEquipped){ /* ... keep existing implementation ... */ }
-function startSaleTimer(endDate, itemName){ /* ... keep existing implementation ... */ }
-function showPassRewardToast(msg){ /* ... keep existing implementation ... */ }
-function syncPassUI(){ updatePassBadgeUI(); }
+// (removed: empty stub functions that overrode the real Maths Pass / shop code)
 
 // ══════════════════════════════════════════════════════════════════
 // SHOP TABS
@@ -6576,31 +6633,18 @@ function switchShopTab(tab) {
 
 async function uploadStickerImage(file, userId){
   if(!file) return '';
-  
-  // Try Supabase storage first
-  try {
-    const ext = file.name.split('.').pop().toLowerCase();
-    const path = `stickers/${userId}/${Date.now()}.${ext}`;
-    const { data, error } = await sb.storage.from('stickers').upload(path, file, { cacheControl:'3600', upsert:false });
-    if(error) throw error;
-    const { data: urlData } = sb.storage.from('stickers').getPublicUrl(path);
-    return urlData?.publicUrl || '';
-  } catch(e) {
-    console.error('Supabase storage upload failed:', e);
-    
-    // Fallback: convert to base64 data URL
-    try {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      });
-    } catch(e2) {
-      console.error('Base64 conversion failed:', e2);
-      return '';
-    }
+  const okTypes = {'image/png':'png','image/jpeg':'jpg','image/gif':'gif','image/webp':'webp'};
+  const ext = okTypes[file.type];
+  if(!ext){ showStickerMsg('Only PNG, JPG, GIF or WebP images are allowed.','err'); return ''; }
+  const path = `${userId}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const { error } = await sb.storage.from('stickers').upload(path, file, { cacheControl:'3600', upsert:false, contentType:file.type });
+  if(error){
+    console.error('Sticker upload failed:', error);
+    showStickerMsg('Upload failed: ' + (error.message || error) + ' (is the "stickers" storage bucket created?)','err');
+    return '';
   }
+  const { data } = sb.storage.from('stickers').getPublicUrl(path);
+  return (data && data.publicUrl) || '';
 }
 
 async function createSticker(){
@@ -6616,7 +6660,7 @@ async function createSticker(){
   showStickerMsg('⏳ Uploading sticker...','ok');
   
   const imageUrl = await uploadStickerImage(file, currentUser.id);
-  if(!imageUrl){ showStickerMsg('Failed to upload image. Try again.','err'); return; }
+  if(!imageUrl){ return; }
   
   try {
     const { data, error } = await sb.from('stickers').insert({
@@ -6673,9 +6717,9 @@ async function loadMyStickers(){
     const card = document.createElement('div');
     card.className = 'sticker-card';
     card.innerHTML = `
-      <div class="sticker-image"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><text y=%2260%22 font-size=%2260%22>🎨</text></svg>'"></div>
-      <div class="sticker-name">${escapeHtml(s.name)}</div>
-      ${s.description ? `<div class="sticker-meta">${escapeHtml(s.description)}</div>` : ''}
+      <div class="sticker-image"><img src="${escAttr(s.image_url)}" alt="${escAttr(s.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><text y=%2260%22 font-size=%2260%22>🎨</text></svg>'"></div>
+      <div class="sticker-name">${escAttr(s.name)}</div>
+      ${s.description ? `<div class="sticker-meta">${escAttr(s.description)}</div>` : ''}
       <span class="sticker-badge ${s.is_public ? 'public' : 'private'}">${s.is_public ? '🌍 Public' : '🔒 Private'}</span>
       <button onclick="deleteSticker('${s.id}')" style="margin-top:8px;background:rgba(246,79,89,.1);border:1px solid rgba(246,79,89,.25);color:#f64f59;border-radius:8px;padding:5px 12px;font-size:.75em;font-weight:700;cursor:pointer;font-family:inherit">🗑️ Delete</button>
     `;
@@ -6707,10 +6751,10 @@ async function loadPublicStickers(){
     const card = document.createElement('div');
     card.className = 'sticker-card';
     card.innerHTML = `
-      <div class="sticker-image"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><text y=%2260%22 font-size=%2260%22>🎨</text></svg>'"></div>
-      <div class="sticker-name">${escapeHtml(s.name)}</div>
-      <div class="sticker-meta">by ${escapeHtml(creatorName)}</div>
-      ${s.description ? `<div class="sticker-meta">${escapeHtml(s.description)}</div>` : ''}
+      <div class="sticker-image"><img src="${escAttr(s.image_url)}" alt="${escAttr(s.name)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><text y=%2260%22 font-size=%2260%22>🎨</text></svg>'"></div>
+      <div class="sticker-name">${escAttr(s.name)}</div>
+      <div class="sticker-meta">by ${escAttr(creatorName)}</div>
+      ${s.description ? `<div class="sticker-meta">${escAttr(s.description)}</div>` : ''}
       <span class="sticker-badge public">🌍 Public</span>
       ${isOwn ? '<div style="margin-top:6px;font-size:.75em;color:#667eea;font-weight:700">Your sticker</div>' : ''}
     `;
@@ -6725,13 +6769,21 @@ async function purchaseSticker(stickerId, price, creatorId){
 async function deleteSticker(stickerId){
   if(!confirm('Delete this sticker?')) return;
   try {
-    await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id);
-    showToast('🗑️ Sticker deleted');
+    const { data: row } = await sb.from('stickers').select('image_url').eq('id', stickerId).eq('user_id', currentUser.id).maybeSingle();
+    const { error } = await sb.from('stickers').delete().eq('id', stickerId).eq('user_id', currentUser.id);
+    if(error) throw error;
+    try{
+      const marker = '/storage/v1/object/public/stickers/';
+      const u = row && row.image_url || '';
+      const i = u.indexOf(marker);
+      if(i >= 0) await sb.storage.from('stickers').remove([decodeURIComponent(u.slice(i + marker.length))]);
+    }catch(e2){ console.warn('Could not remove sticker file', e2); }
+    showToast('\uD83D\uDDD1\uFE0F Sticker deleted');
     loadMyStickers();
     loadPublicStickers();
   } catch(e){
     console.error('Error deleting sticker:', e);
-    showStickerMsg('❌ Failed to delete sticker: ' + e.message,'err');
+    showStickerMsg('Failed to delete sticker: ' + (e.message || e),'err');
   }
 }
 
@@ -6783,7 +6835,7 @@ async function loadStickerPicker(){
     const item = document.createElement('div');
     item.className = 'sticker-picker-item';
     item.style.cssText = 'cursor:pointer;border-radius:10px;overflow:hidden;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#f8f9ff;border:2px solid transparent;transition:all .15s;padding:4px';
-    item.innerHTML = `<img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:6px" title="${escapeHtml(s.name)}" onerror="this.parentElement.style.display='none'">`;
+    item.innerHTML = `<img src="${escAttr(s.image_url)}" alt="${escAttr(s.name)}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:6px" title="${escAttr(s.name)}" onerror="this.parentElement.style.display='none'">`;
     item.addEventListener('mouseenter', () => { item.style.borderColor = '#667eea'; item.style.transform = 'scale(1.05)'; });
     item.addEventListener('mouseleave', () => { item.style.borderColor = 'transparent'; item.style.transform = ''; });
     item.onclick = () => sendSticker(s.id, s.image_url, s.name);
@@ -6793,24 +6845,27 @@ async function loadStickerPicker(){
 
 async function sendSticker(stickerId, imageUrl, name){
   if(!activeChatFriendId || !currentUser) return;
+  if(!isSafeStickerUrl(imageUrl)){ showToast('This sticker image is not valid.'); return; }
   toggleStickerPicker();
-  const { data, error } = await sb.from('messages').insert({
-    sender_id: currentUser.id,
-    receiver_id: activeChatFriendId,
-    content: name || 'Sticker',
-    content_type: 'sticker',
-    sticker_url: imageUrl,
-    status: 'sending'
-  }).select().single();
-  if(!error && data){
-    appendBubble(data);
-    lastMsgId = data.id;
-    const container = document.getElementById('chatMessages');
-    container.scrollTop = container.scrollHeight;
-    await sb.from('messages').update({status:'sent'}).eq('id', data.id);
-    const tick = document.getElementById('tick-'+data.id);
-    if(tick) tick.className = 'msg-tick sent';
-    updateStreak(activeChatFriendId);
+  const peer = activeChatFriendId;
+  try{
+    if(!await ensureSecureChat()){ showToast('\uD83D\uDD12 Unlock secure chat to send messages.'); return; }
+    const enc = await E2EE.encrypt(peer, JSON.stringify({k:'s',u:imageUrl,n:name||'Sticker'}), currentUser.id, peer);
+    const { data, error } = await sb.from('messages').insert({
+      sender_id: currentUser.id, receiver_id: peer, content: enc, content_type: 'text', status: 'sent'
+    }).select().single();
+    if(error || !data) throw (error || new Error('Send failed'));
+    const d = {...data, _kind:'sticker', _url:imageUrl, _text:name||'Sticker'};
+    if(activeChatFriendId === peer){
+      appendBubble(d); lastMsgId = data.id;
+      const container = document.getElementById('chatMessages');
+      container.scrollTop = container.scrollHeight;
+    }
+    updateLastMsgPreview(peer, d);
+    try{ updateStreak(peer); }catch(e){}
+  }catch(e){
+    console.error('sendSticker error', e);
+    showToast(chatErrorText(e));
   }
 }
 
