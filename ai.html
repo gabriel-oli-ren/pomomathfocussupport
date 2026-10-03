@@ -4239,7 +4239,24 @@ async function sendMessage(){
     }
 
 
+    
     /*
+     * Friendly messages for the most common failures.
+     * "Failed to fetch" means the browser could not reach the
+     * chat-completion Edge Function at all (not deployed, wrong
+     * project URL, blocked by CORS, or no internet).
+     */
+    if(/failed to fetch|networkerror|load failed|network request failed/i.test(String(errorMessage))){
+      errorMessage =
+        "Could not reach the AI service. Check your internet connection. " +
+        "If it keeps happening, the chat-completion function is probably not deployed yet.";
+    }else if(/session has expired|jwt|invalid token|401/i.test(String(errorMessage))){
+      errorMessage = "Your session has expired. Please refresh the page and sign in again.";
+    }else if(/ANTHROPIC_API_KEY/i.test(String(errorMessage))){
+      errorMessage = "The AI is not configured yet. Ask the admin to add the AI key.";
+    }
+
+/*
      * Remove empty assistant UI if
      * the AI failed before generating.
      */
