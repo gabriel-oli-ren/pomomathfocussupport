@@ -4252,7 +4252,7 @@ async function sendMessage(){
         "If it keeps happening, the chat-completion function is probably not deployed yet.";
     }else if(/session has expired|jwt|invalid token|401/i.test(String(errorMessage))){
       errorMessage = "Your session has expired. Please refresh the page and sign in again.";
-    }else if(/ANTHROPIC_API_KEY/i.test(String(errorMessage))){
+    }else if(/API_KEY|out of credit/i.test(String(errorMessage))){
       errorMessage = "The AI is not configured yet. Ask the admin to add the AI key.";
     }
 
