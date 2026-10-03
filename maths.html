@@ -1623,6 +1623,69 @@ body:not(.authenticated) .dev-panel.active {
 .sticker-picker-header{padding:12px 16px;font-size:.9em;font-weight:800;color:#667eea;border-bottom:1px solid #f0f0f5}
 .sticker-picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;padding:12px;overflow-y:auto;max-height:220px}
 .sticker-picker-empty{grid-column:1/-1;text-align:center;color:#aaa;padding:30px 10px;font-size:.85em}
+
+/* ===================== HALLOWEEN MATHS PASS ===================== */
+.hw-subnav{display:flex;gap:8px;margin:0 0 18px;padding:5px;background:rgba(18,10,31,.9);border:1px solid rgba(255,122,26,.3);border-radius:14px;position:relative;z-index:3}
+.hw-subnav-btn{flex:1;border:none;background:transparent;color:rgba(255,255,255,.65);font-weight:800;font-size:.9em;padding:11px 14px;border-radius:10px;cursor:pointer;font-family:inherit;transition:all .2s}
+.hw-subnav-btn:hover{color:#fff;background:rgba(255,255,255,.06)}
+.hw-subnav-btn.active{background:linear-gradient(135deg,#ff7a1a,#c2410c);color:#fff;box-shadow:0 4px 16px rgba(255,122,26,.4)}
+
+.pass-hero{background:radial-gradient(120% 140% at 88% 0%,rgba(255,122,26,.30),transparent 55%),radial-gradient(90% 120% at 0% 100%,rgba(139,61,255,.38),transparent 60%),linear-gradient(135deg,#120a1f 0%,#24103d 55%,#2b0f2a 100%);border:1px solid rgba(255,122,26,.4);box-shadow:0 10px 44px rgba(255,122,26,.2),inset 0 0 60px rgba(139,61,255,.12)}
+.pass-hero::before{content:"\1F578\FE0F";position:absolute;top:-6px;left:6px;font-size:5em;opacity:.22;transform:rotate(-8deg);pointer-events:none}
+.pass-hero-blob-1{background:radial-gradient(circle,rgba(255,122,26,.5),transparent 70%)}
+.pass-hero-blob-2{background:radial-gradient(circle,rgba(139,61,255,.5),transparent 70%)}
+.pass-hero-blob-3{background:radial-gradient(circle,rgba(163,255,70,.2),transparent 70%)}
+.pass-season-pill{background:linear-gradient(135deg,#ff7a1a,#ffb347);color:#1a0b2e;box-shadow:0 0 20px rgba(255,122,26,.6)}
+.pass-hero-title{font-size:2.6em;color:#ffb347;letter-spacing:1px;font-family:"Chalkduster","Marker Felt","Segoe Print","Comic Sans MS",system-ui,sans-serif;text-shadow:0 0 16px rgba(255,122,26,.7),0 3px 0 #5b1d86}
+.pass-hero-sub{color:rgba(255,255,255,.72);max-width:560px}
+.pass-hero-ends{color:rgba(255,255,255,.75);gap:14px}
+.hw-count{display:flex;gap:8px;flex-wrap:wrap}
+.hw-count-box{min-width:58px;text-align:center;background:rgba(18,10,31,.75);border:1px solid rgba(255,122,26,.55);border-radius:12px;padding:8px 6px 6px;box-shadow:0 0 14px rgba(255,122,26,.25),inset 0 0 12px rgba(255,122,26,.08)}
+.hw-count-num{display:block;color:#ffb347;font-size:1.55em;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(255,122,26,.7)}
+.hw-count-lbl{display:block;color:rgba(255,255,255,.55);font-size:.62em;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-top:4px}
+.hw-ended{display:inline-block;background:rgba(18,10,31,.8);border:1px solid rgba(139,61,255,.6);border-radius:12px;padding:10px 16px;color:#d8b4fe;font-weight:800}
+.pass-cur-chip{background:rgba(18,10,31,.55);border-color:rgba(255,122,26,.35)}
+.pass-cur-icon.mp{background:linear-gradient(135deg,rgba(255,122,26,.35),rgba(194,65,12,.3));border-color:rgba(255,122,26,.6)}
+.pass-cur-icon.xp{background:linear-gradient(135deg,rgba(139,61,255,.35),rgba(88,28,135,.3));border:1.5px solid rgba(139,61,255,.6)}
+
+.hw-deco{position:absolute;pointer-events:none;z-index:0;font-size:1.8em;opacity:.55;filter:drop-shadow(0 0 8px rgba(255,122,26,.5))}
+.hw-d1{right:7%;top:14%;font-size:3em;animation:hwBob 4s ease-in-out infinite}
+.hw-d2{left:-8%;top:10%;animation:hwFly 15s linear infinite}
+.hw-d3{right:20%;bottom:10%;font-size:2.2em;animation:hwBob 5.5s ease-in-out infinite .6s}
+.hw-d4{right:2%;top:-2%;font-size:2.4em;animation:hwSwing 3.5s ease-in-out infinite;transform-origin:50% 0}
+.hw-d5{left:-8%;top:55%;font-size:1.3em;animation:hwFly 21s linear infinite 5s}
+.hw-d6{right:36%;top:8%;font-size:1.4em;animation:hwBob 6s ease-in-out infinite 1.2s}
+@keyframes hwBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(5deg)}}
+@keyframes hwSwing{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+@keyframes hwFly{0%{transform:translateX(0) translateY(0)}25%{transform:translateX(30vw) translateY(24px)}50%{transform:translateX(60vw) translateY(-8px)}75%{transform:translateX(90vw) translateY(22px)}100%{transform:translateX(125vw) translateY(0)}}
+@media (prefers-reduced-motion:reduce){.hw-deco{animation:none!important}}
+
+.pass-xp-card,.pass-how-card{background:rgba(29,16,48,.94);border:1px solid rgba(255,122,26,.28);box-shadow:0 6px 28px rgba(0,0,0,.35)}
+.pass-xp-card h3,.pass-how-card h3{color:#ffb347;border-bottom-color:rgba(255,122,26,.25)}
+.pass-xp-level-pill{background:linear-gradient(135deg,#ff7a1a,#8b3dff);box-shadow:0 0 12px rgba(255,122,26,.45)}
+.pass-xp-track{background:rgba(255,255,255,.08);box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
+.pass-xp-fill{background:linear-gradient(90deg,#ff7a1a,#ffb347 60%,#a3ff46)}
+.pass-xp-sub{color:rgba(255,255,255,.6)}
+.pass-how-item{background:rgba(255,255,255,.05);border-color:rgba(255,122,26,.22)}
+.pass-how-name{color:#fff}
+.pass-how-sub{color:rgba(255,255,255,.6)}
+.pass-how-xp{background:linear-gradient(135deg,#ff7a1a,#c2410c)}
+.pass-tiers-title{color:#ffb347;border-bottom-color:rgba(255,122,26,.25)}
+.pass-tier{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);box-shadow:none}
+.pass-tier.unlocked{background:linear-gradient(135deg,rgba(255,122,26,.18),rgba(139,61,255,.18));border-color:rgba(255,122,26,.65)}
+.pass-tier.unlocked::before{background:linear-gradient(90deg,#ff7a1a,#8b3dff)}
+.pass-tier.current-tier{border-color:#ffb347;box-shadow:0 0 16px rgba(255,122,26,.4)}
+.pass-tier.locked{opacity:.55}
+.pass-tier-lv{color:rgba(255,255,255,.45)}
+.pass-tier.unlocked .pass-tier-lv{color:#ffb347}
+.pass-tier-name{color:#fff}
+.pass-tier-sub{color:rgba(255,255,255,.55)}
+.pass-tier-xp{color:rgba(255,255,255,.4)}
+.pass-tier-check{background:linear-gradient(135deg,#ff7a1a,#8b3dff)}
+.pass-tier-icon .hw-swatch{display:inline-block;width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.55)}
+.hw-empty{grid-column:1/-1;text-align:center;color:rgba(255,255,255,.6);padding:18px 10px;font-size:.9em}
+.custom-icon .hw-swatch{display:inline-block;width:38px;height:38px;border-radius:50%;border:2px solid rgba(0,0,0,.15)}
+
 </style>
 </head>
 <body>
@@ -1897,9 +1960,7 @@ body:not(.authenticated) .dev-panel.active {
     <div class="sidebar-item" id="friendsBtn" onclick="showSection('friends')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span class="sidebar-item-text">Friends</span><span class="sidebar-badge" id="friendsBadge" style="display:none">0</span></div>
     <div class="sidebar-item" id="chatBtn" onclick="showSection('chat')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="sidebar-chat-badge" id="sidebarChatBadge" style="display:none">0</span></span><span class="sidebar-item-text">Chat</span><span class="sidebar-badge" id="chatBadge" style="display:none">0</span></div>
     <div class="sidebar-item" id="shopBtn" onclick="showSection('shop')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></span><span class="sidebar-item-text">Shop</span></div>
-    <div class="sidebar-item" id="passBtn" onclick="showSection('pass')"><span class="sidebar-item-icon">🏅</span><span class="sidebar-item-text">Maths Pass</span></div>
-    <div class="sidebar-item" id="leaderboardBtn" onclick="showSection('leaderboard')"><span class="sidebar-item-icon">🏆</span><span class="sidebar-item-text">Leaderboard</span></div>
-    <div class="sidebar-item" id="customizeBtn" onclick="showSection('customize')"><span class="sidebar-item-icon">🎨</span><span class="sidebar-item-text">Customize</span></div>
+    <div class="sidebar-item" id="passBtn" onclick="showSection('pass')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 2.5h4.1L12 6.6l2.7-4.1h4.1l-6.1 9.2"></path><path d="M11.1 11.7 5.2 2.5"></path><circle cx="12" cy="15.7" r="6.1"></circle><polygon points="12.00 12.00 12.97 14.37 15.52 14.56 13.57 16.21 14.17 18.69 12.00 17.35 9.83 18.69 10.43 16.21 8.48 14.56 11.03 14.37"></polygon></svg></span><span class="sidebar-item-text">Maths Pass</span></div>
     <div class="sidebar-item" id="accountBtn" onclick="showSection('account')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="sidebar-item-text">Account</span></div>
   </div>
   <div class="sidebar-version">v3.0.1</div>
@@ -2037,6 +2098,11 @@ body:not(.authenticated) .dev-panel.active {
       <div class="page-msg" id="acctMsg"></div>
     </div>
     <div class="page-card">
+      <h3>🎨 Customization</h3>
+      <p style="color:#aaa;font-size:.88em;margin-bottom:16px">Spend your Maths Points on avatar frames, name colours, badges and more.</p>
+      <button class="save-btn" onclick="showSection('customize')">🎨 Open Customization</button>
+    </div>
+    <div class="page-card">
       <h3>🔑 Your Friend Code</h3>
       <p style="color:#aaa;font-size:.88em;margin-bottom:16px">Share this with friends so they can add you.</p>
       <div class="friend-code-box"><span class="friend-code-val" id="myFriendCode">------</span><button class="copy-btn" onclick="copyFriendCode()">📋 Copy</button></div>
@@ -2118,17 +2184,23 @@ body:not(.authenticated) .dev-panel.active {
 
   <!-- MATHS PASS PAGE -->
   <div class="maths-pass-page" id="passPage">
+    <div class="hw-subnav">
+      <button class="hw-subnav-btn active" onclick="showSection('pass')">🎃 Season Pass</button>
+      <button class="hw-subnav-btn" onclick="showSection('leaderboard')">🏆 Leaderboard</button>
+    </div>
     <div class="pass-hero">
       <div class="pass-hero-blob pass-hero-blob-1"></div>
       <div class="pass-hero-blob pass-hero-blob-2"></div>
       <div class="pass-hero-blob pass-hero-blob-3"></div>
+      <span class="hw-deco hw-d1">🎃</span><span class="hw-deco hw-d2">🦇</span><span class="hw-deco hw-d3">👻</span>
+      <span class="hw-deco hw-d4">🕷️</span><span class="hw-deco hw-d5">🦇</span><span class="hw-deco hw-d6">🍬</span>
       <div class="pass-hero-inner">
-        <div class="pass-season-pill">🏆 Season 1</div>
+        <div class="pass-season-pill">🎃 Halloween Season</div>
         <div class="pass-hero-title">Maths Pass</div>
-        <div class="pass-hero-sub">Earn XP by playing games, chatting with friends, and maintaining streaks!</div>
+        <div class="pass-hero-sub">Spooky season is here! Earn XP, level up and unlock haunted frames, glowing name colours and badges before the clock strikes midnight on 1 November.</div>
         <div class="pass-hero-ends">
-          <span>Season ends in:</span>
-          <span class="pass-ends-val">30 days</span>
+          <span>⏳ Season ends in:</span>
+          <div class="hw-count" id="passCountdown"></div>
         </div>
         <div class="pass-currency-row">
           <div class="pass-cur-chip">
@@ -2211,6 +2283,10 @@ body:not(.authenticated) .dev-panel.active {
 
   <!-- LEADERBOARD PAGE -->
   <div class="leaderboard-page" id="leaderboardPage">
+    <div class="hw-subnav">
+      <button class="hw-subnav-btn" onclick="showSection('pass')">🎃 Season Pass</button>
+      <button class="hw-subnav-btn active" onclick="showSection('leaderboard')">🏆 Leaderboard</button>
+    </div>
     <div class="lb-hero">
       <div class="lb-hero-blob lb-hero-blob-1"></div>
       <div class="lb-hero-blob lb-hero-blob-2"></div>
@@ -2234,6 +2310,10 @@ body:not(.authenticated) .dev-panel.active {
 
   <!-- CUSTOMIZATION PAGE -->
   <div class="customization-page" id="customizationPage">
+    <div class="hw-subnav">
+      <button class="hw-subnav-btn" onclick="showSection('account')">← Account</button>
+      <button class="hw-subnav-btn active" onclick="showSection('customize')">🎨 Customization</button>
+    </div>
     <div class="custom-hero">
       <div class="custom-hero-icon">🎨</div>
       <div class="custom-hero-text">
@@ -5386,7 +5466,7 @@ function showSection(section){
     document.getElementById('devPanel').classList.remove('active');
   }
   
-  ['homeBtn','appsBtn','accountBtn','friendsBtn','chatBtn','shopBtn','mathsSearchBtn','passBtn','leaderboardBtn','customizeBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  ['homeBtn','appsBtn','accountBtn','friendsBtn','chatBtn','shopBtn','mathsSearchBtn','passBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   document.getElementById('topNav').classList.remove('minimal');
   const cas=document.querySelector('.custom-apps-section');
   if(section==='home'){
@@ -5425,12 +5505,12 @@ function showSection(section){
     loadPassData();
   }else if(section==='leaderboard'){
     document.getElementById('leaderboardPage').classList.add('active');
-    document.getElementById('leaderboardBtn')?.classList.add('active');
+    document.getElementById('passBtn')?.classList.add('active');
     if(cas)cas.style.display='none';
     loadLeaderboard();
   }else if(section==='customize'){
     document.getElementById('customizationPage').classList.add('active');
-    document.getElementById('customizeBtn')?.classList.add('active');
+    document.getElementById('accountBtn')?.classList.add('active');
     if(cas)cas.style.display='none';
     loadPassData().then(()=>loadCustomizations());
   }else if(section==='mathssearch'){
@@ -5808,7 +5888,7 @@ function switchLeaderboardTab(tab) {
   currentLeaderboardTab = tab;
   
   document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  const _lb = document.querySelector(`.lb-tab[onclick*="'${tab}'"]`); if (_lb) _lb.classList.add('active');
   
   loadLeaderboard();
 }
@@ -5879,7 +5959,7 @@ async function loadCustomizationItems(itemType) {
 }
 
 function renderCustomizationGrid(items) {
-  const grid = document.getElementById(`customGrid_${currentCustomTab}`);
+  const grid = document.getElementById(`customGrid-${currentCustomTab}`);
   if (!grid) return;
   
   grid.innerHTML = '';
@@ -5896,7 +5976,7 @@ function renderCustomizationGrid(items) {
     div.innerHTML = `
       <div class="custom-rarity ${item.rarity}">${item.rarity}</div>
       ${isOwned ? '<div class="custom-badge">✓</div>' : ''}
-      <div class="custom-icon">${escAttr(item.icon_url)}</div>
+      <div class="custom-icon">${customIconHTML(item)}</div>
       <div class="custom-name">${escAttr(item.name)}</div>
       <div class="custom-desc">${escAttr(item.description || '')}</div>
       <div class="custom-price ${item.cost_mp === 0 ? 'custom-free' : ''}">
@@ -6007,10 +6087,10 @@ function switchCustomTab(tab) {
   currentCustomTab = tab;
   
   document.querySelectorAll('.custom-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  const _tb = document.querySelector(`.custom-tab[onclick*="'${tab}'"]`); if (_tb) _tb.classList.add('active');
   
   document.querySelectorAll('.custom-section').forEach(s => s.classList.remove('active'));
-  document.getElementById(`customSection_${tab}`).classList.add('active');
+  document.getElementById(`customSection-${tab}`)?.classList.add('active');
   
   loadCustomizationItems(tab);
 }
@@ -6033,7 +6113,7 @@ function updateCustomizationPreview() {
         '🟡': '#eab308',
         '💎': '#06b6d4'
       };
-      avatar.style.border = `4px solid ${colors[frame.icon_url] || '#667eea'}`;
+      avatar.style.border = `4px solid ${frameColor(frame.icon_url, colors)}`;
     } else {
       avatar.style.border = '4px solid transparent';
     }
@@ -6051,7 +6131,7 @@ function updateCustomizationPreview() {
         '#8b5cf6': '#8b5cf6',
         'rainbow': 'linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff)'
       };
-      name.style.color = colors[colorItem.icon_url] || '#333';
+      name.style.color = (/^#[0-9a-fA-F]{3,8}$/.test(colorItem.icon_url) ? colorItem.icon_url : (colors[colorItem.icon_url] || '#333'));
       name.style.background = colorItem.icon_url === 'rainbow' ? colors.rainbow : 'transparent';
       name.style.webkitBackgroundClip = colorItem.icon_url === 'rainbow' ? 'text' : 'unset';
       name.style.webkitTextFillColor = colorItem.icon_url === 'rainbow' ? 'transparent' : 'unset';
@@ -7157,5 +7237,89 @@ observer.observe(document.body, { attributes: true });
   </div>
 </div>
 
+<script>
+// ===== Halloween Maths Pass: season ends 1 Nov 2026 at 00:00 Madrid time (= 31 Oct 23:00 UTC) =====
+(function () {
+  const SEASON_END = Date.UTC(2026, 9, 31, 23, 0, 0);
+  const box = (n, l) => '<div class="hw-count-box"><span class="hw-count-num">' + n + '</span><span class="hw-count-lbl">' + l + '</span></div>';
+  const pad = (n) => String(n).padStart(2, '0');
+  function tick() {
+    const el = document.getElementById('passCountdown');
+    if (!el) return;
+    const ms = SEASON_END - Date.now();
+    if (ms <= 0) { el.innerHTML = '<span class="hw-ended">\uD83D\uDC7B The Halloween season has ended</span>'; return; }
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1e3) % 60;
+    el.innerHTML = box(d, 'days') + box(pad(h), 'hours') + box(pad(m), 'min') + box(pad(s), 'sec');
+  }
+  tick();
+  setInterval(tick, 1000);
+  window.passSeasonEnded = () => Date.now() >= SEASON_END;
+  window.__passTick = tick;
+})();
+
+// ===== helpers used by the customization grid / preview =====
+function hwSafeColor(u) { return /^#[0-9a-fA-F]{3,8}$/.test(u) ? u : null; }
+function customIconHTML(it) {
+  const u = String(it.icon_url || '');
+  const c = hwSafeColor(u);
+  if (c) return '<span class="hw-swatch" style="background:' + c + ';box-shadow:0 0 12px ' + c + '"></span>';
+  if (u === 'rainbow') return '<span class="hw-swatch" style="background:linear-gradient(135deg,#ff0000,#ff7f00,#ffff00,#00ff00,#0000ff,#8b00ff)"></span>';
+  return escAttr(u);
+}
+const HW_FRAME_COLORS = { '\uD83C\uDF83': '#ff7a1a', '\uD83E\uDD87': '#7c3aed', '\uD83D\uDD78\uFE0F': '#d1d5db', '\uD83D\uDC80': '#e5e7eb', '\uD83E\uDDDB': '#dc2626', '\uD83D\uDC7B': '#c4b5fd' };
+function frameColor(icon, colors) {
+  return hwSafeColor(String(icon || '')) || HW_FRAME_COLORS[icon] || colors[icon] || '#667eea';
+}
+
+// ===== Rewards grid on the pass page (built from the Halloween items in the shop) =====
+let hwTierItems = null;
+async function renderPassTiers() {
+  const grid = document.getElementById('passTiersGrid');
+  if (!grid) return;
+  if (hwTierItems === null) {
+    try {
+      if (typeof sb === 'undefined' || !sb) { hwTierItems = []; }
+      else {
+        const { data, error } = await sb.from('customization_items').select('*').gt('level_requirement', 0).order('level_requirement');
+        hwTierItems = error ? [] : (data || []);
+      }
+    } catch (e) { hwTierItems = []; }
+  }
+  const lv = (typeof passData !== 'undefined' && passData) ? passData.level : 1;
+  grid.innerHTML = '';
+  if (!hwTierItems.length) {
+    const e = document.createElement('div');
+    e.className = 'hw-empty';
+    e.textContent = '\uD83C\uDF83 Halloween rewards are being conjured\u2026 check back soon.';
+    grid.appendChild(e);
+    return;
+  }
+  const typeLabel = { avatar_frame: 'Avatar frame', username_color: 'Name colour', badges: 'Badge', chat_bubble: 'Chat bubble', profile_background: 'Background', emoji_packs: 'Emoji pack' };
+  let currentMarked = false;
+  const reached = hwTierItems.filter(i => lv >= i.level_requirement);
+  const lastReached = reached.length ? reached[reached.length - 1].id : null;
+  hwTierItems.forEach(it => {
+    const unlocked = lv >= it.level_requirement;
+    const card = document.createElement('div');
+    card.className = 'pass-tier ' + (unlocked ? 'unlocked' : 'locked') + (it.id === lastReached ? ' current-tier' : '');
+    const lvl = document.createElement('div'); lvl.className = 'pass-tier-lv'; lvl.textContent = 'Level ' + it.level_requirement;
+    const icon = document.createElement('span'); icon.className = 'pass-tier-icon'; icon.innerHTML = customIconHTML(it);
+    const name = document.createElement('div'); name.className = 'pass-tier-name'; name.textContent = it.name;
+    const sub = document.createElement('div'); sub.className = 'pass-tier-sub'; sub.textContent = typeLabel[it.item_type] || it.item_type;
+    const cost = document.createElement('div'); cost.className = 'pass-tier-xp'; cost.textContent = it.cost_mp > 0 ? it.cost_mp + ' MP' : 'FREE';
+    const check = document.createElement('div'); check.className = 'pass-tier-check'; check.textContent = '\u2713';
+    [check, lvl, icon, name, sub, cost].forEach(x => card.appendChild(x));
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => showSection('customize'));
+    grid.appendChild(card);
+  });
+}
+(function () {
+  const orig = window.updatePassUI;
+  if (typeof orig === 'function') {
+    window.updatePassUI = function () { const r = orig.apply(this, arguments); try { renderPassTiers(); } catch (e) {} return r; };
+  }
+})();
+</script>
 </body>
 </html>
