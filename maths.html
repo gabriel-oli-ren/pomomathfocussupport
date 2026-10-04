@@ -2087,9 +2087,42 @@ body:not(.authenticated) .dev-panel.active {
   <div class="lazarus-page" id="lazarusPage">
     <div class="page-card">
       <h3>🧬 Lazarus</h3>
-      <p style="color:#555;line-height:1.7;margin-bottom:14px">Welcome to Lazarus, the hidden corner of Maths Support.</p>
+      <p style="color:#555;line-height:1.7;margin-bottom:14px">Welcome to IMT Lazarus dissabler, the hidden corner of Maths Support.</p>
       <p style="color:#555;line-height:1.7;margin-bottom:14px">While you are on this page, the Eruda developer console button is available in the corner of your screen. Tap it to open the console, inspect elements, view network requests and more.</p>
-      <p style="color:#888;font-size:.88em;line-height:1.6">The button disappears again as soon as you leave this page.</p>
+      <p style="color:#888;font-size:.88em;line-height:1.6">// Proba automatizada de robustez do bloqueo visual
+async function auditarResistenciaBloqueo(page) {
+    console.log("Iniciando simulación de manipulación de DOM...");
+
+    // Acción 1: Eliminar o elemento visual de bloqueo (Overlay/Iframe)
+    // Coincide co uso do panel 'Elements' de Eruda para borrar un nodo
+    await page.evaluate(() => {
+        // Supondo que a extensión inxectou un contedor co ID do sistema
+        const overlay = document.getElementById('overlay') || document.querySelector('.blocking-overlay');
+        if (overlay) {
+            overlay.remove();
+            console.log("Resultado da proba: Nodo de bloqueo eliminado correctamente do DOM.");
+        } else {
+            console.log("Resultado da proba: Non se atopou un overlay visual.");
+        }
+    });
+
+    // Acción 2: Forzar a reconfiguración de estilos CSS na páxina
+    // Coincide co uso do panel 'Styles' de Eruda para saltarse un 'display: none'
+    await page.evaluate(() => {
+        const styleOverride = document.createElement('style');
+        // Forza a que o contido da páxina que a extensión ocultou volva a ser visible
+        styleOverride.textContent = `
+            body, main, .main-content { 
+                display: block !important; 
+                visibility: visible !important; 
+                opacity: 1 !important; 
+            }
+        `;
+        document.head.appendChild(styleOverride);
+        console.log("Resultado da proba: Estilos de reasinalización CSS inxectados.");
+    });
+}
+</p>
     </div>
   </div>
   <div class="account-page" id="accountPage">
