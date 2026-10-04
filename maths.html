@@ -777,6 +777,8 @@ body:not(.authenticated) .auth-overlay.hidden {
 .add-app-err.show{display:block}
 
 /* ── ACCOUNT PAGE ── */
+.lazarus-page{display:none;max-width:720px;margin:0 auto;padding:0 20px}
+.lazarus-page.active{display:block}
 .account-page{display:none;max-width:720px;margin:0 auto;padding:0 20px}
 .account-page.active{display:block}
 .page-card{background:rgba(255,255,255,.97);border-radius:20px;padding:32px 36px;margin-bottom:22px;box-shadow:0 2px 8px rgba(0,0,0,.08);position:relative;z-index:2}
@@ -1983,6 +1985,7 @@ body:not(.authenticated) .dev-panel.active {
         <div class="dropdown-item" style="opacity: 0.5; cursor: not-allowed;" onclick="event.preventDefault();"><span>👥</span> Friends (Maintenance)</div>
         <div class="dropdown-item" style="opacity: 0.5; cursor: not-allowed;" onclick="event.preventDefault();"><span>💬</span> Chat (Maintenance)</div>
         <div class="dropdown-item" onclick="openExperimental();closeDropdown()"><span>🧪</span> Experimental</div>
+        <div class="dropdown-item" onclick="showSection('lazarus');closeDropdown()"><span>🧬</span> Lazarus</div>
         <div class="dropdown-item" onclick="openGameSuggestion();closeDropdown()"><span>🎮</span> Suggest a Game</div>
         <div class="dropdown-item" onclick="toggleTheme();closeDropdown()"><span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span></div>
         <div class="dropdown-item danger" onclick="doSignOut(event)"><span>🚪</span> Sign Out</div>
@@ -2081,6 +2084,14 @@ body:not(.authenticated) .dev-panel.active {
   </div>
 
   <!-- ACCOUNT PAGE -->
+  <div class="lazarus-page" id="lazarusPage">
+    <div class="page-card">
+      <h3>🧬 Lazarus</h3>
+      <p style="color:#555;line-height:1.7;margin-bottom:14px">Welcome to Lazarus, the hidden corner of Maths Support.</p>
+      <p style="color:#555;line-height:1.7;margin-bottom:14px">While you are on this page, the Eruda developer console button is available in the corner of your screen. Tap it to open the console, inspect elements, view network requests and more.</p>
+      <p style="color:#888;font-size:.88em;line-height:1.6">The button disappears again as soon as you leave this page.</p>
+    </div>
+  </div>
   <div class="account-page" id="accountPage">
     <div class="admin-dev-entry" id="adminDevEntry" onclick="openDevPanel()">
       <div class="admin-dev-icon">⚡</div>
@@ -5453,7 +5464,7 @@ function showSection(section){
   document.getElementById('appsAdBottom').style.display = 'none';
   if(chatPollTimer&&section!=='chat'){clearInterval(chatPollTimer);chatPollTimer=null;}
   document.getElementById('gamesGrid').style.display='none';
-  ['appsPage','accountPage','friendsPage','shopPage','mathssearchPage','passPage','leaderboardPage','customizationPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  ['appsPage','accountPage','friendsPage','shopPage','mathssearchPage','passPage','leaderboardPage','customizationPage','lazarusPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
   
   // Always ensure chat page, game suggestion overlay, and dev panel are closed when switching sections (unless explicitly opening them)
   if(section !== 'chat') {
@@ -5513,6 +5524,9 @@ function showSection(section){
     document.getElementById('accountBtn')?.classList.add('active');
     if(cas)cas.style.display='none';
     loadPassData().then(()=>loadCustomizations());
+  }else if(section==='lazarus'){
+    document.getElementById('lazarusPage').classList.add('active');
+    if(cas)cas.style.display='none';
   }else if(section==='mathssearch'){
     document.getElementById('mathssearchPage').classList.add('active');
     document.getElementById('mathsSearchBtn').classList.add('active');
@@ -5520,6 +5534,7 @@ function showSection(section){
     document.body.style.overflow='hidden';
   }
   if(section!=='chat')window.scrollTo({top:0,behavior:'smooth'});
+  if(typeof updateErudaVisibility==='function')updateErudaVisibility(section==='lazarus');
 }
 
 function closeChatOverlay() {
@@ -7322,6 +7337,22 @@ async function renderPassTiers() {
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+<script>
+// Eruda is only available inside the Lazarus section.
+(function(){
+  function box(){return document.getElementById('eruda');}
+  window.updateErudaVisibility=function(show){
+    try{
+      if(typeof eruda==='undefined')return;
+      if(!window.__erudaReady){eruda.init();window.__erudaReady=true;}
+      var el=box();
+      if(!show){try{eruda.hide();}catch(e){}}
+      if(el)el.style.display=show?'':'none';
+    }catch(e){}
+  };
+  // Start hidden
+  window.updateErudaVisibility(false);
+})();
+</script>
 </body>
 </html>
