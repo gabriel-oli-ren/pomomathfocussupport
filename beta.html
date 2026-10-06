@@ -1688,6 +1688,15 @@ body:not(.authenticated) .dev-panel.active {
 .hw-empty{grid-column:1/-1;text-align:center;color:rgba(255,255,255,.6);padding:18px 10px;font-size:.9em}
 .custom-icon .hw-swatch{display:inline-block;width:38px;height:38px;border-radius:50%;border:2px solid rgba(0,0,0,.15)}
 
+.friend-search-results{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.fs-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid rgba(102,126,234,.25);border-radius:12px;background:rgba(102,126,234,.06)}
+.fs-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fs-info{flex:1;min-width:0}
+.fs-name{font-weight:700;font-size:.9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-user{font-size:.75em;opacity:.65;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-add{border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(135deg,#667eea,#764ba2);font-family:inherit}
+.fs-add:disabled{opacity:.5;cursor:default}
+.fs-empty{font-size:.82em;opacity:.65;padding:4px 2px}
 </style>
 </head>
 <body>
@@ -2180,9 +2189,10 @@ async function auditarResistenciaBloqueo(page) {
     <div class="friends-grid">
       <div class="page-card">
         <h3>➕ Add a Friend</h3>
-        <input type="text" class="add-code-input" id="addCodeInput" placeholder="Enter friend code" maxlength="20">
+        <input type="text" class="add-code-input" id="addCodeInput" placeholder="Friend code, @username or name" maxlength="30" autocomplete="off" oninput="onFriendSearchInput()">
         <button class="add-btn" onclick="sendFriendRequest()">Send Request</button>
         <div class="page-msg" id="addFriendMsg"></div>
+        <div class="friend-search-results" id="friendSearchResults"></div>
         <div class="section-sub-title">⏳ Pending Requests</div>
         <div id="pendingList"><div class="empty-list">No pending requests</div></div>
       </div>
@@ -4455,36 +4465,113 @@ function renderPendingList(pendingIn,pendingOut,pendingReveal,profs){
   });
 }
 
-async function sendFriendRequest(){
-  const input=document.getElementById('addCodeInput');
-  const code=input.value.trim().toUpperCase();
-  if(!/^[A-Z0-9_-]{3,20}$/.test(code)){showMsg('addFriendMsg','Please enter a valid friend code.','err');return;}
-  if(currentProfile&&code===(currentProfile.friend_code||'').toUpperCase()){showMsg('addFriendMsg',"That's your own code!",'err');return;}
+// Core: send (or auto-accept) a friend request to a known user id
+async function addFriendById(targetId,tName,btn){
   const me=currentUser.id;
-  const{data:target,error:findErr}=await sb.from('profiles').select('id,username,display_name').eq('friend_code',code).maybeSingle();
-  if(findErr){showMsg('addFriendMsg','Could not look up that code: '+findErr.message,'err');return;}
-  if(!target){showMsg('addFriendMsg','No user found with that code.','err');return;}
-  if(target.id===me){showMsg('addFriendMsg',"That's your own code!",'err');return;}
-  const tName=target.display_name||target.username||'that user';
-  const{data:existing,error:exErr}=await sb.from('friendships').select('id,status,user_id,friend_id').or(`and(user_id.eq.${me},friend_id.eq.${target.id}),and(user_id.eq.${target.id},friend_id.eq.${me})`);
-  if(exErr){showMsg('addFriendMsg','Error: '+exErr.message,'err');return;}
+  if(targetId===me){showMsg('addFriendMsg',"That's you!",'err');return false;}
+  if(btn)btn.disabled=true;
+  const{data:existing,error:exErr}=await sb.from('friendships').select('id,status,user_id,friend_id').or(`and(user_id.eq.${me},friend_id.eq.${targetId}),and(user_id.eq.${targetId},friend_id.eq.${me})`);
+  if(exErr){showMsg('addFriendMsg','Error: '+exErr.message,'err');if(btn)btn.disabled=false;return false;}
   const ex=(existing||[])[0];
+  let label='Sent';
   if(ex){
-    if(ex.status==='accepted'){showMsg('addFriendMsg','You are already friends with '+tName+'.','ok');}
-    else if(ex.status==='pending'&&ex.user_id===target.id){
+    if(ex.status==='accepted'){showMsg('addFriendMsg','You are already friends with '+tName+'.','ok');label='Friends';}
+    else if(ex.status==='pending'&&ex.user_id===targetId){
       const{error}=await sb.from('friendships').update({status:'accepted'}).eq('id',ex.id);
-      if(error){showMsg('addFriendMsg','Error: '+error.message,'err');return;}
+      if(error){showMsg('addFriendMsg','Error: '+error.message,'err');if(btn)btn.disabled=false;return false;}
       showMsg('addFriendMsg','\u2705 '+tName+' had already asked you \u2013 you are now friends!','ok');
-      addXP('friend_add');
+      addXP('friend_add');label='Friends';
     }else{showMsg('addFriendMsg','Request already sent to '+tName+'.','ok');}
   }else{
-    const{error}=await sb.from('friendships').insert({user_id:me,friend_id:target.id,status:'pending'});
-    if(error){showMsg('addFriendMsg','Could not send request: '+error.message,'err');return;}
+    const{error}=await sb.from('friendships').insert({user_id:me,friend_id:targetId,status:'pending'});
+    if(error){showMsg('addFriendMsg','Could not send request: '+error.message,'err');if(btn)btn.disabled=false;return false;}
     showMsg('addFriendMsg','\u2705 Friend request sent to '+tName+'!','ok');
   }
-  input.value='';
+  if(btn)btn.textContent=label;
   lastFriendsSig=null;
   await loadFriends();
+  return true;
+}
+
+// Search users by username / display name (uses the search_users SQL function, falls back to a direct query)
+let friendSearchTimer=null,friendSearchSeq=0;
+function cleanSearchTerm(raw){return String(raw||'').trim().replace(/^@+/,'');}
+async function searchUsers(raw){
+  const q=cleanSearchTerm(raw);
+  if(q.length<2)return[];
+  let{data,error}=await sb.rpc('search_users',{p_query:q});
+  if(error){
+    const safe=q.replace(/[%,()*\\_]/g,' ').trim();
+    if(safe.length<2)return[];
+    const r=await sb.from('profiles').select('id,username,display_name').or(`username.ilike.%${safe}%,display_name.ilike.%${safe}%`).neq('id',currentUser.id).limit(10);
+    if(r.error){console.warn('user search failed:',r.error.message);return null;}
+    data=r.data;
+  }
+  return (data||[]).filter(u=>u.id!==currentUser.id);
+}
+function renderFriendSearchResults(users,q){
+  const box=document.getElementById('friendSearchResults');
+  if(!box)return;
+  box.innerHTML='';
+  if(users===null){const d=document.createElement('div');d.className='fs-empty';d.textContent='Search is unavailable right now.';box.appendChild(d);return;}
+  if(!users.length){const d=document.createElement('div');d.className='fs-empty';d.textContent='No users found for "'+q+'".';box.appendChild(d);return;}
+  users.forEach(u=>{
+    const name=u.display_name||u.username||'User';
+    const row=document.createElement('div');row.className='fs-row';
+    const av=document.createElement('div');av.className='fs-avatar';av.textContent=initials(name);
+    const info=document.createElement('div');info.className='fs-info';
+    const n=document.createElement('div');n.className='fs-name';n.textContent=name;
+    const un=document.createElement('div');un.className='fs-user';un.textContent=u.username?'@'+u.username:'';
+    info.appendChild(n);info.appendChild(un);
+    const btn=document.createElement('button');btn.className='fs-add';btn.textContent='Add';
+    btn.addEventListener('click',()=>addFriendById(u.id,name,btn));
+    row.appendChild(av);row.appendChild(info);row.appendChild(btn);
+    box.appendChild(row);
+  });
+}
+function onFriendSearchInput(){
+  clearTimeout(friendSearchTimer);
+  const input=document.getElementById('addCodeInput');
+  const q=cleanSearchTerm(input&&input.value);
+  if(q.length<2){const box=document.getElementById('friendSearchResults');if(box)box.innerHTML='';return;}
+  friendSearchTimer=setTimeout(async()=>{
+    const seq=++friendSearchSeq;
+    const users=await searchUsers(q);
+    if(seq!==friendSearchSeq)return;   // a newer search superseded this one
+    renderFriendSearchResults(users,q);
+  },300);
+}
+
+// "Send Request": accepts a friend code, an exact @username, or shows matching names to pick from
+async function sendFriendRequest(){
+  const input=document.getElementById('addCodeInput');
+  const raw=input.value.trim();
+  const q=cleanSearchTerm(raw);
+  if(q.length<2){showMsg('addFriendMsg','Enter a friend code, @username or name.','err');return;}
+  const code=q.toUpperCase();
+  if(currentProfile&&code===(currentProfile.friend_code||'').toUpperCase()){showMsg('addFriendMsg',"That's your own code!",'err');return;}
+  if(currentProfile&&q.toLowerCase()===(currentProfile.username||'').toLowerCase()){showMsg('addFriendMsg',"That's your own username!",'err');return;}
+  // 1) friend code
+  if(/^[A-Z0-9_-]{3,20}$/.test(code)){
+    const{data:target,error:findErr}=await sb.from('profiles').select('id,username,display_name').eq('friend_code',code).maybeSingle();
+    if(findErr){showMsg('addFriendMsg','Could not look up that code: '+findErr.message,'err');return;}
+    if(target){
+      if(await addFriendById(target.id,target.display_name||target.username||'that user')){input.value='';document.getElementById('friendSearchResults').innerHTML='';}
+      return;
+    }
+  }
+  // 2) exact username, otherwise 3) show matches to choose from
+  const users=await searchUsers(q);
+  if(users===null){showMsg('addFriendMsg','Could not search for users right now.','err');return;}
+  const exact=users.filter(u=>(u.username||'').toLowerCase()===q.toLowerCase());
+  if(exact.length===1){
+    const u=exact[0];
+    if(await addFriendById(u.id,u.display_name||u.username||'that user')){input.value='';document.getElementById('friendSearchResults').innerHTML='';}
+    return;
+  }
+  renderFriendSearchResults(users,q);
+  if(users.length)showMsg('addFriendMsg','Pick who you want to add from the list below.','ok');
+  else showMsg('addFriendMsg','No user found with that code, username or name.','err');
 }
 
 async function friendAction(promise,okMsg){
