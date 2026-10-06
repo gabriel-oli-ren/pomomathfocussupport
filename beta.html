@@ -2815,6 +2815,24 @@ async function auditarResistenciaBloqueo(page) {
 </div>
 
 
+<!-- TERMS REQUIRED MODAL (shown when profiles.terms_accepted is false) -->
+<div class="reveal-modal-overlay" id="termsRequiredOverlay" style="z-index:2147483000">
+  <div class="reveal-modal" style="max-width:600px">
+    <h3>📜 Please accept the Terms of Service</h3>
+    <p style="color:rgba(255,255,255,.65);font-size:.85em;margin:8px 0 14px">You need to accept our terms before you can keep using Maths Support.</p>
+    <div id="termsRequiredBody" style="max-height:300px;overflow-y:auto;text-align:left;color:rgba(255,255,255,.7);font-size:.85em;line-height:1.6;margin-bottom:16px"></div>
+    <label style="display:flex;gap:10px;align-items:center;text-align:left;color:rgba(255,255,255,.85);font-size:.88em;margin-bottom:16px;cursor:pointer">
+      <input type="checkbox" id="termsRequiredCheck" onchange="document.getElementById('termsRequiredBtn').disabled=!this.checked">
+      <span>I have read and agree to the Terms of Service and Privacy Policy</span>
+    </label>
+    <div id="termsRequiredErr" style="color:#f87171;font-size:.82em;margin-bottom:10px;display:none"></div>
+    <div class="reveal-modal-actions">
+      <button class="reveal-modal-btn cancel" onclick="declineRequiredTerms()">Sign out</button>
+      <button class="reveal-modal-btn confirm" id="termsRequiredBtn" onclick="acceptRequiredTerms()" disabled>Accept &amp; Continue</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONTACT MODAL -->
 <div class="reveal-modal-overlay" id="contactModal">
   <div class="reveal-modal" style="max-width:480px;text-align:center">
@@ -3776,6 +3794,7 @@ async function onboardingComplete() {
       friend_code: finalFriendCode,
       friend_code_last_changed: new Date().toISOString(),
       onboarding_completed: true,
+      terms_accepted: true,
       terms_accepted_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -4040,6 +4059,58 @@ async function doRegister(){
   errorEl.classList.add('show');
 }
 
+// ══ Terms enforcement: if profiles.terms_accepted is false, block the app with a popup ══
+function termsNeeded(row){
+  if(!row||!('terms_accepted' in row))return false;   // column missing -> don't lock everyone out
+  return row.terms_accepted===false||row.terms_accepted===null;
+}
+async function enforceTermsAccepted(profile){
+  try{
+    let row=profile;
+    if(sb&&profile&&profile.id){
+      const{data,error}=await sb.from('profiles').select('terms_accepted').eq('id',profile.id).maybeSingle();
+      if(!error&&data)row=Object.assign({},profile,data);   // fresh value from the database
+    }
+    if(termsNeeded(row))showTermsRequired();
+  }catch(e){console.error('terms check failed:',e);}
+}
+function showTermsRequired(){
+  const ov=document.getElementById('termsRequiredOverlay');
+  if(!ov)return;
+  const src=document.querySelector('#termsModal .reveal-modal > div');
+  const body=document.getElementById('termsRequiredBody');
+  if(src&&body&&!body.innerHTML.trim())body.innerHTML=src.innerHTML;
+  const chk=document.getElementById('termsRequiredCheck');if(chk)chk.checked=false;
+  const btn=document.getElementById('termsRequiredBtn');if(btn){btn.disabled=true;btn.textContent='Accept & Continue';}
+  const err=document.getElementById('termsRequiredErr');if(err)err.style.display='none';
+  ov.classList.add('active');
+  document.body.style.overflow='hidden';
+}
+async function acceptRequiredTerms(){
+  const chk=document.getElementById('termsRequiredCheck'),btn=document.getElementById('termsRequiredBtn'),err=document.getElementById('termsRequiredErr');
+  if(!chk||!chk.checked||!currentUser)return;
+  btn.disabled=true;btn.textContent='Saving...';
+  try{
+    if(sb){
+      const{data,error}=await sb.from('profiles').update({terms_accepted:true,terms_accepted_at:new Date().toISOString()}).eq('id',currentUser.id).select('terms_accepted').maybeSingle();
+      if(error)throw error;
+      if(!data||data.terms_accepted!==true)throw new Error('Could not save - please try again.');
+    }
+    if(currentProfile)currentProfile.terms_accepted=true;
+    document.getElementById('termsRequiredOverlay').classList.remove('active');
+    document.body.style.overflow='';
+    showToast('\u2705 Thanks for accepting the Terms of Service!');
+  }catch(e){
+    err.textContent='Could not save: '+(e.message||e);err.style.display='block';
+    btn.disabled=false;btn.textContent='Accept & Continue';
+  }
+}
+async function declineRequiredTerms(){
+  document.getElementById('termsRequiredOverlay').classList.remove('active');
+  document.body.style.overflow='';
+  await doSignOut();
+}
+
 async function doSignOut(e){
   if(e)e.stopPropagation();closeDropdown();
   
@@ -4112,6 +4183,7 @@ async function onSignedIn(profile){
   if(bcBtn)bcBtn.style.display=iAmAdmin?'':'none';
   // Load stickers for shop
   if(currentUser){ loadMyStickers(); loadPublicStickers(); }
+  enforceTermsAccepted(profile);
   // Onboarding disabled for now - can be enabled later
   // setTimeout(startOnboarding, 1500);
 }
