@@ -1,5 +1,5 @@
 (function () {
-    var url = maths.html;
+    var url = "maths.html";
 
     // Open a new about:blank window
     var win = window.open();
