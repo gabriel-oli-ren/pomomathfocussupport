@@ -2,30 +2,34 @@
     var url = "maths.html";
 
     // Open a new about:blank window
-    var win = window.open();
+    var win = window.open("about:blank", "_blank");
 
-    // Set the icon for the window
-    win.document.head.innerHTML += '<link rel="icon" href="https://www.google.com/s2/favicons?sz=64&domain=https://google.com" type="image/png">';
-
-    // Set the title of the window
+    // Set the title and favicon
+    win.document.head.innerHTML += 
+        '<link rel="icon" href="https://www.google.com/s2/favicons?sz=64&domain=google.com" type="image/png">';
     win.document.head.innerHTML += '<title>Google</title>';
 
-    // Create an iframe
-    var iframe = win.document.createElement('iframe');
-    
-    // Set styles for the iframe
-    iframe.style = "position:fixed;width:100vw;height:100vh;top:0px;left:0px;right:0px;bottom:0px;z-index:2147483647;background-color:white;border:none;";
+    // Create iframe
+    var iframe = win.document.createElement("iframe");
 
-    // Check and assign the URL to the iframe
-    if (url.includes('https://') || url.includes("http://")) {
-        iframe.src = url;
-    } else {
-        iframe.src = "https://" + url;
-    }
+    // Fullscreen iframe
+    iframe.style.position = "fixed";
+    iframe.style.width = "100vw";
+    iframe.style.height = "100vh";
+    iframe.style.top = "0";
+    iframe.style.left = "0";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.zIndex = "2147483647";
+    iframe.style.backgroundColor = "white";
+    iframe.style.border = "none";
 
-    // Append the iframe to the body of the window
+    // Load maths.html from the same directory
+    iframe.src = new URL(url, window.location.href).href;
+
+    // Add iframe
     win.document.body.appendChild(iframe);
 })();
 
-// Redirect to google
+// Redirect original tab
 window.location.href = "https://google.com";
