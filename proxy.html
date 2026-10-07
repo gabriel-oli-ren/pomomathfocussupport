@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maths Browser - M.A.T.H.S. Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        maths: {
+                            950: '#060913',
+                            900: '#0b1329',
+                            800: '#131e3a',
+                            700: '#1d2c54',
+                            600: '#283d73',
+                            accent: '#4f46e5',
+                            glow: '#6366f1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #060913;
+            color: #f3f4f6;
+            user-select: none;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-panel {
+            background: rgba(19, 30, 58, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-input {
+            background: rgba(29, 44, 84, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-input:focus {
+            border-color: rgba(99, 102, 241, 0.8);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #0b1329; }
+        ::-webkit-scrollbar-thumb { background: #283d73; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b528f; }
+        .tab-clip { max-width: 190px; min-width: 130px; }
+    </style>
+</head>
+<body class="bg-maths-950 text-gray-100 flex flex-col overflow-hidden selection:bg-indigo-500 selection:text-white">
+
+    <header class="glass-panel border-b border-indigo-900/40 flex flex-col z-40 select-none shadow-2xl shrink-0">
+        <!-- Tab Bar -->
+        <div class="flex items-center px-3 pt-2 gap-1.5 overflow-x-auto no-scrollbar">
+            <div id="tabs-container" class="flex items-center gap-1.5 flex-1 overflow-x-auto">
+                <!-- Dynamically rendered tabs -->
+            </div>
+            <button id="btn-new-tab" onclick="addNewTab()" class="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-maths-700/60 transition flex items-center justify-center shrink-0" title="New Tab">
+                <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Bar / Omnibox -->
+        <div class="px-3 py-2.5 flex items-center gap-2 border-t border-indigo-900/30">
+            <div class="flex items-center gap-1 shrink-0">
+                <button id="btn-back" onclick="navigateHistory(-1)" class="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-maths-700/60 transition disabled:opacity-30 disabled:hover:bg-transparent" title="Back">
+                    <i class="fa-solid fa-arrow-left text-xs"></i>
+                </button>
+                <button id="btn-forward" onclick="navigateHistory(1)" class="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-maths-700/60 transition disabled:opacity-30 disabled:hover:bg-transparent" title="Forward">
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+                <button id="btn-reload" onclick="reloadCurrentTab()" class="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-maths-700/60 transition" title="Reload">
+                    <i class="fa-solid fa-rotate-right text-xs"></i>
+                </button>
+                <button id="btn-home" onclick="goHome()" class="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-maths-700/60 transition" title="Home">
+                    <i class="fa-solid fa-house text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Omnibox Input Form -->
+            <div class="flex-1 relative flex items-center">
+                <span class="absolute left-3.5 text-indigo-400" id="omnibox-icon"><i class="fa-solid fa-globe text-xs"></i></span>
+                <input type="text" id="omnibox-input" onkeydown="handleOmniboxKey(event)" class="w-full glass-input rounded-2xl py-2 pl-10 pr-36 text-xs font-mono text-gray-200 placeholder-gray-500 focus:outline-none" placeholder="Enter URL or search term...">
+                
+                <div class="absolute right-2 flex items-center gap-1">
+                    <button onclick="toggleTextModeModal()" class="px-2 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 rounded-lg text-[10px] font-mono transition border border-indigo-500/30" title="Text-to-Data Converter">
+                        <i class="fa-solid fa-code"></i> Data
+                    </button>
+                    
+                </div>
+            </div>
+
+            <!-- Toolbar Utility Buttons -->
+            <div class="flex items-center gap-1 shrink-0">
+                <button onclick="toggleModal('worker-modal')" class="px-2.5 py-1.5 rounded-xl text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-medium transition flex items-center gap-1.5" title="Stealth Frame Proxy">
+                    <i class="fa-solid fa-shield-halved text-cyan-400"></i> Stealth Proxy
+                </button>
+                <button onclick="toggleFullscreen()" class="p-2 rounded-xl text-gray-300 hover:text-white glass-input transition" title="Fullscreen">
+                    <i id="fullscreen-icon" class="fa-solid fa-expand text-xs"></i>
+                </button>
+                <button onclick="toggleModal('settings-modal')" class="p-2 rounded-xl text-gray-300 hover:text-white glass-input transition" title="Settings">
+                    <i class="fa-solid fa-gear text-xs"></i>
+                </button>
+                <button onclick="toggleConsole()" class="p-2 rounded-xl text-gray-300 hover:text-white glass-input transition" title="Diagnostic Logs">
+                    <i class="fa-solid fa-terminal text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 relative flex overflow-hidden w-full h-full">
+        <div id="viewports-container" class="flex-1 relative bg-maths-900 w-full h-full overflow-hidden flex flex-col">
+            <!-- Dynamic tab viewports injected here -->
+        </div>
+
+        <!-- Diagnostic Console Drawer -->
+        <div id="console-drawer" class="w-80 glass-panel border-l border-indigo-900/40 flex flex-col transition-all duration-300 translate-x-full absolute right-0 top-0 bottom-0 z-30">
+            <div class="px-4 py-3 border-b border-indigo-900/40 flex items-center justify-between text-xs">
+                <span class="font-semibold text-gray-200 flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-indigo-400"></i> M.A.T.H.S. Logs
+                </span>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearConsole()" class="text-gray-400 hover:text-white" title="Clear"><i class="fa-solid fa-trash-can"></i></button>
+                    <button onclick="toggleConsole()" class="text-gray-400 hover:text-white" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div id="console-logs" class="flex-1 p-3 font-mono text-[10px] overflow-y-auto space-y-1 text-gray-300">
+                <div class="text-indigo-400">[SYSTEM] M.A.T.H.S. Browser Engine initialized. Full interactivity & stealth proxy active.</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="worker-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl max-w-2xl w-full p-6 border border-cyan-500/40 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-cyan-500/30 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-cyan-400"></i> Stealth Frame Proxy & Mirror Configuration
+                </h3>
+                <button onclick="toggleModal('worker-modal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-gray-300">
+                Bypasses X-Frame-Options and CORS restrictions securely using advanced proxy forwarding or client-side Data-URI cloaking.
+            </p>
+            <div class="flex items-center justify-between pt-2">
+                <button onclick="toggleModal('worker-modal'); reloadCurrentTab();" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium px-4 py-2 rounded-xl text-xs shadow-lg shadow-cyan-500/25 flex items-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> Apply Proxy to Active Tab
+                </button>
+                <button onclick="toggleModal('worker-modal')" class="text-xs text-gray-400 hover:text-white">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl max-w-md w-full p-6 border border-indigo-900/60 shadow-2xl">
+            <div class="flex items-center justify-between mb-4 border-b border-indigo-900/40 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-gear text-indigo-400"></i> Browser Preferences</h3>
+                <button onclick="toggleModal('settings-modal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Search Engine</label>
+                    <select id="setting-search" class="w-full glass-input rounded-xl p-2.5 text-gray-200">
+                        <option value="https://www.google.com/search?q=" class="bg-maths-900">Google</option>
+                        <option value="https://duckduckgo.com/?q=" class="bg-maths-900">DuckDuckGo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Bypass Mode</label>
+                    <select id="setting-bypass" class="w-full glass-input rounded-xl p-2.5 text-gray-200">
+                        <option value="datauri" class="bg-maths-900">Data-URI Wrapper (Best for Vectaria/Games)</option>
+                        <option value="worker" class="bg-maths-900">Cloudflare Worker Mirror Proxy</option>
+                        <option value="direct" class="bg-maths-900">Direct Frame Embed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-5 flex justify-end">
+                <button onclick="toggleModal('settings-modal')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-xl text-xs">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Text-to-Data Converter Modal -->
+    <div id="text-data-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl max-w-lg w-full p-6 border border-indigo-900/60 shadow-2xl flex flex-col gap-3">
+            <div class="flex items-center justify-between border-b border-indigo-900/40 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-code text-indigo-400"></i> Text / HTML to Data-URI Converter</h3>
+                <button onclick="toggleTextModeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-[11px] text-gray-400">Paste HTML code or text to instantly render it as a secure Data-URI in the active tab without blocking.</p>
+            <textarea id="raw-text-input" class="w-full h-36 glass-input rounded-xl p-3 font-mono text-xs text-gray-200 placeholder-gray-500 focus:outline-none" placeholder="Enter HTML or text content here..."></textarea>
+            <div class="flex justify-between items-center">
+                <button onclick="loadRawTextAsDataUrl()" class="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-medium px-4 py-2 rounded-xl text-xs shadow-lg shadow-indigo-500/25 flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> Render Data-URI
+                </button>
+                <button onclick="toggleTextModeModal()" class="text-xs text-gray-400 hover:text-white">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            tabs: [],
+            activeTabId: null,
+            bookmarks: [
+                { title: 'Vectaria.io', url: 'https://vectaria.io' },
+                { title: 'Wikipedia', url: 'https://www.wikipedia.org' },
+                { title: 'Example Domain', url: 'https://example.com' },
+                { title: 'Google', url: 'https://www.google.com' }
+            ]
+        };
+
+        function logMessage(msg, type = 'INFO') {
+            const logs = document.getElementById('console-logs');
+            if (!logs) return;
+            const now = new Date().toTimeString().split(' ')[0];
+            const div = document.createElement('div');
+            div.className = type === 'ERROR' ? 'text-rose-400' : type === 'WARN' ? 'text-amber-400' : 'text-gray-300';
+            div.textContent = `[${now}] [${type}] ${msg}`;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function addNewTab(url = 'maths://home') {
+            const tabId = 'tab_' + Math.random().toString(36).substring(2, 9);
+            const newTab = {
+                id: tabId,
+                url: url,
+                title: url === 'maths://home' ? 'New Tab' : url,
+                history: [url],
+                historyIndex: 0
+            };
+            state.tabs.push(newTab);
+            renderTabs();
+            switchTab(tabId);
+            logMessage(`Created tab: ${tabId}`);
+        }
+
+        function closeTab(tabId, event) {
+            if (event) event.stopPropagation();
+            if (state.tabs.length <= 1) {
+                state.tabs[0].url = 'maths://home';
+                state.tabs[0].title = 'New Tab';
+                state.tabs[0].history = ['maths://home'];
+                state.tabs[0].historyIndex = 0;
+                renderTabs();
+                switchTab(state.tabs[0].id);
+                return;
+            }
+
+            const index = state.tabs.findIndex(t => t.id === tabId);
+            if (index !== -1) {
+                state.tabs.splice(index, 1);
+                const vp = document.getElementById('vp_' + tabId);
+                if (vp) vp.remove();
+
+                if (state.activeTabId === tabId) {
+                    const nextTab = state.tabs[Math.max(0, index - 1)];
+                    switchTab(nextTab.id);
+                } else {
+                    renderTabs();
+                }
+            }
+            logMessage(`Closed tab: ${tabId}`);
+        }
+
+        function switchTab(tabId) {
+            state.activeTabId = tabId;
+            renderTabs();
+            
+            document.querySelectorAll('.viewport-pane').forEach(el => el.classList.add('hidden'));
+            let vp = document.getElementById('vp_' + tabId);
+            if (!vp) {
+                vp = createViewportElement(tabId);
+                document.getElementById('viewports-container').appendChild(vp);
+            }
+            vp.classList.remove('hidden');
+
+            const tab = state.tabs.find(t => t.id === tabId);
+            if (tab) {
+                document.getElementById('omnibox-input').value = tab.url === 'maths://home' ? '' : tab.url;
+                updateNavigationButtons();
+            }
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            if (!container) return;
+            container.innerHTML = state.tabs.map(tab => {
+                const isActive = tab.id === state.activeTabId;
+                const activeClass = isActive ? 'bg-maths-900 border-indigo-700/80 text-white shadow-lg' : 'bg-maths-800/40 border-transparent text-gray-400 hover:text-gray-200 hover:bg-maths-800/80';
+                return `
+                    <div onclick="switchTab('${tab.id}')" class="group flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium cursor-pointer border tab-clip transition ${activeClass}">
+                        <i class="fa-solid fa-globe text-[10px] text-indigo-400"></i>
+                        <span class="truncate flex-1">${escapeHtml(tab.title)}</span>
+                        <button onclick="closeTab('${tab.id}', event)" class="opacity-0 group-hover:opacity-100 hover:text-rose-400 transition p-0.5 rounded">
+                            <i class="fa-solid fa-xmark text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function createViewportElement(tabId) {
+            const div = document.createElement('div');
+            div.id = 'vp_' + tabId;
+            div.className = 'viewport-pane absolute inset-0 flex flex-col w-full h-full';
+            
+            const tab = state.tabs.find(t => t.id === tabId);
+            if (tab.url === 'maths://home') {
+                div.innerHTML = getHomePageHtml();
+            } else {
+                div.innerHTML = getBrowserViewportHtml(tab.url);
+                executeLoadInViewport(div, tab.url);
+            }
+            return div;
+        }
+
+        function getHomePageHtml() {
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-6 text-center bg-maths-900 overflow-y-auto w-full h-full">
+                    <div class="max-w-xl w-full glass-panel p-8 rounded-3xl border border-indigo-900/60 shadow-2xl flex flex-col items-center">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4">
+                            <i class="fa-solid fa-compass text-white text-2xl"></i>
+                        </div>
+                        <h1 class="text-xl font-bold mb-1 bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">M.A.T.H.S. Browser</h1>
+                        <p class="text-xs text-gray-400 mb-6">Modular Advanced Tactical Hyper-Surfing Workspace.</p>
+                        
+                        <div class="relative w-full mb-6">
+                            <span class="absolute left-3.5 top-3 text-indigo-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+                            <input type="text" onkeydown="if(event.key==='Enter') navigateFromHome(this.value)" class="w-full glass-input rounded-2xl py-3 pl-10 pr-4 text-xs text-gray-200 placeholder-gray-500 focus:outline-none" placeholder="Enter URL or search term...">
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-3 w-full">
+                            <button onclick="navigateToUrl('https://vectaria.io')" class="glass-input p-3 rounded-2xl flex flex-col items-center gap-2 hover:border-indigo-500/50 transition">
+                                <i class="fa-solid fa-gamepad text-indigo-400 text-sm"></i>
+                                <span class="text-[10px] text-gray-300">Vectaria</span>
+                            </button>
+                            <button onclick="navigateToUrl('https://www.wikipedia.org')" class="glass-input p-3 rounded-2xl flex flex-col items-center gap-2 hover:border-indigo-500/50 transition">
+                                <i class="fa-solid fa-book text-emerald-400 text-sm"></i>
+                                <span class="text-[10px] text-gray-300">Wikipedia</span>
+                            </button>
+                            <button onclick="navigateToUrl('https://example.com')" class="glass-input p-3 rounded-2xl flex flex-col items-center gap-2 hover:border-indigo-500/50 transition">
+                                <i class="fa-solid fa-globe text-amber-400 text-sm"></i>
+                                <span class="text-[10px] text-gray-300">Example</span>
+                            </button>
+                            <button onclick="toggleModal('worker-modal')" class="glass-input p-3 rounded-2xl flex flex-col items-center gap-2 hover:border-cyan-500/50 transition">
+                                <i class="fa-solid fa-shield-halved text-cyan-400 text-sm"></i>
+                                <span class="text-[10px] text-gray-300">Proxy</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getBrowserViewportHtml(url) {
+            return `
+                <div class="relative w-full h-full flex flex-col bg-white">
+                    <div class="loading-overlay absolute inset-0 bg-maths-900/90 backdrop-blur-md z-30 flex flex-col items-center justify-center transition-opacity duration-300 pointer-events-none">
+                        <div class="relative w-12 h-12 mb-3">
+                            <div class="absolute inset-0 rounded-full border-4 border-indigo-500/20"></div>
+                            <div class="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+                        </div>
+                        <p class="text-xs font-semibold tracking-wide text-gray-200">Loading Frame...</p>
+                    </div>
+                    <div class="error-overlay absolute inset-0 bg-maths-900/95 z-20 hidden flex flex-col items-center justify-center p-6 text-center">
+                        <div class="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-xl mb-3">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-gray-100 mb-1">Frame Restricted</h3>
+                        <p class="text-[11px] text-gray-400 max-w-sm mb-4 font-mono">The target site blocked embedding. Try Data-URI or Proxy.</p>
+                        <button onclick="reloadCurrentTab()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium px-4 py-2 rounded-xl shadow-lg shadow-cyan-500/25 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i> Retry Load
+                        </button>
+                    </div>
+                    <iframe allow="fullscreen; autoplay; clipboard-write" allowfullscreen class="target-iframe w-full h-full border-none block pointer-events-auto flex-1" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock" src="about:blank"></iframe>
+                </div>
+            `;
+        }
+
+        function executeLoadInViewport(viewportEl, url) {
+            const loading = viewportEl.querySelector('.loading-overlay');
+            const error = viewportEl.querySelector('.error-overlay');
+            const target = viewportEl.querySelector('.target-iframe');
+
+            if (loading) loading.style.opacity = '1';
+            if (error) error.classList.add('hidden');
+
+            try {
+                const bypass = document.getElementById('setting-bypass').value;
+
+                if (bypass === 'datauri') {
+                    // Robust Data-URI wrapper pattern ensuring full clickability and bypass
+                    const proxyHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy Frame</title>
+  <style>html, body, iframe { width: 100%; height: 100%; margin: 0; padding: 0; border: none; overflow: hidden; background: #fff; }</style>
+</head>
+<body>
+  <iframe allow="fullscreen" allowfullscreen src="${url}" style="width:100%;height:100%;border:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock"></iframe>
+</body>
+</html>`;
+                    const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(proxyHtml);
+                    target.src = dataUri;
+                    logMessage(`Loaded via Data-URI wrapper: ${url}`);
+                } else if (bypass === 'worker') {
+                    const workerUrl = `https://proxy.mathssupport.es/?url=` + encodeURIComponent(url);
+                    target.src = workerUrl;
+                    logMessage(`Loaded via Worker mirror: ${workerUrl}`);
+                } else {
+                    target.src = url;
+                    logMessage(`Loaded direct: ${url}`);
+                }
+
+                setTimeout(() => {
+                    if (loading) loading.style.opacity = '0';
+                }, 800);
+            } catch (err) {
+                if (loading) loading.style.opacity = '0';
+                if (error) error.classList.remove('hidden');
+                logMessage(`Error loading ${url}: ${err.message}`, 'ERROR');
+            }
+        }
+
+        function handleOmniboxKey(event) {
+            if (event.key === 'Enter') {
+                const query = event.target.value.trim();
+                navigateToUrl(query);
+            }
+        }
+
+        function navigateFromHome(query) {
+            navigateToUrl(query);
+        }
+
+        function navigateToUrl(input) {
+            let finalUrl = input;
+            if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://') && !finalUrl.startsWith('data:') && !finalUrl.startsWith('maths://')) {
+                if (finalUrl.includes('.') && !finalUrl.includes(' ')) {
+                    finalUrl = 'https://' + finalUrl;
+                } else {
+                    const searchEngine = document.getElementById('setting-search').value;
+                    finalUrl = searchEngine + encodeURIComponent(finalUrl);
+                }
+            }
+
+            const tab = state.tabs.find(t => t.id === state.activeTabId);
+            if (!tab) return;
+
+            tab.url = finalUrl;
+            tab.title = finalUrl === 'maths://home' ? 'New Tab' : finalUrl.replace(/^https?:\/\//, '').split('/')[0];
+            tab.history = tab.history.slice(0, tab.historyIndex + 1);
+            tab.history.push(finalUrl);
+            tab.historyIndex = tab.history.length - 1;
+
+            renderTabs();
+            document.getElementById('omnibox-input').value = finalUrl === 'maths://home' ? '' : finalUrl;
+
+            const vp = document.getElementById('vp_' + tab.id);
+            if (vp) {
+                if (finalUrl === 'maths://home') {
+                    vp.innerHTML = getHomePageHtml();
+                } else {
+                    vp.innerHTML = getBrowserViewportHtml(finalUrl);
+                    executeLoadInViewport(vp, finalUrl);
+                }
+            }
+            updateNavigationButtons();
+        }
+
+        function navigateHistory(direction) {
+            const tab = state.tabs.find(t => t.id === state.activeTabId);
+            if (!tab) return;
+
+            const newIndex = tab.historyIndex + direction;
+            if (newIndex >= 0 && newIndex < tab.history.length) {
+                tab.historyIndex = newIndex;
+                tab.url = tab.history[newIndex];
+                tab.title = tab.url === 'maths://home' ? 'New Tab' : tab.url.replace(/^https?:\/\//, '').split('/')[0];
+
+                renderTabs();
+                document.getElementById('omnibox-input').value = tab.url === 'maths://home' ? '' : tab.url;
+
+                const vp = document.getElementById('vp_' + tab.id);
+                if (vp) {
+                    if (tab.url === 'maths://home') {
+                        vp.innerHTML = getHomePageHtml();
+                    } else {
+                        vp.innerHTML = getBrowserViewportHtml(tab.url);
+                        executeLoadInViewport(vp, tab.url);
+                    }
+                }
+                updateNavigationButtons();
+            }
+        }
+
+        function updateNavigationButtons() {
+            const tab = state.tabs.find(t => t.id === state.activeTabId);
+            if (!tab) return;
+            const btnBack = document.getElementById('btn-back');
+            const btnForward = document.getElementById('btn-forward');
+            if (btnBack) btnBack.disabled = tab.historyIndex <= 0;
+            if (btnForward) btnForward.disabled = tab.historyIndex >= tab.history.length - 1;
+        }
+
+        function reloadCurrentTab() {
+            const tab = state.tabs.find(t => t.id === state.activeTabId);
+            if (!tab || tab.url === 'maths://home') return;
+            const vp = document.getElementById('vp_' + tab.id);
+            if (vp) executeLoadInViewport(vp, tab.url);
+        }
+
+        function goHome() {
+            navigateToUrl('maths://home');
+        }
+
+        function loadRawTextAsDataUrl() {
+            const rawText = document.getElementById('raw-text-input').value.trim();
+            if (!rawText) return;
+
+            const isHtml = rawText.startsWith('<') || rawText.includes('<html>');
+            const mime = isHtml ? 'text/html' : 'text/plain';
+            const dataUri = `data:${mime};charset=utf-8,` + encodeURIComponent(rawText);
+
+            toggleTextModeModal();
+            navigateToUrl(dataUri);
+            logMessage('Rendered raw text/HTML data URI in active tab.');
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                const el = document.getElementById('viewports-container');
+                const req = el.requestFullscreen || el.webkitRequestFullscreen;
+                Promise.resolve(req.call(el)).catch(() => showNotification('Fullscreen is not available here.', 'error'));
+            } else {
+                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('fullscreen-icon');
+            if (icon) icon.className = 'fa-solid ' + (document.fullscreenElement ? 'fa-compress' : 'fa-expand') + ' text-xs';
+        });
+
+        function toggleModal(id) {
+            const m = document.getElementById(id);
+            if (!m) return;
+            m.classList.toggle('hidden');
+        }
+
+        function toggleConsole() {
+            const drawer = document.getElementById('console-drawer');
+            if (drawer) drawer.classList.toggle('translate-x-full');
+        }
+
+        function clearConsole() {
+            const logs = document.getElementById('console-logs');
+            if (logs) logs.innerHTML = '';
+        }
+
+        function showNotification(message, type = 'success') {
+            const notice = document.createElement('div');
+            notice.className = `fixed bottom-5 right-5 z-50 glass-panel ${type === 'success' ? 'bg-indigo-900/90 border-indigo-500/50' : 'bg-rose-900/90 border-rose-500/50'} text-white px-4 py-2.5 rounded-xl shadow-xl text-xs flex items-center gap-2`;
+            notice.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}"></i> ${escapeHtml(message)}`;
+            document.body.appendChild(notice);
+            setTimeout(() => notice.remove(), 2500);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        window.onload = function() {
+            addNewTab('maths://home');
+        };
+    </script>
+</body>
+</html>
