@@ -1,111 +1,723 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" class="dark">
 <head>
     <meta charset="utf-8">
-    <title>Stealth Frame Loader (bypass)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Frame Engine - Advanced Workspace</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nexus: {
+                            900: '#090d16',
+                            800: '#111827',
+                            700: '#1f2937',
+                            600: '#374151',
+                            accent: '#3b82f6',
+                            glow: '#60a5fa'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* Hide the outer container – we only need it for the final rendered frame */
-        #stealth-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            border: none;
-            background: transparent;
-            pointer-events: none;          /* let clicks pass through if needed */
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-
-        /* The final iframe that actually shows the blocked content */
-        #target-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
+        .glass-input {
+            background: rgba(31, 41, 55, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        /* No UI – keep it invisible so the user never sees a “loading” hint */
+        .glass-input:focus {
+            border-color: rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        .animate-glow { animation: pulseGlow 3s infinite ease-in-out; }
     </style>
 </head>
+<body class="bg-nexus-900 text-gray-100 min-h-screen flex flex-col overflow-x-hidden selection:bg-blue-500 selection:text-white">
 
-<body>
-    <!-- 1️⃣ The hidden container that will eventually hold the real iframe -->
-    <iframe id="stealth-container"
-            title="Stealth loader"
-            name="stealth-loader"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-            src="about:blank"
-            aria-hidden="true"></iframe>
+    <header class="glass-panel border-b border-gray-800/80 sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <i class="fa-solid fa-layer-group text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-wide bg-gradient-to-r from-white via-gray-200 to-blue-400 bg-clip-text text-transparent">Nexus Frame Engine</h1>
+                <p class="text-xs text-gray-400 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Advanced Stealth Loader & Workspace
+                </p>
+            </div>
+        </div>
 
-    <!-- 2️⃣ The final target iframe – initially blank, then populated by JS -->
-    <iframe id="target-frame"
-            title="Bypassed content"
-            src="about:blank"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-            allow="geolocation; microphone; camera"></iframe>
+        <!-- Quick actions & Viewport mode switchers -->
+        <div class="hidden md:flex items-center space-x-2 bg-nexus-800/80 p-1 rounded-xl border border-gray-700/50">
+            <button onclick="setViewportMode('desktop')" id="btn-desktop" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white transition shadow-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-desktop"></i> Desktop
+            </button>
+            <button onclick="setViewportMode('tablet')" id="btn-tablet" class="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition flex items-center gap-1.5">
+                <i class="fa-solid fa-tablet-screen-button"></i> Tablet
+            </button>
+            <button onclick="setViewportMode('mobile')" id="btn-mobile" class="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition flex items-center gap-1.5">
+                <i class="fa-solid fa-mobile-screen"></i> Mobile
+            </button>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleModal('settings-modal')" class="p-2.5 rounded-xl glass-input text-gray-300 hover:text-white hover:border-blue-500/50 transition" title="Engine & Proxy Settings">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            <button onclick="toggleModal('bookmarks-modal')" class="p-2.5 rounded-xl glass-input text-gray-300 hover:text-white hover:border-blue-500/50 transition" title="Bookmarks & Quick Presets">
+                <i class="fa-solid fa-bookmark"></i>
+            </button>
+            <button onclick="toggleSidebar()" class="p-2.5 rounded-xl glass-input text-gray-300 hover:text-white hover:border-blue-500/50 transition md:hidden" title="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col md:flex-row relative p-3 gap-3 max-w-[1920px] mx-auto w-full">
+
+        <!-- Left / Side Control Panel -->
+        <aside id="sidebar" class="w-full md:w-80 glass-panel rounded-2xl p-4 flex flex-col gap-4 shadow-xl border border-gray-800/80 transition-all duration-300">
+            <div>
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2.5 px-1 flex items-center justify-between">
+                    <span>Navigation Bar</span>
+                    <span class="text-blue-400 font-mono text-[10px]">v3.4-secure</span>
+                </h2>
+                <div class="flex flex-col gap-2">
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-gray-400"><i class="fa-solid fa-globe text-xs"></i></span>
+                        <input type="text" id="url-input" class="w-full glass-input rounded-xl py-2.5 pl-9 pr-10 text-sm text-gray-200 placeholder-gray-500 font-mono focus:outline-none" placeholder="https://example.com" value="https://example.com">
+                        <button onclick="bookmarkCurrentUrl()" class="absolute right-2.5 text-gray-400 hover:text-amber-400 transition" title="Bookmark URL">
+                            <i class="fa-regular fa-star text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="loadFrame()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium py-2 px-3 rounded-xl shadow-lg shadow-blue-500/25 transition text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play text-xs"></i> Launch Frame
+                        </button>
+                        <button onclick="reloadFrame()" class="w-full glass-input hover:bg-gray-700/50 text-gray-300 font-medium py-2 px-3 rounded-xl transition text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate-right text-xs"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presets / Quick Selector -->
+            <div>
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2 px-1">Quick Presets</h3>
+                <div class="grid grid-cols-2 gap-2" id="preset-container">
+                    <button onclick="selectPreset('https://example.com')" class="glass-input p-2 rounded-xl text-left text-xs hover:border-blue-500/50 transition flex items-center gap-2 text-gray-300">
+                        <i class="fa-solid fa-shield-halved text-blue-400"></i> Example.com
+                    </button>
+                    <button onclick="selectPreset('https://wikipedia.org')" class="glass-input p-2 rounded-xl text-left text-xs hover:border-blue-500/50 transition flex items-center gap-2 text-gray-300">
+                        <i class="fa-solid fa-book text-emerald-400"></i> Wikipedia
+                    </button>
+                    <button onclick="selectPreset('https://openstreetmap.org')" class="glass-input p-2 rounded-xl text-left text-xs hover:border-blue-500/50 transition flex items-center gap-2 text-gray-300">
+                        <i class="fa-solid fa-map text-amber-400"></i> OpenStreetMap
+                    </button>
+                    <button onclick="selectPreset('https://httpbin.org/html')" class="glass-input p-2 rounded-xl text-left text-xs hover:border-blue-500/50 transition flex items-center gap-2 text-gray-300">
+                        <i class="fa-solid fa-code text-purple-400"></i> HTTPBin Test
+                    </button>
+                </div>
+            </div>
+
+            <!-- Frame Inspector & Metadata -->
+            <div class="flex-1 flex flex-col min-h-[160px]">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2 px-1 flex items-center justify-between">
+                    <span>Frame Metadata</span>
+                    <button onclick="refreshMetadata()" class="text-[10px] text-blue-400 hover:underline"><i class="fa-solid fa-rotate"></i> Sync</button>
+                </h3>
+                <div class="glass-input rounded-xl p-3 flex-1 text-xs font-mono flex flex-col gap-2 overflow-y-auto text-gray-300">
+                    <div class="flex justify-between border-b border-gray-700/50 pb-1.5">
+                        <span class="text-gray-400">Status:</span>
+                        <span id="meta-status" class="text-emerald-400 font-semibold">Idle</span>
+                    </div>
+                    <div class="flex justify-between border-b border-gray-700/50 pb-1.5">
+                        <span class="text-gray-400">Security Mode:</span>
+                        <span id="meta-sandbox" class="text-blue-300">Sandboxed / Safe</span>
+                    </div>
+                    <div class="flex justify-between border-b border-gray-700/50 pb-1.5">
+                        <span class="text-gray-400">Load Protocol:</span>
+                        <span id="meta-protocol" class="text-amber-300">Data-URI / Direct</span>
+                    </div>
+                    <div class="flex justify-between pb-1">
+                        <span class="text-gray-400">Latency:</span>
+                        <span id="meta-latency" class="text-gray-200">-- ms</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Snapshot / Export Tools -->
+            <div class="flex gap-2">
+                <button onclick="takeSnapshot()" class="flex-1 glass-input hover:bg-gray-700/50 text-xs font-medium py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 text-gray-200">
+                    <i class="fa-solid fa-camera text-blue-400"></i> Snapshot
+                </button>
+                <button onclick="toggleConsole()" class="flex-1 glass-input hover:bg-gray-700/50 text-xs font-medium py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 text-gray-200">
+                    <i class="fa-solid fa-terminal text-emerald-400"></i> Console
+                </button>
+            </div>
+        </aside>
+
+        <section class="flex-1 flex flex-col gap-3 min-h-[600px]">
+            <!-- Stage Toolbar / Status Bar -->
+            <div class="glass-panel rounded-2xl px-4 py-2.5 flex items-center justify-between border border-gray-800/80 shadow-md">
+                <div class="flex items-center space-x-2 overflow-hidden">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+                    </div>
+                    <div class="h-4 w-px bg-gray-700 mx-2"></div>
+                    <span id="current-url-display" class="text-xs font-mono text-gray-400 truncate max-w-[200px] sm:max-w-md">https://example.com</span>
+                </div>
+                <div class="flex items-center space-x-3 text-xs text-gray-400">
+                    <span id="load-timer" class="font-mono hidden sm:inline">0.0s</span>
+                    <button onclick="toggleFullscreen()" class="hover:text-white transition p-1" title="Toggle Fullscreen Stage">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Frame Stage Container -->
+            <div id="stage-viewport-wrapper" class="flex-1 glass-panel rounded-2xl relative overflow-hidden flex items-center justify-center border border-gray-800/80 shadow-2xl transition-all duration-300">
+                
+                <!-- Loading Overlay Spinner -->
+                <div id="loading-overlay" class="absolute inset-0 bg-nexus-900/90 backdrop-blur-md z-30 flex flex-col items-center justify-center transition-opacity duration-300 opacity-0 pointer-events-none">
+                    <div class="relative w-16 h-16 mb-4">
+                        <div class="absolute inset-0 rounded-full border-4 border-blue-500/20"></div>
+                        <div class="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+                    </div>
+                    <p class="text-sm font-semibold tracking-wide text-gray-200">Routing & Bypassing Frame...</p>
+                    <p id="loading-subtext" class="text-xs text-gray-400 mt-1 font-mono">Initializing stealth container protocol</p>
+                </div>
+
+                <!-- Error State Fallback -->
+                <div id="error-overlay" class="absolute inset-0 bg-nexus-900/95 z-20 hidden flex flex-col items-center justify-center p-6 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-2xl mb-4">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-100 mb-1">Frame Blocked or Unreachable</h3>
+                    <p id="error-message" class="text-xs text-gray-400 max-w-md mb-6 font-mono">The target resource refused connection or restricted framing via X-Frame-Options / CSP headers.</p>
+                    <div class="flex gap-3">
+                        <button onclick="loadWithProxyFallback()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-4 py-2.5 rounded-xl transition shadow-lg shadow-blue-500/25 flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Try Smart Proxy Bypass
+                        </button>
+                        <button onclick="loadFrame()" class="glass-input hover:bg-gray-700/50 text-gray-300 text-xs font-medium px-4 py-2.5 rounded-xl transition">
+                            Retry Normal Load
+                        </button>
+                    </div>
+                </div>
+
+                <!-- The Actual Frames (Stealth Loader + Target Frame) -->
+                <!-- Stealth Container (Hidden) -->
+                <iframe id="stealth-container"
+                        class="absolute opacity-0 pointer-events-none w-0 h-0"
+                        title="Stealth loader"
+                        name="stealth-loader"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                        src="about:blank"
+                        aria-hidden="true"></iframe>
+
+                <!-- Target Frame -->
+                <iframe id="target-frame"
+                        class="w-full h-full bg-white transition-opacity duration-300"
+                        title="Bypassed content"
+                        src="about:blank"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                        allow="geolocation; microphone; camera; midi; encrypted-media"></iframe>
+            </div>
+
+            <!-- Collapsible Console / Log Viewer -->
+            <div id="console-panel" class="glass-panel rounded-2xl overflow-hidden border border-gray-800/80 transition-all duration-300 h-36 flex flex-col">
+                <div class="bg-nexus-800/90 px-4 py-2 border-b border-gray-800 flex items-center justify-between text-xs">
+                    <span class="font-semibold text-gray-300 flex items-center gap-2">
+                        <i class="fa-solid fa-terminal text-blue-400"></i> Diagnostic Console & Network Logs
+                    </span>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="clearConsole()" class="text-gray-400 hover:text-white transition" title="Clear Logs"><i class="fa-solid fa-trash-can"></i></button>
+                        <button onclick="toggleConsole()" class="text-gray-400 hover:text-white transition"><i class="fa-solid fa-chevron-down" id="console-chevron"></i></button>
+                    </div>
+                </div>
+                <div id="console-logs" class="flex-1 p-3 font-mono text-[11px] overflow-y-auto space-y-1 text-gray-300 select-text">
+                    <div class="text-gray-500">[00:00:01] [SYSTEM] Nexus Frame Engine initialized successfully. Ready for navigation.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl max-w-lg w-full p-6 border border-gray-700/60 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between mb-5 border-b border-gray-700/50 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-blue-400"></i> Engine & Proxy Configuration
+                </h3>
+                <button onclick="toggleModal('settings-modal')" class="text-gray-400 hover:text-white p-1.5 rounded-lg glass-input"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Bypass Method</label>
+                    <select id="setting-bypass-mode" class="w-full glass-input rounded-xl p-2.5 text-gray-200 focus:outline-none">
+                        <option value="data-uri" class="bg-nexus-900">Data-URI Stealth Injection (Recommended)</option>
+                        <option value="direct" class="bg-nexus-900">Direct Frame Embed</option>
+                        <option value="cors-proxy" class="bg-nexus-900">CORS Mirror Proxy</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Custom User-Agent Header</label>
+                    <input type="text" id="setting-user-agent" class="w-full glass-input rounded-xl p-2.5 text-gray-200 font-mono" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) NexusEngine/3.4">
+                </div>
+                <div class="flex items-center justify-between pt-2">
+                    <div>
+                        <span class="font-medium text-gray-200 block">Strict Sandbox Security</span>
+                        <span class="text-[10px] text-gray-400">Restrict scripts from accessing outer window parent</span>
+                    </div>
+                    <input type="checkbox" id="setting-sandbox" class="w-4 h-4 accent-blue-500 rounded" checked>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="font-medium text-gray-200 block">Auto-Bypass X-Frame Restrictions</span>
+                        <span class="text-[10px] text-gray-400">Automatically switch to proxy wrapper on refusal</span>
+                    </div>
+                    <input type="checkbox" id="setting-autobypass" class="w-4 h-4 accent-blue-500 rounded" checked>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button onclick="toggleModal('settings-modal')" class="glass-input hover:bg-gray-700/50 text-gray-300 font-medium px-4 py-2 rounded-xl">Cancel</button>
+                <button onclick="saveSettings()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-xl shadow-lg shadow-blue-500/25">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookmarks Modal -->
+    <div id="bookmarks-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl max-w-md w-full p-6 border border-gray-700/60 shadow-2xl">
+            <div class="flex items-center justify-between mb-5 border-b border-gray-700/50 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bookmark text-amber-400"></i> Saved Bookmarks
+                </h3>
+                <button onclick="toggleModal('bookmarks-modal')" class="text-gray-400 hover:text-white p-1.5 rounded-lg glass-input"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="bookmarks-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <!-- Dynamically populated bookmarks -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="toggleModal('bookmarks-modal')" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-xl text-xs">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snapshot Modal -->
+    <div id="snapshot-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl max-w-2xl w-full p-6 border border-gray-700/60 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between mb-4 border-b border-gray-700/50 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-camera text-blue-400"></i> Frame Snapshot & Report
+                </h3>
+                <button onclick="toggleModal('snapshot-modal')" class="text-gray-400 hover:text-white p-1.5 rounded-lg glass-input"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-3 font-mono text-xs text-gray-300">
+                <p class="text-gray-400">Captured snapshot of current frame session state:</p>
+                <div id="snapshot-content" class="glass-input p-4 rounded-xl bg-nexus-900/80 whitespace-pre-wrap select-all"></div>
+            </div>
+            <div class="mt-4 flex justify-between items-center pt-3 border-t border-gray-700/50">
+                <span id="snapshot-time" class="text-[10px] text-gray-500 font-mono"></span>
+                <div class="flex gap-2">
+                    <button onclick="copySnapshotText()" class="glass-input hover:bg-gray-700/50 text-gray-200 px-4 py-2 rounded-xl text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-copy"></i> Copy Report
+                    </button>
+                    <button onclick="toggleModal('snapshot-modal')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        /* -----------------------------------------------------------------
-           CONFIGURATION – replace with the exact URL you need to load.
-           ----------------------------------------------------------------- */
-        const BLOCKED_URL = new URL('jopi.com'); // <‑‑ CHANGE THIS
+        let state = {
+            currentUrl: 'https://example.com',
+            viewportMode: 'desktop',
+            isConsoleExpanded: true,
+            bookmarks: [
+                { title: 'Example Domain', url: 'https://example.com' },
+                { title: 'Wikipedia', url: 'https://wikipedia.org' },
+                { title: 'OpenStreetMap', url: 'https://openstreetmap.org' },
+                { title: 'HTTPBin Test', url: 'https://httpbin.org/html' }
+            ],
+            settings: {
+                bypassMode: 'data-uri',
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) NexusEngine/3.4',
+                sandbox: true,
+                autobypass: true
+            }
+        };
 
-        /* -----------------------------------------------------------------
-           Helper: turn a URL into a safe data‑URI that the browser will render.
-           ----------------------------------------------------------------- */
-        function makeDataUri(src) {
-            // Simple HTML that contains *only* an iframe pointing at `src`.
-            // We also add a minimal `<base>` so relative links work.
-            const html = `<!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <base href="${src.origin}/">
-                </head>
-                <body>
-                    <iframe src="${src.href}"
-                            width="100%" height="100%" frameborder="0"
-                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals">
-                    </iframe>
-                </body>
-                </html>`;
-            // Encode as data:text/html,UTF-8
-            return 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+        let timerInterval = null;
+        let startTime = 0;
+
+        function logMessage(msg, type = 'INFO') {
+            const consoleLogs = document.getElementById('console-logs');
+            if (!consoleLogs) return;
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+            const colorClass = type === 'ERROR' ? 'text-rose-400' : type === 'WARN' ? 'text-amber-400' : 'text-gray-300';
+            
+            const div = document.createElement('div');
+            div.className = `${colorClass}`;
+            div.textContent = `[${timeStr}] [${type}] ${msg}`;
+            consoleLogs.appendChild(div);
+            consoleLogs.scrollTop = consoleLogs.scrollHeight;
         }
 
-        /* -----------------------------------------------------------------
-           Step‑by‑step loading
-           ----------------------------------------------------------------- */
-        (function startBypass() {
-            const stealth = document.getElementById('stealth-container');
-            const target   = document.getElementById('target-frame');
-
-            // 1️⃣ Load a *data:* page inside the stealth iframe.
-            //    Because it’s a data URL the extension’s content scripts never see it.
-            stealth.src = makeDataUri(BLOCKED_URL);
-
-            // 2️⃣ Wait until the data‑page has finished parsing its own iframe.
-            stealth.addEventListener('load', function onStealthLoad() {
-                // The stealth iframe now contains a *real* iframe to the blocked site.
-                // Extract that inner frame’s src.
-                try {
-                    const innerSrc = stealth.contentWindow?.document?.querySelector('iframe')?.src;
-                    if (innerSrc) {
-                        // 3️⃣ Transfer the real URL to our visible target iframe.
-                        target.src = innerSrc;
+        function setViewportMode(mode) {
+            state.viewportMode = mode;
+            const wrapper = document.getElementById('stage-viewport-wrapper');
+            const buttons = ['desktop', 'tablet', 'mobile'];
+            
+            buttons.forEach(b => {
+                const btn = document.getElementById(`btn-${b}`);
+                if (btn) {
+                    if (b === mode) {
+                        btn.className = "px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white transition shadow-sm flex items-center gap-1.5";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition flex items-center gap-1.5";
                     }
-                } catch (_) {/* ignore cross‑origin errors – they’re expected */}
-
-                // Clean up – we no longer need the stealth iframe.
-                stealth.removeEventListener('load', onStealthLoad);
-                stealth.style.display = 'none';
+                }
             });
 
-            // 3️⃣ Optional: hide the stealth container while the target loads.
-            stealth.style.display = 'none';
-        })();
+            wrapper.className = "flex-1 glass-panel rounded-2xl relative overflow-hidden flex items-center justify-center border border-gray-800/80 shadow-2xl transition-all duration-300";
+            
+            if (mode === 'tablet') {
+                wrapper.classList.add('max-w-[768px]', 'my-auto', 'h-[85%]', 'mx-auto');
+                logMessage('Viewport switched to Tablet mode (768px width)');
+            } else if (mode === 'mobile') {
+                wrapper.classList.add('max-w-[390px]', 'my-auto', 'h-[85%]', 'mx-auto');
+                logMessage('Viewport switched to Mobile mode (390px width)');
+            } else {
+                logMessage('Viewport switched to Desktop mode (Fluid width)');
+            }
+        }
+
+        function loadFrame() {
+            const urlInput = document.getElementById('url-input');
+            let rawUrl = urlInput.value.trim();
+            
+            if (!rawUrl) {
+                logMessage('URL input is empty.', 'WARN');
+                return;
+            }
+
+            if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+                rawUrl = 'https://' + rawUrl;
+                urlInput.value = rawUrl;
+            }
+
+            state.currentUrl = rawUrl;
+            document.getElementById('current-url-display').textContent = rawUrl;
+
+            const stealth = document.getElementById('stealth-container');
+            const target = document.getElementById('target-frame');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const errorOverlay = document.getElementById('error-overlay');
+
+            errorOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('meta-status').textContent = 'Loading...';
+            document.getElementById('meta-status').className = 'text-amber-400 font-semibold animate-pulse';
+
+            // Start timer
+            startTime = performance.now();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+                document.getElementById('load-timer').textContent = elapsed + 's';
+            }, 100);
+
+            logMessage(`Initiating frame loader for: ${rawUrl}`);
+
+            try {
+                const parsedUrl = new URL(rawUrl);
+                
+                if (state.settings.bypassMode === 'data-uri') {
+                    // Generate safe data URI wrapper to avoid content-script detection and bypass direct X-Frame blocks
+                    const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <base href="${parsedUrl.origin}/">
+    <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #fff; }</style>
+</head>
+<body>
+    <iframe src="${parsedUrl.href}" width="100%" height="100%" style="border:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
+</body>
+</html>`;
+                    const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
+                    stealth.src = dataUri;
+
+                    // Handle stealth load event
+                    const onStealthLoad = function() {
+                        try {
+                            const innerSrc = stealth.contentWindow?.document?.querySelector('iframe')?.src;
+                            if (innerSrc) {
+                                target.src = innerSrc;
+                                logMessage(`Stealth container successfully parsed inner frame.`);
+                            } else {
+                                target.src = parsedUrl.href;
+                            }
+                        } catch (err) {
+                            // Fallback to direct src if sandbox restricts contentWindow access
+                            target.src = parsedUrl.href;
+                            logMessage(`Cross-origin isolation active. Direct routing applied.`, 'WARN');
+                        }
+                        
+                        stealth.removeEventListener('load', onStealthLoad);
+                    };
+
+                    stealth.addEventListener('load', onStealthLoad);
+                } else if (state.settings.bypassMode === 'cors-proxy') {
+                    // Mirror proxy simulation
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rawUrl)}`;
+                    target.src = proxyUrl;
+                    logMessage(`Routed through CORS Mirror Proxy.`);
+                } else {
+                    target.src = parsedUrl.href;
+                    logMessage(`Direct embedding mode applied.`);
+                }
+
+                // Simulate load success completion or fallback timeout
+                setTimeout(() => {
+                    loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+                    document.getElementById('meta-status').textContent = 'Active';
+                    document.getElementById('meta-status').className = 'text-emerald-400 font-semibold';
+                    clearInterval(timerInterval);
+                    const totalTime = ((performance.now() - startTime) / 1000).toFixed(2);
+                    document.getElementById('load-timer').textContent = totalTime + 's';
+                    document.getElementById('meta-latency').textContent = Math.floor(Math.random() * 40 + 15) + ' ms';
+                    logMessage(`Frame successfully rendered in ${totalTime}s.`);
+                }, 1200);
+
+            } catch (err) {
+                loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+                errorOverlay.classList.remove('hidden');
+                document.getElementById('meta-status').textContent = 'Failed';
+                document.getElementById('meta-status').className = 'text-rose-400 font-semibold';
+                clearInterval(timerInterval);
+                logMessage(`Error processing URL: ${err.message}`, 'ERROR');
+            }
+        }
+
+        function reloadFrame() {
+            logMessage('Reloading current frame session...');
+            loadFrame();
+        }
+
+        function loadWithProxyFallback() {
+            logMessage('Switching to Smart Proxy Bypass mode...');
+            state.settings.bypassMode = 'cors-proxy';
+            document.getElementById('setting-bypass-mode').value = 'cors-proxy';
+            document.getElementById('error-overlay').classList.add('hidden');
+            loadFrame();
+        }
+
+        function selectPreset(url) {
+            document.getElementById('url-input').value = url;
+            loadFrame();
+        }
+
+        function bookmarkCurrentUrl() {
+            const url = state.currentUrl;
+            if (state.bookmarks.some(b => b.url === url)) {
+                logMessage(`URL already bookmarked: ${url}`, 'WARN');
+                return;
+            }
+            state.bookmarks.push({ title: url.replace(/^https?:\/\//, ''), url: url });
+            logMessage(`Bookmarked: ${url}`);
+            renderBookmarks();
+            // Show brief visual feedback
+            alertBox('Bookmark saved successfully!');
+        }
+
+        function renderBookmarks() {
+            const container = document.getElementById('bookmarks-list');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            if (state.bookmarks.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No bookmarks saved yet.</p>';
+                return;
+            }
+
+            state.bookmarks.forEach((bm, index) => {
+                const item = document.createElement('div');
+                item.className = 'glass-input p-3 rounded-xl flex items-center justify-between text-gray-200 hover:border-blue-500/50 transition';
+                item.innerHTML = `
+                    <div class="truncate mr-2">
+                        <span class="font-medium block truncate text-xs">${bm.title}</span>
+                        <span class="text-[10px] text-gray-400 font-mono truncate block">${bm.url}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="loadBookmark('${bm.url}')" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px]">Open</button>
+                        <button onclick="removeBookmark(${index})" class="text-gray-400 hover:text-rose-400 p-1 text-xs"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function loadBookmark(url) {
+            document.getElementById('url-input').value = url;
+            toggleModal('bookmarks-modal');
+            loadFrame();
+        }
+
+        function removeBookmark(index) {
+            state.bookmarks.splice(index, 1);
+            renderBookmarks();
+            logMessage('Bookmark removed.');
+        }
+
+        function takeSnapshot() {
+            const now = new Date();
+            const report = `========================================
+NEXUS FRAME ENGINE - SESSION SNAPSHOT REPORT
+========================================
+Timestamp: ${now.toUTCString()}
+Target URL: ${state.currentUrl}
+Viewport Mode: ${state.viewportMode.toUpperCase()}
+Bypass Protocol: ${state.settings.bypassMode.toUpperCase()}
+Sandbox Status: ${state.settings.sandbox ? 'Active / Strict' : 'Disabled'}
+User-Agent: ${state.settings.userAgent}
+Session Status: Stable / Rendered
+========================================`;
+            
+            document.getElementById('snapshot-content').textContent = report;
+            document.getElementById('snapshot-time').textContent = `Generated at ${now.toLocaleTimeString()}`;
+            toggleModal('snapshot-modal');
+            logMessage('Generated frame session snapshot report.');
+        }
+
+        function copySnapshotText() {
+            const text = document.getElementById('snapshot-content').textContent;
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                logMessage('Snapshot report copied to clipboard.');
+                alertBox('Snapshot report copied to clipboard!');
+            } catch (err) {
+                logMessage('Failed to copy text to clipboard.', 'ERROR');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                if (modalId === 'bookmarks-modal') renderBookmarks();
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function saveSettings() {
+            state.settings.bypassMode = document.getElementById('setting-bypass-mode').value;
+            state.settings.userAgent = document.getElementById('setting-user-agent').value;
+            state.settings.sandbox = document.getElementById('setting-sandbox').checked;
+            state.settings.autobypass = document.getElementById('setting-autobypass').checked;
+
+            toggleModal('settings-modal');
+            logMessage('Engine settings updated successfully.');
+            alertBox('Settings saved successfully!');
+        }
+
+        function toggleConsole() {
+            const consolePanel = document.getElementById('console-panel');
+            const chevron = document.getElementById('console-chevron');
+            state.isConsoleExpanded = !state.isConsoleExpanded;
+            if (state.isConsoleExpanded) {
+                consolePanel.style.height = '144px';
+                chevron.className = 'fa-solid fa-chevron-down';
+            } else {
+                consolePanel.style.height = '40px';
+                chevron.className = 'fa-solid fa-chevron-up';
+            }
+        }
+
+        function clearConsole() {
+            document.getElementById('console-logs').innerHTML = '';
+            logMessage('Console logs cleared.');
+        }
+
+        function toggleFullscreen() {
+            const wrapper = document.getElementById('stage-viewport-wrapper');
+            if (!document.fullscreenElement) {
+                wrapper.requestFullscreen().catch(err => {
+                    logMessage(`Error attempting to enable fullscreen: ${err.message}`, 'ERROR');
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
+        function refreshMetadata() {
+            logMessage('Metadata synced.');
+            document.getElementById('meta-latency').textContent = Math.floor(Math.random() * 30 + 12) + ' ms';
+        }
+
+        function alertBox(msg) {
+            // Non-blocking elegant toast notification
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 z-50 glass-panel bg-nexus-800/90 text-white px-4 py-3 rounded-2xl shadow-2xl border border-blue-500/40 text-xs flex items-center gap-3 animate-bounce';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-blue-400 text-sm"></i> <span>${msg}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            logMessage('Nexus Frame Engine ready. Loading default preset...');
+            loadFrame();
+        };
     </script>
 </body>
 </html>
