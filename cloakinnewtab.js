@@ -1,35 +1,50 @@
-(function () {
-    var url = "maths.html";
+function openCloaked() {
+    const win = window.open("about:blank", "_blank");
+    if (!win) return false;
 
-    // Open a new about:blank window
-    var win = window.open("about:blank", "_blank");
+    const doc = win.document;
 
-    // Set the title and favicon
-    win.document.head.innerHTML += 
-        '<link rel="icon" href="maths-logo.png" type="image/png">';
-    win.document.head.innerHTML += '<title>Maths Support</title>';
+    doc.open();
+    doc.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${TITLE}</title>
+<link rel="icon" type="image/png" href="${new URL(ICON, window.location.href).href}">
+<style>
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+iframe{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:none;
+}
+</style>
+</head>
+<body>
+<iframe src="${new URL(PAGE, window.location.href).href}"></iframe>
+</body>
+</html>`);
+    doc.close();
 
-    // Create iframe
-    var iframe = win.document.createElement("iframe");
+    // Set again after load (some browsers overwrite it)
+    win.onload = () => {
+        win.document.title = TITLE;
 
-    // Fullscreen iframe
-    iframe.style.position = "fixed";
-    iframe.style.width = "100vw";
-    iframe.style.height = "100vh";
-    iframe.style.top = "0";
-    iframe.style.left = "0";
-    iframe.style.right = "0";
-    iframe.style.bottom = "0";
-    iframe.style.zIndex = "2147483647";
-    iframe.style.backgroundColor = "white";
-    iframe.style.border = "none";
+        let icon = win.document.querySelector("link[rel='icon']");
+        if (!icon) {
+            icon = win.document.createElement("link");
+            icon.rel = "icon";
+            win.document.head.appendChild(icon);
+        }
+        icon.href = new URL(ICON, window.location.href).href;
+    };
 
-    // Load maths.html from the same directory
-    iframe.src = new URL(url, window.location.href).href;
-
-    // Add iframe
-    win.document.body.appendChild(iframe);
-})();
-
-// Redirect original tab
-window.location.href = "https://google.com";
+    return true;
+}
