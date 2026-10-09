@@ -1300,7 +1300,7 @@ body.sidebar-collapsed .sidebar{
 
   <div class="sidebar-bottom">
 
-    <div class="am-side"><div id="amPlan">Free plan</div><div class="am-bar"><i id="amBar" style="width:0"></i></div><a class="am-up" id="amUp" href="#">Go Premium</a></div>
+    <div class="am-side"><div id="amPlan">Free plan</div><div class="am-bar"><i id="amBar" style="width:0"></i></div><a class="am-up" id="amUp" href="#">Redeem Premium code</a></div>
 <div
       class="user-row"
       id="userRow"
@@ -1750,8 +1750,8 @@ body.sidebar-collapsed .sidebar{
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
 <div class="am-modal" id="amModal"><div class="am-card"><h2 style="margin:0 0 8px">Artificial Maths Premium</h2>
-<ul><li>Pro model (strongest reasoning)</li><li>10x higher daily limits</li><li>More image generations</li><li>Priority when it's busy</li></ul>
-<a class="am-up" id="amBuy" target="_blank" rel="noopener" href="#">Upgrade</a><button style="margin:12px auto 0;display:block;color:var(--muted)" id="amClose">Not now</button></div></div>
+<ul><li>Pro model (strongest reasoning)</li><li>10x higher daily limits</li><li>More image generations</li><li>Enter your Premium code below</li></ul>
+<input id="amCode" placeholder="AM-XXXXXXXXXXXX" autocomplete="off" style="width:100%;margin-top:14px;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);text-transform:uppercase"><button class="am-up" id="amRedeem" type="button" style="margin-top:10px">Redeem code</button><div id="amMsg" style="margin-top:10px;font-size:13px;min-height:18px"></div><button style="margin:12px auto 0;display:block;color:var(--muted)" id="amClose">Not now</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
 
@@ -6718,7 +6718,6 @@ updateSendButton();
 
 
 /* ===== v2: models, limits, premium, image mode ===== */
-const PREMIUM_URL = "https://buy.stripe.com/REPLACE_ME";
 window.AM = { model: localStorage.getItem("am_model") || "fast", image: false };
 const NAMES = {fast:"Maths Fast",reasoning:"Maths Reasoning",vision:"Maths Vision (images/PDF)",pro:"Maths Pro ★"};
 const amSel = document.getElementById("amModel"), amImg = document.getElementById("amImg");
@@ -6745,7 +6744,15 @@ amImg.addEventListener("click", () => { window.AM.image = !window.AM.image; amIm
   input.placeholder = window.AM.image ? "Describe the image you want..." : "Message Artificial Maths..."; });
 const amModal = document.getElementById("amModal");
 for (const id of ["amUp"]) document.getElementById(id).addEventListener("click", e => { e.preventDefault(); amModal.classList.add("show"); });
-document.getElementById("amBuy").href = PREMIUM_URL;
+document.getElementById("amRedeem").addEventListener("click", async () => {
+  const msg = document.getElementById("amMsg"), code = document.getElementById("amCode").value.trim();
+  if(!code) return;
+  msg.style.color = "var(--muted)"; msg.textContent = "Checking...";
+  const { data, error } = await supabase.rpc("am_redeem", { p_code: code });
+  if(error){ msg.style.color = "var(--danger)"; msg.textContent = error.message; return; }
+  msg.style.color = "#16a34a"; msg.textContent = data; document.getElementById("amCode").value = "";
+  amRefresh(); setTimeout(() => amModal.classList.remove("show"), 1500);
+});
 document.getElementById("amClose").addEventListener("click", () => amModal.classList.remove("show"));
 sendBtn.addEventListener("click", () => { setTimeout(amRefresh, 5000); setTimeout(amRefresh, 15000); });
 amRender(null);
