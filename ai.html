@@ -1208,6 +1208,26 @@ body.sidebar-collapsed .sidebar{
 
 }
 
+
+/* ===== v2 UI refresh ===== */
+:root{--radius:16px;--shadow:0 1px 2px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.06);--brand:#4f46e5}
+@media (prefers-color-scheme:dark){:root{--main-bg:#1b1b1d;--text:#ececf1;--muted:#9a9aa5;--border:#2e2e33;--bubble-user:#2a2a30;--accent:#4f46e5}
+.msg.assistant .msg-text :not(pre)>code{background:#2a2a30}.msg-image{background:#2a2a30}}
+.avatar{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
+.composer{border-radius:22px;box-shadow:var(--shadow);border:1px solid var(--border);background:var(--main-bg)}
+.send-btn:not(:disabled){background:var(--brand);color:#fff}
+.empty-state h1{background:linear-gradient(90deg,var(--text),var(--brand));-webkit-background-clip:text;background-clip:text;color:transparent}
+.am-tools{display:flex;gap:6px;align-items:center;padding:0 4px}
+.am-select{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:999px;padding:6px 10px;font-size:12.5px;max-width:150px}
+.am-chip{border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12.5px;color:var(--muted)}
+.am-chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.am-side{padding:8px;font-size:12px;color:var(--sidebar-muted)}
+.am-bar{height:5px;border-radius:9px;background:#2d2d2d;margin:4px 0 8px;overflow:hidden}.am-bar i{display:block;height:100%;background:#7c3aed}
+.am-up{display:block;width:100%;text-align:center;padding:9px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:600;font-size:13px}
+.am-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:99}.am-modal.show{display:flex}
+.am-card{background:var(--main-bg);color:var(--text);border-radius:20px;padding:26px;width:min(420px,92vw)}
+.am-card ul{padding-left:18px;color:var(--muted);line-height:1.8}.am-card .am-up{margin-top:14px}
+@media(max-width:700px){.am-select{max-width:110px}}
 </style>
 </head>
 
@@ -1280,7 +1300,8 @@ body.sidebar-collapsed .sidebar{
 
   <div class="sidebar-bottom">
 
-    <div
+    <div class="am-side"><div id="amPlan">Free plan</div><div class="am-bar"><i id="amBar" style="width:0"></i></div><a class="am-up" id="amUp" href="#">Go Premium</a></div>
+<div
       class="user-row"
       id="userRow"
     >
@@ -1488,7 +1509,8 @@ body.sidebar-collapsed .sidebar{
         >
 
 
-        <textarea
+        <div class="am-tools"><select class="am-select" id="amModel" title="Model"></select><button class="am-chip" id="amImg" type="button" title="Generate an image">🖼 Image</button></div>
+<textarea
           id="input"
           rows="1"
           placeholder="Message Artificial Maths..."
@@ -1727,6 +1749,9 @@ body.sidebar-collapsed .sidebar{
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
+<div class="am-modal" id="amModal"><div class="am-card"><h2 style="margin:0 0 8px">Artificial Maths Premium</h2>
+<ul><li>Pro model (strongest reasoning)</li><li>10x higher daily limits</li><li>More image generations</li><li>Priority when it's busy</li></ul>
+<a class="am-up" id="amBuy" target="_blank" rel="noopener" href="#">Upgrade</a><button style="margin:12px auto 0;display:block;color:var(--muted)" id="amClose">Not now</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
 
@@ -4941,9 +4966,7 @@ async function callEdgeFunction(
             body && body.mode === "title"
               ? body
               : {
-                  ...body,
-                  settings:
-                    getSettings()
+                  ...body, settings:getSettings(), model:window.AM.model, mode:(body.mode||(window.AM.image?"image":undefined))
                 }
           )
 
@@ -6693,6 +6716,40 @@ newChatBtn.addEventListener(
 
 updateSendButton();
 
+
+/* ===== v2: models, limits, premium, image mode ===== */
+const PREMIUM_URL = "https://buy.stripe.com/REPLACE_ME";
+window.AM = { model: localStorage.getItem("am_model") || "fast", image: false };
+const NAMES = {fast:"Maths Fast",reasoning:"Maths Reasoning",vision:"Maths Vision (images/PDF)",pro:"Maths Pro ★"};
+const amSel = document.getElementById("amModel"), amImg = document.getElementById("amImg");
+function amRender(u){
+  const owner = u?.plan === "owner", prem = u?.plan === "premium";
+  amSel.innerHTML = Object.entries(NAMES).map(([k,v]) => {
+    const e = u?.usage?.[k]; const lock = e?.locked ? " 🔒" : "";
+    const left = e && e.limit != null && !e.locked ? ` (${Math.max(e.limit-e.used,0)} left)` : "";
+    return `<option value="${k}"${k===window.AM.model?" selected":""}>${v}${lock}${left}</option>`;
+  }).join("");
+  document.getElementById("amPlan").textContent = owner ? "Owner · unlimited" : prem ? "Premium" : "Free plan";
+  const cur = u?.usage?.[window.AM.model];
+  document.getElementById("amBar").style.width = cur?.limit ? Math.min(100, cur.used/cur.limit*100)+"%" : "0";
+  document.getElementById("amUp").style.display = (owner||prem) ? "none" : "block";
+}
+async function amRefresh(){
+  try{ const r = await callEdgeFunction({mode:"usage"}); amRender(await r.json()); }catch(e){ amRender(null); }
+}
+amSel.addEventListener("change", () => {
+  if(amSel.selectedOptions[0].textContent.includes("🔒")){ amSel.value = window.AM.model; amModal.classList.add("show"); return; }
+  window.AM.model = amSel.value; localStorage.setItem("am_model", amSel.value); amRefresh();
+});
+amImg.addEventListener("click", () => { window.AM.image = !window.AM.image; amImg.classList.toggle("on", window.AM.image);
+  input.placeholder = window.AM.image ? "Describe the image you want..." : "Message Artificial Maths..."; });
+const amModal = document.getElementById("amModal");
+for (const id of ["amUp"]) document.getElementById(id).addEventListener("click", e => { e.preventDefault(); amModal.classList.add("show"); });
+document.getElementById("amBuy").href = PREMIUM_URL;
+document.getElementById("amClose").addEventListener("click", () => amModal.classList.remove("show"));
+sendBtn.addEventListener("click", () => { setTimeout(amRefresh, 5000); setTimeout(amRefresh, 15000); });
+amRender(null);
+supabase.auth.onAuthStateChange((ev, ses) => { if(ses) setTimeout(amRefresh, 300); });
 </script>
 
 </body>
