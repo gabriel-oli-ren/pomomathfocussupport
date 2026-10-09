@@ -3998,7 +3998,7 @@ function stripSafetyLabels(text){
   /* Whole lines like "User Safety: safe", "Response Safety: unsafe",
      "Safety Categories: None", "Refusal: No" (optionally bold/bulleted) */
   out = out.replace(
-    /^[ \t>*_#\-]*(?:user|response|prompt|assistant)?[ \t]*safety(?:[ \t]*(?:rating|label|categories|category|assessment))?[ \t]*\**[ \t]*:[^\n]*(?:\n|$)/gim,
+    /^[ \t>*_#\-]*(?:user|response|prompt|assistant)[ \t]*safety(?:[ \t]*(?:rating|label|categories|category|assessment))?[ \t]*\**[ \t]*:[^\n]*(?:\n|$)/gim,
     ""
   );
 
