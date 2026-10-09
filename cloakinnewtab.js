@@ -6,8 +6,8 @@
 
     // Set the title and favicon
     win.document.head.innerHTML += 
-        '<link rel="icon" href="https://www.google.com/s2/favicons?sz=64&domain=google.com" type="image/png">';
-    win.document.head.innerHTML += '<title>Google</title>';
+        '<link rel="icon" href="maths-logo.png" type="image/png">';
+    win.document.head.innerHTML += '<title>Maths Support</title>';
 
     // Create iframe
     var iframe = win.document.createElement("iframe");
