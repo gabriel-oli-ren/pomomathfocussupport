@@ -1848,6 +1848,16 @@ let pendingImages = [];
 
 let sending = false;
 
+let loadedForUserId = null;
+
+let loadSeq = 0;
+
+let selectSeq = 0;
+
+let hiddenAt = 0;
+
+const LAST_CHAT_KEY = "am_last_chat_id";
+
 
 /* =========================================================
    AUTH
@@ -1876,8 +1886,6 @@ signOutBtn.addEventListener(
 /* =========================================================
    SESSION
 ========================================================= */
-
-let loadedForUserId = null;
 
 async function handleSession(session){
 
@@ -2042,13 +2050,6 @@ try{
    LOAD CHATS
 ========================================================= */
 
-let loadSeq = 0;
-
-let selectSeq = 0;
-
-const LAST_CHAT_KEY = "am_last_chat_id";
-
-
 async function loadChats(){
 
   if(!currentUser){
@@ -2182,8 +2183,6 @@ async function loadChats(){
 
 
 /* Refresh data when a tab is restored / comes back from sleep */
-
-let hiddenAt = 0;
 
 async function refreshAfterReturn(force){
 
