@@ -1955,7 +1955,9 @@ function renderMessages(){
 
     appendMessageEl(
       message.role,
-      message.content,
+      message.role === "assistant"
+        ? stripSafetyLabels(message.content)
+        : message.content,
       normalizeImageUrls(
         message.image_urls
       )
@@ -3043,7 +3045,9 @@ function toApiMessages(history){
           message.role,
 
         content:
-          message.content || ""
+          message.role === "assistant"
+            ? stripSafetyLabels(message.content || "")
+            : (message.content || "")
 
       };
 
@@ -3215,6 +3219,51 @@ async function callEdgeFunction(
 
 
   return response;
+
+}
+
+
+/* =========================================================
+   STRIP SAFETY-CLASSIFIER LABELS
+   Some models emit moderation labels such as
+   "User Safety: safe" / "Response Safety: safe" /
+   "Safety Categories: ..." in their output. These are
+   never part of a real answer, so remove them.
+========================================================= */
+
+function stripSafetyLabels(text){
+
+  if(!text){
+    return text || "";
+  }
+
+  let out = String(text);
+
+  /* Whole lines like "User Safety: safe", "Response Safety: unsafe",
+     "Safety Categories: None", "Refusal: No" (optionally bold/bulleted) */
+  out = out.replace(
+    /^[ \t>*_#\-]*(?:user|response|prompt|assistant)?[ \t]*safety(?:[ \t]*(?:rating|label|categories|category|assessment))?[ \t]*\**[ \t]*:[^\n]*(?:\n|$)/gim,
+    ""
+  );
+
+  out = out.replace(
+    /^[ \t>*_#\-]*(?:safety[ \t]*categories|refusal)[ \t]*\**[ \t]*:[^\n]*(?:\n|$)/gim,
+    ""
+  );
+
+  /* Inline leftovers while streaming, e.g. "User Safety: safe Response Safety: safe" */
+  out = out.replace(
+    /(?:user|response)[ \t]*safety[ \t]*:[ \t]*(?:safe|unsafe|controversial)[^\n]*/gi,
+    ""
+  );
+
+  /* Hide a half-typed label at the very start/end of the stream */
+  out = out.replace(
+    /^[ \t]*(?:u(?:s(?:e(?:r(?:[ \t]+(?:s(?:a(?:f(?:e(?:t(?:y)?)?)?)?)?)?)?)?)?)?|r(?:e(?:s(?:p(?:o(?:n(?:s(?:e)?)?)?)?)?)?)?)[ \t]*$/i,
+    ""
+  );
+
+  return out.replace(/^\s+/, "");
 
 }
 
@@ -4024,7 +4073,9 @@ async function sendMessage(){
         streamedText => {
 
           typer.update(
-            streamedText
+            stripSafetyLabels(
+              streamedText
+            )
           );
 
         }
@@ -4035,7 +4086,7 @@ async function sendMessage(){
 
 
     answer =
-      answer.trim();
+      stripSafetyLabels(answer).trim();
 
 
     /* =====================================================
