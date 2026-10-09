@@ -1760,7 +1760,14 @@ const SUPABASE_ANON_KEY =
 const supabase =
   createClient(
     SUPABASE_URL,
-    SUPABASE_ANON_KEY
+    SUPABASE_ANON_KEY,
+    {
+      auth:{
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true
+      }
+    }
   );
 
 
@@ -1870,25 +1877,30 @@ signOutBtn.addEventListener(
    SESSION
 ========================================================= */
 
+let loadedForUserId = null;
+
 async function handleSession(session){
 
-  currentUser =
+  const user =
     session?.user || null;
 
 
-  if(currentUser){
+  currentUser = user;
+
+
+  if(user){
 
     authOverlay.classList.add("hidden");
 
 
     userName.textContent =
-      currentUser.user_metadata?.full_name ||
-      currentUser.email ||
+      user.user_metadata?.full_name ||
+      user.email ||
       "Account";
 
 
     const avatar =
-      currentUser.user_metadata?.avatar_url;
+      user.user_metadata?.avatar_url;
 
 
     if(avatar){
@@ -1898,9 +1910,27 @@ async function handleSession(session){
     }
 
 
-    await loadChats();
+    /* Only load once per user. Supabase fires several auth
+       events on reopen (INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED);
+       handling each one used to start overlapping loads. */
+    if(loadedForUserId !== user.id){
+
+      loadedForUserId = user.id;
+
+      const ok = await loadChats();
+
+      if(!ok && loadedForUserId === user.id){
+        loadedForUserId = null;
+      }
+
+    }
 
   }else{
+
+    loadedForUserId = null;
+
+    loadSeq++;
+    selectSeq++;
 
     authOverlay.classList.remove("hidden");
 
@@ -1926,6 +1956,55 @@ async function handleSession(session){
 /* =========================================================
    INITIAL SESSION
 ========================================================= */
+
+/* The listener is registered first and its callback does NOT
+   await Supabase calls directly (that can deadlock supabase-js's
+   internal auth lock, which is what left chats empty after
+   reopening the tab). Work is deferred with setTimeout. */
+
+supabase.auth.onAuthStateChange(
+  (
+    event,
+    session
+  ) => {
+
+    if(
+      event === "TOKEN_REFRESHED" ||
+      event === "USER_UPDATED"
+    ){
+
+      if(session?.user){
+        currentUser = session.user;
+      }
+
+      return;
+
+    }
+
+
+    setTimeout(
+      async () => {
+
+        try{
+
+          await handleSession(session);
+
+        }catch(error){
+
+          console.error(
+            "Auth state error:",
+            error
+          );
+
+        }
+
+      },
+      0
+    );
+
+  }
+);
+
 
 try{
 
@@ -1959,57 +2038,76 @@ try{
 }
 
 
-supabase.auth.onAuthStateChange(
-  async (
-    _event,
-    session
-  ) => {
-
-    try{
-
-      await handleSession(session);
-
-    }catch(error){
-
-      console.error(
-        "Auth state error:",
-        error
-      );
-
-    }
-
-  }
-);
-
-
 /* =========================================================
    LOAD CHATS
 ========================================================= */
 
+let loadSeq = 0;
+
+let selectSeq = 0;
+
+const LAST_CHAT_KEY = "am_last_chat_id";
+
+
 async function loadChats(){
 
   if(!currentUser){
-    return;
+    return false;
   }
 
 
-  const {
-    data,
-    error
-  } =
-    await supabase
-      .from("am_chats")
-      .select("*")
-      .eq(
-        "user_id",
-        currentUser.id
-      )
-      .order(
-        "updated_at",
-        {
-          ascending:false
-        }
-      );
+  const seq = ++loadSeq;
+
+  const userId = currentUser.id;
+
+
+  let data = null;
+
+  let error = null;
+
+
+  /* Retry a few times: right after reopening a tab the
+     network / refreshed token may not be ready yet. */
+  for(let attempt = 0; attempt < 3; attempt++){
+
+    const result =
+      await supabase
+        .from("am_chats")
+        .select("*")
+        .eq(
+          "user_id",
+          userId
+        )
+        .order(
+          "updated_at",
+          {
+            ascending:false
+          }
+        );
+
+    data = result.data;
+
+    error = result.error;
+
+    if(!error){
+      break;
+    }
+
+    await new Promise(
+      resolve =>
+        setTimeout(
+          resolve,
+          600 * (attempt + 1)
+        )
+    );
+
+  }
+
+
+  /* A newer load (or a sign-out) superseded this one. */
+  if(seq !== loadSeq || !currentUser){
+    return true;
+  }
 
 
   if(error){
@@ -2024,12 +2122,27 @@ async function loadChats(){
       "load chats"
     );
 
-    return;
+    return false;
   }
 
 
   chats =
     data || [];
+
+
+  if(currentChat){
+
+    const fresh =
+      chats.find(
+        chat =>
+          chat.id === currentChat.id
+      );
+
+    if(fresh){
+      currentChat = fresh;
+    }
+
+  }
 
 
   renderChatList();
@@ -2040,8 +2153,17 @@ async function loadChats(){
     !currentChat
   ){
 
+    const lastId =
+      readLocal(LAST_CHAT_KEY);
+
+    const remembered =
+      chats.find(
+        chat =>
+          chat.id === lastId
+      );
+
     await selectChat(
-      chats[0]
+      remembered || chats[0]
     );
 
   }else if(!chats.length){
@@ -2054,7 +2176,78 @@ async function loadChats(){
 
   }
 
+  return true;
+
 }
+
+
+/* Refresh data when a tab is restored / comes back from sleep */
+
+let hiddenAt = 0;
+
+async function refreshAfterReturn(force){
+
+  if(!currentUser || sending){
+    return;
+  }
+
+  try{
+
+    /* make sure the token is valid before querying */
+    await supabase.auth.getSession();
+
+    const ok = await loadChats();
+
+    if(ok && currentChat){
+      await selectChat(currentChat, true);
+    }
+
+  }catch(error){
+
+    console.error(
+      "Refresh error:",
+      error
+    );
+
+  }
+
+}
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+
+    if(document.visibilityState === "hidden"){
+      hiddenAt = Date.now();
+      return;
+    }
+
+    const away =
+      Date.now() - hiddenAt;
+
+    if(
+      hiddenAt &&
+      (away > 60000 || loadedForUserId === null)
+    ){
+      if(loadedForUserId === null && currentUser){
+        loadedForUserId = currentUser.id;
+      }
+      refreshAfterReturn();
+    }
+
+  }
+);
+
+window.addEventListener(
+  "pageshow",
+  event => {
+
+    if(event.persisted){
+      refreshAfterReturn();
+    }
+
+  }
+);
 
 
 /* =========================================================
@@ -2191,15 +2384,23 @@ function renderChatList(){
    SELECT CHAT
 ========================================================= */
 
-async function selectChat(chat){
+async function selectChat(chat, force){
 
-  if(sending){
+  if(sending && !force){
     return;
   }
 
 
+  const seq = ++selectSeq;
+
+
   currentChat =
     chat;
+
+  writeLocal(
+    LAST_CHAT_KEY,
+    chat.id
+  );
 
 
   renderChatList();
@@ -2222,6 +2423,12 @@ async function selectChat(chat){
           ascending:true
         }
       );
+
+
+  /* user clicked another chat while this one was loading */
+  if(seq !== selectSeq){
+    return;
+  }
 
 
   if(error){
