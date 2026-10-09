@@ -281,7 +281,7 @@ textarea{
 
   margin:0 auto;
 
-  padding:40px 22px 170px;
+  padding:52px 22px 170px;
 
   min-height:100%;
 }
@@ -978,6 +978,236 @@ textarea{
 
 }
 
+/* =========================================================
+   SIDEBAR TOGGLE + SETTINGS
+========================================================= */
+
+.sidebar{
+  transition:margin-left .2s ease;
+}
+
+body.sidebar-collapsed .sidebar{
+  margin-left:-270px;
+}
+
+.sidebar-toggle{
+  position:absolute;
+
+  top:10px;
+  left:10px;
+
+  z-index:20;
+
+  width:36px;
+  height:36px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:9px;
+
+  color:var(--muted);
+}
+
+.sidebar-toggle:hover{
+  background:var(--bubble-user);
+  color:var(--text);
+}
+
+.sidebar-backdrop{
+  display:none;
+
+  position:fixed;
+  inset:0;
+
+  background:rgba(0,0,0,.4);
+
+  z-index:35;
+}
+
+.settings-overlay{
+  position:fixed;
+  inset:0;
+
+  z-index:90;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:16px;
+
+  background:rgba(0,0,0,.45);
+}
+
+.settings-overlay[hidden]{
+  display:none;
+}
+
+.settings-card{
+  width:100%;
+  max-width:520px;
+  max-height:90vh;
+
+  display:flex;
+  flex-direction:column;
+
+  background:var(--main-bg);
+  color:var(--text);
+
+  border-radius:16px;
+
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+
+  overflow:hidden;
+}
+
+.settings-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:16px 20px;
+
+  border-bottom:1px solid var(--border);
+}
+
+.settings-head h2{
+  margin:0;
+  font-size:17px;
+}
+
+.settings-x{
+  width:30px;
+  height:30px;
+
+  border-radius:8px;
+
+  font-size:20px;
+  line-height:1;
+
+  color:var(--muted);
+}
+
+.settings-x:hover{
+  background:var(--bubble-user);
+  color:var(--text);
+}
+
+.settings-body{
+  padding:16px 20px;
+
+  overflow-y:auto;
+
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.settings-field label{
+  display:block;
+
+  font-size:13px;
+  font-weight:600;
+
+  margin-bottom:5px;
+}
+
+.settings-field .hint{
+  font-size:12px;
+  color:var(--muted);
+
+  margin-top:4px;
+}
+
+.settings-field input,
+.settings-field select,
+.settings-field textarea{
+  width:100%;
+
+  padding:9px 11px;
+
+  border:1px solid var(--border);
+  border-radius:10px;
+
+  background:var(--main-bg);
+  color:var(--text);
+
+  font:inherit;
+  font-size:14px;
+}
+
+.settings-field textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.settings-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.settings-foot{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  padding:14px 20px;
+
+  border-top:1px solid var(--border);
+}
+
+.settings-foot .spacer{
+  flex:1;
+}
+
+.settings-btn{
+  padding:9px 16px;
+
+  border-radius:10px;
+
+  font-size:14px;
+
+  border:1px solid var(--border);
+}
+
+.settings-btn:hover{
+  background:var(--bubble-user);
+}
+
+.settings-btn.primary{
+  background:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+}
+
+.settings-btn.primary:hover{
+  opacity:.88;
+  background:var(--accent);
+}
+
+@media(max-width:760px){
+
+  body.sidebar-collapsed .sidebar{
+    margin-left:0;
+  }
+
+  .sidebar-backdrop.show{
+    display:block;
+  }
+
+  .messages{
+    padding-top:56px;
+  }
+
+  .settings-row{
+    grid-template-columns:1fr;
+  }
+
+}
+
 </style>
 </head>
 
@@ -990,6 +1220,12 @@ textarea{
 <!-- =======================================================
      SIDEBAR
 ======================================================= -->
+
+<div
+  class="sidebar-backdrop"
+  id="sidebarBackdrop"
+></div>
+
 
 <aside
   class="sidebar"
@@ -1062,6 +1298,31 @@ textarea{
 
       <button
         class="signout-btn"
+        id="settingsBtn"
+        type="button"
+        title="Personalize the AI"
+        aria-label="Personalize the AI"
+      >
+
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+
+      </button>
+
+
+      <button
+        class="signout-btn"
         id="signOutBtn"
         type="button"
         title="Sign out"
@@ -1104,6 +1365,31 @@ textarea{
 ======================================================= -->
 
 <main class="main">
+
+  <button
+    class="sidebar-toggle"
+    id="sidebarToggle"
+    type="button"
+    title="Show or hide the sidebar"
+    aria-label="Show or hide the sidebar"
+    aria-expanded="true"
+  >
+
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <rect x="3" y="4" width="18" height="16" rx="3"/>
+      <path d="M9 4v16"/>
+    </svg>
+
+  </button>
 
   <div
     class="chat-scroll"
@@ -1310,6 +1596,131 @@ textarea{
 
 </div>
 
+
+</div>
+
+
+<div
+  class="settings-overlay"
+  id="settingsOverlay"
+  hidden
+>
+
+  <div
+    class="settings-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="settingsTitle"
+  >
+
+    <div class="settings-head">
+
+      <h2 id="settingsTitle">Personalize the AI</h2>
+
+      <button
+        class="settings-x"
+        id="settingsClose"
+        type="button"
+        aria-label="Close"
+      >&times;</button>
+
+    </div>
+
+
+    <div class="settings-body">
+
+      <div class="settings-field">
+        <label for="setName">What should the AI call you?</label>
+        <input id="setName" type="text" maxlength="40" placeholder="Your name or nickname">
+      </div>
+
+      <div class="settings-row">
+
+        <div class="settings-field">
+          <label for="setLevel">Your level</label>
+          <select id="setLevel">
+            <option value="">Not set</option>
+            <option value="primary">Primary school</option>
+            <option value="ks3">Years 7 to 9</option>
+            <option value="gcse">GCSE (Years 10 to 11)</option>
+            <option value="alevel">A-level (Years 12 to 13)</option>
+            <option value="university">University</option>
+          </select>
+        </div>
+
+        <div class="settings-field">
+          <label for="setLanguage">Reply language</label>
+          <select id="setLanguage">
+            <option value="auto">English (default)</option>
+            <option value="match">Same as my message</option>
+            <option value="spanish">Spanish</option>
+            <option value="french">French</option>
+            <option value="german">German</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="settings-row">
+
+        <div class="settings-field">
+          <label for="setTone">Tone</label>
+          <select id="setTone">
+            <option value="friendly">Friendly</option>
+            <option value="concise">Short and direct</option>
+            <option value="formal">Formal</option>
+            <option value="playful">Fun and playful</option>
+          </select>
+        </div>
+
+        <div class="settings-field">
+          <label for="setLength">Answer length</label>
+          <select id="setLength">
+            <option value="short">Short</option>
+            <option value="medium">Medium</option>
+            <option value="long">Detailed</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="settings-field">
+        <label for="setStyle">How should it help?</label>
+        <select id="setStyle">
+          <option value="steps">Full step-by-step solutions</option>
+          <option value="hints">Hints first, let me try</option>
+          <option value="answer">Answer first, short explanation</option>
+        </select>
+      </div>
+
+      <div class="settings-field">
+        <label for="setCustom">Extra instructions (optional)</label>
+        <textarea
+          id="setCustom"
+          maxlength="600"
+          placeholder="For example: I'm preparing for my exam in June. Use real-life examples."
+        ></textarea>
+        <div class="hint">
+          <span id="setCustomCount">0</span>/600. Saved on this device only.
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="settings-foot">
+
+      <button class="settings-btn" id="settingsReset" type="button">Reset</button>
+
+      <span class="spacer"></span>
+
+      <button class="settings-btn" id="settingsCancel" type="button">Cancel</button>
+
+      <button class="settings-btn primary" id="settingsSave" type="button">Save</button>
+
+    </div>
+
+  </div>
 
 </div>
 
@@ -2745,6 +3156,376 @@ sendBtn.addEventListener(
 
 
 /* =========================================================
+   SIDEBAR TOGGLE
+========================================================= */
+
+const sidebarEl =
+  document.getElementById("sidebar");
+
+const sidebarToggle =
+  document.getElementById("sidebarToggle");
+
+const sidebarBackdrop =
+  document.getElementById("sidebarBackdrop");
+
+const mobileQuery =
+  window.matchMedia("(max-width:760px)");
+
+
+function readLocal(key){
+
+  try{
+    return localStorage.getItem(key);
+  }catch{
+    return null;
+  }
+
+}
+
+
+function writeLocal(key, value){
+
+  try{
+    localStorage.setItem(key, value);
+  }catch(error){
+    console.error("Could not save setting:", error);
+  }
+
+}
+
+
+function updateSidebarState(){
+
+  const open =
+    mobileQuery.matches
+      ? sidebarEl.classList.contains("open")
+      : !document.body.classList.contains("sidebar-collapsed");
+
+
+  sidebarToggle.setAttribute(
+    "aria-expanded",
+    String(open)
+  );
+
+  sidebarBackdrop.classList.toggle(
+    "show",
+    mobileQuery.matches && open
+  );
+
+}
+
+
+function closeMobileSidebar(){
+
+  if(!mobileQuery.matches){
+    return;
+  }
+
+  sidebarEl.classList.remove("open");
+
+  updateSidebarState();
+
+}
+
+
+function toggleSidebar(){
+
+  if(mobileQuery.matches){
+
+    sidebarEl.classList.toggle("open");
+
+  }else{
+
+    const collapsed =
+      document.body.classList.toggle(
+        "sidebar-collapsed"
+      );
+
+    writeLocal(
+      "am_sidebar_collapsed",
+      collapsed ? "1" : "0"
+    );
+
+  }
+
+  updateSidebarState();
+
+}
+
+
+if(readLocal("am_sidebar_collapsed") === "1"){
+
+  document.body.classList.add(
+    "sidebar-collapsed"
+  );
+
+}
+
+
+sidebarToggle.addEventListener(
+  "click",
+  toggleSidebar
+);
+
+sidebarBackdrop.addEventListener(
+  "click",
+  closeMobileSidebar
+);
+
+mobileQuery.addEventListener(
+  "change",
+  updateSidebarState
+);
+
+
+/* On phones, close the menu after choosing a chat or starting a new one. */
+
+sidebarEl.addEventListener(
+  "click",
+  event => {
+
+    if(
+      event.target.closest(
+        ".chat-item .title, #newChatBtn"
+      )
+    ){
+      closeMobileSidebar();
+    }
+
+  }
+);
+
+
+updateSidebarState();
+
+
+/* =========================================================
+   AI PERSONALIZATION SETTINGS
+========================================================= */
+
+const DEFAULT_SETTINGS = {
+
+  name:"",
+
+  level:"",
+
+  language:"auto",
+
+  tone:"friendly",
+
+  style:"steps",
+
+  length:"medium",
+
+  custom:""
+
+};
+
+
+const settingsOverlay =
+  document.getElementById("settingsOverlay");
+
+const settingsFields = {
+
+  name:
+    document.getElementById("setName"),
+
+  level:
+    document.getElementById("setLevel"),
+
+  language:
+    document.getElementById("setLanguage"),
+
+  tone:
+    document.getElementById("setTone"),
+
+  style:
+    document.getElementById("setStyle"),
+
+  length:
+    document.getElementById("setLength"),
+
+  custom:
+    document.getElementById("setCustom")
+
+};
+
+const settingsCustomCount =
+  document.getElementById("setCustomCount");
+
+
+function settingsKey(){
+
+  return (
+    "am_settings_v1_" +
+    (currentUser?.id || "guest")
+  );
+
+}
+
+
+function getSettings(){
+
+  try{
+
+    const raw =
+      readLocal(settingsKey());
+
+    if(!raw){
+      return {...DEFAULT_SETTINGS};
+    }
+
+    return {
+      ...DEFAULT_SETTINGS,
+      ...JSON.parse(raw)
+    };
+
+  }catch{
+
+    return {...DEFAULT_SETTINGS};
+
+  }
+
+}
+
+
+function fillSettingsForm(settings){
+
+  for(const key of Object.keys(settingsFields)){
+
+    settingsFields[key].value =
+      settings[key] ?? "";
+
+  }
+
+  settingsCustomCount.textContent =
+    String(settingsFields.custom.value.length);
+
+}
+
+
+function openSettings(){
+
+  fillSettingsForm(
+    getSettings()
+  );
+
+  settingsOverlay.hidden = false;
+
+  settingsFields.name.focus();
+
+  closeMobileSidebar();
+
+}
+
+
+function closeSettings(){
+
+  settingsOverlay.hidden = true;
+
+}
+
+
+document
+  .getElementById("settingsBtn")
+  .addEventListener("click", openSettings);
+
+document
+  .getElementById("settingsClose")
+  .addEventListener("click", closeSettings);
+
+document
+  .getElementById("settingsCancel")
+  .addEventListener("click", closeSettings);
+
+
+document
+  .getElementById("settingsReset")
+  .addEventListener(
+    "click",
+    () => {
+
+      fillSettingsForm({
+        ...DEFAULT_SETTINGS
+      });
+
+    }
+  );
+
+
+document
+  .getElementById("settingsSave")
+  .addEventListener(
+    "click",
+    () => {
+
+      const settings = {};
+
+      for(const key of Object.keys(settingsFields)){
+
+        settings[key] =
+          settingsFields[key].value.trim();
+
+      }
+
+      writeLocal(
+        settingsKey(),
+        JSON.stringify(settings)
+      );
+
+      closeSettings();
+
+    }
+  );
+
+
+settingsFields.custom.addEventListener(
+  "input",
+  () => {
+
+    settingsCustomCount.textContent =
+      String(settingsFields.custom.value.length);
+
+  }
+);
+
+
+/* Click on the dark area or press Escape to close. */
+
+settingsOverlay.addEventListener(
+  "mousedown",
+  event => {
+
+    if(event.target === settingsOverlay){
+      closeSettings();
+    }
+
+  }
+);
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if(event.key !== "Escape"){
+      return;
+    }
+
+    if(!settingsOverlay.hidden){
+
+      closeSettings();
+
+    }else{
+
+      closeMobileSidebar();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
    PDF SUPPORT
    - Text PDFs: text is extracted in the browser (pdf.js)
      and sent to the AI inside the message.
@@ -3882,7 +4663,15 @@ async function callEdgeFunction(
         },
 
         body:
-          JSON.stringify(body)
+          JSON.stringify(
+            body && body.mode === "title"
+              ? body
+              : {
+                  ...body,
+                  settings:
+                    getSettings()
+                }
+          )
 
       }
     );
