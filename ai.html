@@ -4316,6 +4316,120 @@ async function readAIStream(
 
 
 /* =========================================================
+   FALLBACK CHAT TITLE
+   Used when the AI cannot produce a title, so chats
+   never stay called "New chat".
+========================================================= */
+
+function makeFallbackTitle(){
+
+  const firstUser =
+    currentMessages.find(
+      message =>
+        message.role === "user"
+    );
+
+
+  if(!firstUser){
+    return "";
+  }
+
+
+  const parsed =
+    parsePdfBlocks(
+      firstUser.content
+    );
+
+
+  let text =
+    parsed.text
+      .replace(
+        /^please analyze the attached pdfs?\.?$/i,
+        ""
+      )
+      .replace(/\s+/g, " ")
+      .trim();
+
+
+  if(!text){
+
+    if(parsed.pdfs.length){
+
+      return (
+        parsed.pdfs[0].name
+          .replace(/\.pdf$/i, "")
+          .slice(0, 40)
+      );
+
+    }
+
+    if(
+      normalizeImageUrls(
+        firstUser.image_urls
+      ).length
+    ){
+
+      return "Image question";
+
+    }
+
+    return "";
+
+  }
+
+
+  const words =
+    text.split(" ");
+
+
+  /* A one-word question like "Solve" about an image: say what it is about. */
+
+  if(
+    words.length <= 2 &&
+    normalizeImageUrls(
+      firstUser.image_urls
+    ).length
+  ){
+
+    return (
+      text.charAt(0).toUpperCase() +
+      text.slice(1) +
+      " (image)"
+    );
+
+  }
+
+
+  text =
+    words
+      .slice(0, 6)
+      .join(" ");
+
+
+  if(text.length > 40){
+
+    text =
+      text.slice(0, 40).trim();
+
+  }
+
+
+  if(words.length > 6 || text.length < words.join(" ").length){
+
+    text += "...";
+
+  }
+
+
+  return (
+    text.charAt(0).toUpperCase() +
+    text.slice(1)
+  );
+
+}
+
+
+/* =========================================================
    GENERATE CHAT TITLE
 ========================================================= */
 
@@ -4333,63 +4447,85 @@ async function generateChatTitle(){
 
   try{
 
-    const response =
-      await callEdgeFunction({
-
-        mode:"title",
-
-        messages:
-          toApiMessages(
-            currentMessages,
-            true
-          )
-
-      });
-
-
-    /*
-     * Title requests return JSON with { title: "..." }
-     */
-
-    const raw =
-      await response.text();
-
-
     let title = "";
 
 
+    /* Ask the AI for a title. If anything goes wrong we fall back below. */
+
     try{
 
-      const data =
-        JSON.parse(raw);
+      const response =
+        await callEdgeFunction({
+
+          mode:"title",
+
+          messages:
+            toApiMessages(
+              currentMessages,
+              true
+            )
+
+        });
 
 
-      title =
-        data?.title?.trim() ||
-        "";
+      const raw =
+        await response.text();
 
-    }catch(error){
+
+      try{
+
+        const data =
+          JSON.parse(raw);
+
+        title =
+          stripSafetyLabels(
+            String(data?.title || "")
+          ).trim();
+
+      }catch(parseError){
+
+        console.error(
+          "Failed to parse title response:",
+          parseError,
+          "Raw response:",
+          raw
+        );
+
+      }
+
+    }catch(requestError){
 
       console.error(
-        "Failed to parse title response:",
-        error,
-        "Raw response:",
-        raw
+        "Title request failed, using fallback title:",
+        requestError
       );
-
-      return;
 
     }
 
 
-    /*
-     * Remove accidental quotes.
-     */
+    /* Remove accidental quotes and trailing dots. */
 
     title =
       title
-        .replace(/^["']+|["']+$/g,"")
+        .replace(/^["'\s]+|["'\s.]+$/g,"")
         .trim();
+
+
+    /*
+     * The server returns "New chat" when the AI could not make a title.
+     * That equals the default title, so nothing would ever change.
+     * Use a title made from the student's first message instead.
+     */
+
+    if(
+      !title ||
+      /^new chat$/i.test(title)
+    ){
+
+      title =
+        makeFallbackTitle();
+
+    }
 
 
     if(!title){
