@@ -4844,60 +4844,115 @@ async function sendMessage(){
        CALL AI
     ====================================================== */
 
-    const response =
-      await callEdgeFunction({
+    /*
+     * Some replies come back empty, as only safety labels, or as the
+     * server's "did not return an answer" placeholder. Retry up to
+     * 3 times before giving up, and never treat the placeholder as
+     * a real answer.
+     */
 
-        messages:
-          toApiMessages(
-            currentMessages
-          )
-
-      });
-
-
-    /* =====================================================
-       STREAM AI
-    ====================================================== */
-
-    assistantUI.textEl.innerHTML = "";
+    const isFailedAnswer = text =>
+      !text ||
+      (
+        text.length < 200 &&
+        /did not return an answer|returned an empty response/i.test(text)
+      );
 
 
     let answer = "";
 
+    let rawAnswer = "";
 
-    const typer =
-      createSmoothTyper(
-        assistantUI.textEl,
-        {
-          onRender:
-            scrollToBottom
-        }
-      );
+    let typer = null;
 
 
-    answer =
-      await readAIStream(
-        response,
-        streamedText => {
+    for(
+      let attempt = 1;
+      attempt <= 3;
+      attempt++
+    ){
 
-          typer.update(
-            stripSafetyLabels(
-              streamedText
+      const response =
+        await callEdgeFunction({
+
+          messages:
+            toApiMessages(
+              currentMessages
             )
-          );
 
-        }
-      );
+        });
 
 
-    typer.finish();
+      /* =====================================================
+         STREAM AI
+      ====================================================== */
+
+      assistantUI.textEl.innerHTML = "";
 
 
-    const rawAnswer =
-      answer;
+      typer =
+        createSmoothTyper(
+          assistantUI.textEl,
+          {
+            onRender:
+              scrollToBottom
+          }
+        );
 
-    answer =
-      stripSafetyLabels(answer).trim();
+
+      rawAnswer =
+        await readAIStream(
+          response,
+          streamedText => {
+
+            typer.update(
+              stripSafetyLabels(
+                streamedText
+              )
+            );
+
+          }
+        );
+
+
+      typer.finish();
+
+
+      answer =
+        stripSafetyLabels(rawAnswer).trim();
+
+
+      if(!isFailedAnswer(answer)){
+        break;
+      }
+
+
+      if(attempt < 3){
+
+        assistantUI.textEl.innerHTML =
+          `
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          `;
+
+        await new Promise(
+          resolve =>
+            setTimeout(resolve, 800 * attempt)
+        );
+
+      }
+
+    }
+
+
+    if(isFailedAnswer(answer)){
+
+      answer = "";
+
+    }
 
 
     /* =====================================================
@@ -4909,11 +4964,9 @@ async function sendMessage(){
       assistantUI.wrap.remove();
 
       throw new Error(
-        rawAnswer.trim()
-          ? "The AI model only returned safety labels (for example \"User Safety: safe\") and no actual answer. " +
-            "The model behind the chat-completion function is a safety-classifier model, not a chat model. " +
-            "Switch the function to a normal chat model."
-          : "The AI returned an empty response."
+"The AI gave no answer after 3 tries. " +
+        "This usually means the model or the chat-completion function failed on this request " +
+        "(it happens most with images)."
       );
 
     }
