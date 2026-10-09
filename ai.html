@@ -562,6 +562,66 @@ textarea{
   display:block;
 }
 
+.image-preview-item.pdf-item{
+  width:auto;
+  height:64px;
+}
+
+.pdf-chip{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  height:64px;
+  max-width:220px;
+
+  padding:0 14px 0 10px;
+
+  border-radius:10px;
+  border:1px solid var(--border);
+
+  font-size:12px;
+  line-height:1.3;
+}
+
+.pdf-chip-icon{
+  flex:none;
+
+  width:32px;
+  height:40px;
+
+  border-radius:5px;
+
+  background:#d93025;
+  color:#fff;
+
+  font-size:10px;
+  font-weight:700;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.pdf-chip-name{
+  font-weight:600;
+
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.pdf-chip-meta{
+  opacity:.65;
+  font-size:11px;
+}
+
+.pdf-chip-text{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
 .image-preview-remove{
   position:absolute;
 
@@ -1112,7 +1172,7 @@ textarea{
           class="icon-btn"
           id="attachBtn"
           type="button"
-          title="Attach images"
+          title="Attach images or PDFs"
         >
 
           <svg
@@ -1136,7 +1196,7 @@ textarea{
         <input
           type="file"
           id="fileInput"
-          accept="image/*"
+          accept="image/*,application/pdf,.pdf"
           multiple
           hidden
         >
@@ -1257,6 +1317,9 @@ textarea{
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 
 <script type="module">
@@ -2030,6 +2093,24 @@ function appendMessageEl(
   imageUrls = []
 ){
 
+  /* User messages may carry attached PDF text; show chips, not the raw text. */
+
+  let attachedPdfs = [];
+
+  if(role === "user"){
+
+    const parsed =
+      parsePdfBlocks(content);
+
+    content =
+      parsed.text;
+
+    attachedPdfs =
+      parsed.pdfs;
+
+  }
+
+
   const wrap =
     document.createElement("div");
 
@@ -2063,6 +2144,72 @@ function appendMessageEl(
 
   body.className =
     "msg-body";
+
+
+  if(attachedPdfs.length){
+
+    const files =
+      document.createElement("div");
+
+    files.className =
+      "msg-images";
+
+    for(const pdf of attachedPdfs){
+
+      const chip =
+        document.createElement("div");
+
+      chip.className =
+        "pdf-chip";
+
+      const icon =
+        document.createElement("div");
+
+      icon.className =
+        "pdf-chip-icon";
+
+      icon.textContent =
+        "PDF";
+
+      const info =
+        document.createElement("div");
+
+      info.className =
+        "pdf-chip-text";
+
+      const nameEl =
+        document.createElement("div");
+
+      nameEl.className =
+        "pdf-chip-name";
+
+      nameEl.textContent =
+        pdf.name;
+
+      const meta =
+        document.createElement("div");
+
+      meta.className =
+        "pdf-chip-meta";
+
+      meta.textContent =
+        `${pdf.pages} page${pdf.pages === 1 ? "" : "s"}`;
+
+      info.appendChild(nameEl);
+
+      info.appendChild(meta);
+
+      chip.appendChild(icon);
+
+      chip.appendChild(info);
+
+      files.appendChild(chip);
+
+    }
+
+    body.appendChild(files);
+
+  }
 
 
   const urls = [];
@@ -2538,6 +2685,7 @@ function updateSendButton(){
 
   sendBtn.disabled =
     sending ||
+    pdfsStillReading() ||
     (
       !input.value.trim() &&
       pendingImages.length === 0
@@ -2597,6 +2745,524 @@ sendBtn.addEventListener(
 
 
 /* =========================================================
+   PDF SUPPORT
+   - Text PDFs: text is extracted in the browser (pdf.js)
+     and sent to the AI inside the message.
+   - Scanned PDFs (no text layer): the first pages are
+     rendered to images and sent as normal images.
+========================================================= */
+
+const PDF_MAX_CHARS_PER_FILE = 80000;
+
+const PDF_MAX_PAGES = 150;
+
+const PDF_SCAN_MAX_IMAGE_PAGES = 6;
+
+const PDF_MAX_FILE_BYTES = 25 * 1024 * 1024;
+
+const PDF_BLOCK_REGEX =
+  /\n*<<<PDF name="([^"\n]*)" pages="(\d+)">>>\n([\s\S]*?)\n<<<END PDF>>>/g;
+
+
+if(window.pdfjsLib){
+
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+}
+
+
+function isPdfFile(file){
+
+  return (
+    file.type === "application/pdf" ||
+    /\.pdf$/i.test(file.name || "")
+  );
+
+}
+
+
+function buildPdfBlock(name, pages, text){
+
+  const safeName =
+    String(name || "document.pdf")
+      .replace(/["\n\r]/g, "");
+
+  return (
+    `<<<PDF name="${safeName}" pages="${pages}">>>\n` +
+    text +
+    `\n<<<END PDF>>>`
+  );
+
+}
+
+
+/* Splits stored message content into the visible text and the attached PDFs. */
+
+function parsePdfBlocks(content){
+
+  const pdfs = [];
+
+  const text =
+    String(content || "")
+      .replace(
+        PDF_BLOCK_REGEX,
+        (match, name, pages, body) => {
+
+          pdfs.push({
+            name,
+            pages:Number(pages),
+            text:body
+          });
+
+          return "";
+
+        }
+      )
+      .trim();
+
+  return {
+    text,
+    pdfs
+  };
+
+}
+
+
+/* What the AI receives: readable PDF text instead of raw markers. */
+
+function pdfBlocksForModel(content, compact = false){
+
+  return String(content || "").replace(
+    PDF_BLOCK_REGEX,
+    (match, name, pages, body) => {
+
+      if(compact){
+        return `\n[Attached PDF: ${name}]`;
+      }
+
+      return (
+        `\n\n[Attached PDF: "${name}" - ${pages} page(s). ` +
+        `Extracted text follows.]\n` +
+        body +
+        `\n[End of PDF "${name}"]`
+      );
+
+    }
+  );
+
+}
+
+
+function pdfsStillReading(){
+
+  return pendingImages.some(
+    item =>
+      item.kind === "pdf" &&
+      item.status === "reading"
+  );
+
+}
+
+
+async function extractPdf(file){
+
+  if(!window.pdfjsLib){
+
+    throw new Error(
+      "The PDF reader could not be loaded. Check your connection and refresh."
+    );
+
+  }
+
+
+  const data =
+    new Uint8Array(
+      await file.arrayBuffer()
+    );
+
+
+  const pdf =
+    await window.pdfjsLib.getDocument({
+      data
+    }).promise;
+
+
+  const totalPages =
+    pdf.numPages;
+
+  const pagesToRead =
+    Math.min(totalPages, PDF_MAX_PAGES);
+
+
+  let text = "";
+
+  let truncated =
+    totalPages > pagesToRead;
+
+
+  for(
+    let pageNumber = 1;
+    pageNumber <= pagesToRead;
+    pageNumber++
+  ){
+
+    const page =
+      await pdf.getPage(pageNumber);
+
+    const content =
+      await page.getTextContent();
+
+
+    let pageText = "";
+
+    let lastY = null;
+
+
+    for(const item of content.items){
+
+      if(typeof item.str !== "string"){
+        continue;
+      }
+
+      const y =
+        item.transform
+          ? item.transform[5]
+          : null;
+
+
+      if(
+        lastY !== null &&
+        y !== null &&
+        Math.abs(y - lastY) > 2
+      ){
+        pageText += "\n";
+      }else if(
+        pageText &&
+        !pageText.endsWith(" ") &&
+        !pageText.endsWith("\n")
+      ){
+        pageText += " ";
+      }
+
+
+      pageText += item.str;
+
+      if(y !== null){
+        lastY = y;
+      }
+
+    }
+
+
+    pageText =
+      pageText
+        .replace(/[ \t]+\n/g, "\n")
+        .trim();
+
+
+    if(pageText){
+
+      text +=
+        `--- Page ${pageNumber} ---\n${pageText}\n\n`;
+
+    }
+
+
+    if(text.length > PDF_MAX_CHARS_PER_FILE){
+
+      text =
+        text.slice(0, PDF_MAX_CHARS_PER_FILE);
+
+      truncated = true;
+
+      break;
+
+    }
+
+  }
+
+
+  text = text.trim();
+
+
+  if(truncated && text){
+
+    text +=
+      "\n\n[Note: this PDF was longer than the limit, so only the first part is included.]";
+
+  }
+
+
+  return {
+    pdf,
+    text,
+    totalPages
+  };
+
+}
+
+
+async function renderPdfPagesAsImages(pdf, baseName){
+
+  const files = [];
+
+  const count =
+    Math.min(
+      pdf.numPages,
+      PDF_SCAN_MAX_IMAGE_PAGES
+    );
+
+
+  for(
+    let pageNumber = 1;
+    pageNumber <= count;
+    pageNumber++
+  ){
+
+    const page =
+      await pdf.getPage(pageNumber);
+
+    const baseViewport =
+      page.getViewport({
+        scale:1
+      });
+
+    /* Aim for roughly 1600px on the long side. */
+
+    const scale =
+      Math.min(
+        2.5,
+        1600 /
+        Math.max(
+          baseViewport.width,
+          baseViewport.height
+        )
+      );
+
+    const viewport =
+      page.getViewport({
+        scale
+      });
+
+
+    const canvas =
+      document.createElement("canvas");
+
+    canvas.width =
+      Math.floor(viewport.width);
+
+    canvas.height =
+      Math.floor(viewport.height);
+
+
+    const context =
+      canvas.getContext("2d");
+
+    context.fillStyle = "#ffffff";
+
+    context.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+
+    await page.render({
+      canvasContext:context,
+      viewport
+    }).promise;
+
+
+    const blob =
+      await new Promise(
+        resolve =>
+          canvas.toBlob(
+            resolve,
+            "image/jpeg",
+            0.85
+          )
+      );
+
+
+    if(blob){
+
+      files.push(
+        new File(
+          [blob],
+          `${baseName}-page-${pageNumber}.jpg`,
+          {
+            type:"image/jpeg",
+            lastModified:Date.now()
+          }
+        )
+      );
+
+    }
+
+  }
+
+  return files;
+
+}
+
+
+async function handlePdfFile(file){
+
+  if(file.size > PDF_MAX_FILE_BYTES){
+
+    alert(
+      `"${file.name}" is too large (max 25 MB).`
+    );
+
+    return;
+
+  }
+
+
+  const exists =
+    pendingImages.some(
+      item =>
+        item.file.name === file.name &&
+        item.file.size === file.size &&
+        item.file.lastModified === file.lastModified
+    );
+
+  if(exists){
+    return;
+  }
+
+
+  const entry = {
+
+    file,
+
+    kind:"pdf",
+
+    url:null,
+
+    uploadedUrl:null,
+
+    status:"reading",
+
+    pages:0,
+
+    text:""
+
+  };
+
+
+  pendingImages.push(entry);
+
+  renderImagePreviews();
+
+  updateSendButton();
+
+
+  try{
+
+    const result =
+      await extractPdf(file);
+
+
+    entry.pages =
+      result.totalPages;
+
+
+    /* Enough text -> send as text. */
+
+    if(result.text.replace(/\s/g, "").length >= 40){
+
+      entry.text =
+        result.text;
+
+      entry.status =
+        "ready";
+
+    }else{
+
+      /* Probably a scanned PDF: send the first pages as images. */
+
+      const baseName =
+        file.name.replace(/\.pdf$/i, "");
+
+      const imageFiles =
+        await renderPdfPagesAsImages(
+          result.pdf,
+          baseName
+        );
+
+
+      const index =
+        pendingImages.indexOf(entry);
+
+      if(index !== -1){
+        pendingImages.splice(index, 1);
+      }
+
+
+      for(const imageFile of imageFiles){
+
+        pendingImages.push({
+
+          file:imageFile,
+
+          kind:"image",
+
+          url:
+            URL.createObjectURL(
+              imageFile
+            ),
+
+          uploadedUrl:null
+
+        });
+
+      }
+
+
+      alert(
+        `"${file.name}" has no selectable text (it looks scanned). ` +
+        `The first ${imageFiles.length} page(s) were attached as images instead.`
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "PDF read error:",
+      error
+    );
+
+    const index =
+      pendingImages.indexOf(entry);
+
+    if(index !== -1){
+      pendingImages.splice(index, 1);
+    }
+
+    alert(
+      `Could not read "${file.name}". ` +
+      (
+        /password/i.test(String(error?.message))
+          ? "It is password protected."
+          : "The file may be damaged."
+      )
+    );
+
+  }
+
+
+  renderImagePreviews();
+
+  updateSendButton();
+
+}
+
+
+/* =========================================================
    IMAGE UPLOAD SELECTOR
 ========================================================= */
 
@@ -2635,6 +3301,15 @@ fileInput.addEventListener(
     for(
       const file of files
     ){
+
+      if(isPdfFile(file)){
+
+        handlePdfFile(file);
+
+        continue;
+
+      }
+
 
       if(
         !file.type.startsWith("image/")
@@ -2680,6 +3355,8 @@ fileInput.addEventListener(
       pendingImages.push({
 
         file,
+
+        kind:"image",
 
         url:
           URL.createObjectURL(file),
@@ -2751,16 +3428,73 @@ function renderImagePreviews(){
         "image-preview-item";
 
 
-      const img =
-        document.createElement("img");
+      let img;
 
+      if(image.kind === "pdf"){
 
-      img.src =
-        image.url;
+        item.classList.add("pdf-item");
 
+        img =
+          document.createElement("div");
 
-      img.alt =
-        `Image ${index + 1}`;
+        img.className =
+          "pdf-chip";
+
+        const icon =
+          document.createElement("div");
+
+        icon.className =
+          "pdf-chip-icon";
+
+        icon.textContent =
+          "PDF";
+
+        const info =
+          document.createElement("div");
+
+        info.className =
+          "pdf-chip-text";
+
+        const nameEl =
+          document.createElement("div");
+
+        nameEl.className =
+          "pdf-chip-name";
+
+        nameEl.textContent =
+          image.file.name;
+
+        const meta =
+          document.createElement("div");
+
+        meta.className =
+          "pdf-chip-meta";
+
+        meta.textContent =
+          image.status === "reading"
+            ? "Reading..."
+            : `${image.pages} page${image.pages === 1 ? "" : "s"}`;
+
+        info.appendChild(nameEl);
+
+        info.appendChild(meta);
+
+        img.appendChild(icon);
+
+        img.appendChild(info);
+
+      }else{
+
+        img =
+          document.createElement("img");
+
+        img.src =
+          image.url;
+
+        img.alt =
+          `Image ${index + 1}`;
+
+      }
 
 
       const remove =
@@ -2787,9 +3521,13 @@ function renderImagePreviews(){
         "click",
         () => {
 
-          URL.revokeObjectURL(
-            image.url
-          );
+          if(image.url){
+
+            URL.revokeObjectURL(
+              image.url
+            );
+
+          }
 
 
           pendingImages.splice(
@@ -2905,6 +3643,11 @@ async function uploadPendingImages(){
     const image of pendingImages
   ){
 
+    if(image.kind === "pdf"){
+      continue;
+    }
+
+
     if(image.uploadedUrl){
 
       urls.push(
@@ -2980,10 +3723,23 @@ function clearPendingImages(){
    API MESSAGE CONVERSION
 ========================================================= */
 
-function toApiMessages(history){
+function toApiMessages(history, compactPdfs = false){
 
   return history.map(
     message => {
+
+      message = {
+
+        ...message,
+
+        content:
+          pdfBlocksForModel(
+            message.content,
+            compactPdfs
+          )
+
+      };
+
 
       const images =
         normalizeImageUrls(
@@ -3584,7 +4340,8 @@ async function generateChatTitle(){
 
         messages:
           toApiMessages(
-            currentMessages
+            currentMessages,
+            true
           )
 
       });
@@ -3867,12 +4624,59 @@ async function sendMessage(){
   }
 
 
-  const text =
+  if(pdfsStillReading()){
+
+    return;
+
+  }
+
+
+  const typedText =
     input.value.trim();
 
 
   const selectedImages =
     [...pendingImages];
+
+
+  const selectedPdfs =
+    selectedImages.filter(
+      item =>
+        item.kind === "pdf" &&
+        item.status === "ready"
+    );
+
+
+  /* Typed text + attached PDF text (stored together in the message). */
+
+  let text =
+    typedText;
+
+  if(selectedPdfs.length){
+
+    if(!text){
+
+      text =
+        selectedPdfs.length === 1
+          ? "Please analyze the attached PDF."
+          : "Please analyze the attached PDFs.";
+
+    }
+
+    text +=
+      selectedPdfs
+        .map(
+          item =>
+            "\n\n" +
+            buildPdfBlock(
+              item.file.name,
+              item.pages,
+              item.text
+            )
+        )
+        .join("");
+
+  }
 
 
   /*
@@ -3898,7 +4702,7 @@ async function sendMessage(){
 
 
   const originalText =
-    text;
+    typedText;
 
 
   let assistantUI = null;
@@ -3935,7 +4739,11 @@ async function sendMessage(){
     let imageUrls = [];
 
 
-    if(selectedImages.length){
+    if(
+      selectedImages.some(
+        item => item.kind !== "pdf"
+      )
+    ){
 
       imageUrls =
         await uploadPendingImages();
@@ -4085,6 +4893,9 @@ async function sendMessage(){
     typer.finish();
 
 
+    const rawAnswer =
+      answer;
+
     answer =
       stripSafetyLabels(answer).trim();
 
@@ -4098,7 +4909,11 @@ async function sendMessage(){
       assistantUI.wrap.remove();
 
       throw new Error(
-        "The AI returned an empty response."
+        rawAnswer.trim()
+          ? "The AI model only returned safety labels (for example \"User Safety: safe\") and no actual answer. " +
+            "The model behind the chat-completion function is a safety-classifier model, not a chat model. " +
+            "Switch the function to a normal chat model."
+          : "The AI returned an empty response."
       );
 
     }
