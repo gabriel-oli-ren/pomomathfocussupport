@@ -3092,15 +3092,68 @@ if(scrollBottomBtn){
    SEND BUTTON
 ========================================================= */
 
+const SEND_ICON =
+  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>`;
+
+const STOP_ICON =
+  `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg>`;
+
+let sendBtnMode = "send";
+
+
 function updateSendButton(){
 
+  const mode =
+    sending
+      ? "stop"
+      : "send";
+
+
+  if(mode !== sendBtnMode){
+
+    sendBtnMode = mode;
+
+    sendBtn.innerHTML =
+      mode === "stop"
+        ? STOP_ICON
+        : SEND_ICON;
+
+    sendBtn.title =
+      mode === "stop"
+        ? "Stop generating (Esc)"
+        : "Send";
+
+  }
+
+
+  /* While the AI is working the button is always a clickable Stop button. */
+
   sendBtn.disabled =
-    sending ||
-    pdfsStillReading() ||
-    (
-      !input.value.trim() &&
-      pendingImages.length === 0
-    );
+    sending
+      ? false
+      : (
+          pdfsStillReading() ||
+          (
+            !input.value.trim() &&
+            pendingImages.length === 0
+          )
+        );
+
+}
+
+
+/* Stops the answer that is being generated right now. */
+
+let currentAbort = null;
+
+
+function stopGeneration(){
+
+  if(currentAbort){
+
+    currentAbort.abort();
+
+  }
 
 }
 
@@ -3151,7 +3204,19 @@ input.addEventListener(
 
 sendBtn.addEventListener(
   "click",
-  sendMessage
+  () => {
+
+    if(sending){
+
+      stopGeneration();
+
+      return;
+
+    }
+
+    sendMessage();
+
+  }
 );
 
 
@@ -3514,6 +3579,10 @@ document.addEventListener(
     if(!settingsOverlay.hidden){
 
       closeSettings();
+
+    }else if(sending && currentAbort){
+
+      stopGeneration();
 
     }else{
 
@@ -4050,10 +4119,6 @@ async function handlePdfFile(file){
 attachBtn.addEventListener(
   "click",
   () => {
-
-    if(sending){
-      return;
-    }
 
     fileInput.click();
 
@@ -4635,7 +4700,8 @@ async function getAccessToken(){
 ========================================================= */
 
 async function callEdgeFunction(
-  body
+  body,
+  signal
 ){
 
   const accessToken =
@@ -4648,6 +4714,8 @@ async function callEdgeFunction(
       {
 
         method:"POST",
+
+        signal,
 
         headers:{
 
@@ -4819,7 +4887,8 @@ function stripSafetyLabels(text){
 
 async function readAIStream(
   response,
-  onText
+  onText,
+  signal
 ){
 
   if(!response.body){
@@ -4846,15 +4915,47 @@ async function readAIStream(
 
   while(true){
 
+    let chunk;
+
+    try{
+
+      chunk =
+        await reader.read();
+
+    }catch(readError){
+
+      /* Stopped by the user: return what we have so far. */
+
+      if(signal && signal.aborted){
+
+        return answer;
+
+      }
+
+      throw readError;
+
+    }
+
+
     const {
       done,
       value
-    } =
-      await reader.read();
+    } = chunk;
 
 
     if(done){
       break;
+    }
+
+
+    if(signal && signal.aborted){
+
+      try{
+        reader.cancel();
+      }catch{}
+
+      return answer;
+
     }
 
 
@@ -5110,10 +5211,10 @@ async function readAIStream(
    never stay called "New chat".
 ========================================================= */
 
-function makeFallbackTitle(){
+function makeFallbackTitle(messages){
 
   const firstUser =
-    currentMessages.find(
+    (messages || []).find(
       message =>
         message.role === "user"
     );
@@ -5222,201 +5323,244 @@ function makeFallbackTitle(){
    GENERATE CHAT TITLE
 ========================================================= */
 
-async function generateChatTitle(){
+/* Starts naming the chat in the background. Never blocks typing, uploading or sending. */
+
+const titleJobs = new Set();
+
+
+function startChatTitle(){
 
   if(
     !currentChat ||
     !currentMessages.length
   ){
+    return;
+  }
+
+
+  const chat =
+    currentChat;
+
+  const snapshot =
+    [...currentMessages];
+
+
+  if(titleJobs.has(chat.id)){
+    return;
+  }
+
+
+  titleJobs.add(chat.id);
+
+
+  generateChatTitle(
+    chat,
+    snapshot
+  )
+    .catch(
+      error =>
+        console.error(
+          "Chat title generation failed:",
+          error
+        )
+    )
+    .finally(
+      () =>
+        titleJobs.delete(chat.id)
+    );
+
+}
+
+
+async function generateChatTitle(
+  chat,
+  messages
+){
+
+  if(
+    !chat ||
+    !messages.length
+  ){
+    return;
+  }
+
+
+  let title = "";
+
+
+  /* Ask the AI for a title. If anything goes wrong we fall back below. */
+
+  try{
+
+    const response =
+      await callEdgeFunction({
+
+        mode:"title",
+
+        messages:
+          toApiMessages(
+            messages,
+            true
+          )
+
+      });
+
+
+    const raw =
+      await response.text();
+
+
+    try{
+
+      const data =
+        JSON.parse(raw);
+
+      title =
+        stripSafetyLabels(
+          String(data?.title || "")
+        ).trim();
+
+    }catch(parseError){
+
+      console.error(
+        "Failed to parse title response:",
+        parseError,
+        "Raw response:",
+        raw
+      );
+
+    }
+
+  }catch(requestError){
+
+    console.error(
+      "Title request failed, using fallback title:",
+      requestError
+    );
+
+  }
+
+
+  /* Remove accidental quotes and trailing dots. */
+
+  title =
+    title
+      .replace(/^["'\s]+|["'\s.]+$/g,"")
+      .trim();
+
+
+  /*
+   * The server returns "New chat" when the AI could not make a title.
+   * Use a title made from the student's first message instead.
+   */
+
+  if(
+    !title ||
+    /^new chat$/i.test(title)
+  ){
+
+    title =
+      makeFallbackTitle(messages);
+
+  }
+
+
+  if(!title){
+    return;
+  }
+
+
+  if(title.length > 80){
+
+    title =
+      title.substring(0,80).trim();
+
+  }
+
+
+  const knownChat =
+    chats.find(
+      item =>
+        item.id === chat.id
+    ) || chat;
+
+
+  if(
+    title.toLowerCase() ===
+    (knownChat.title || "").toLowerCase()
+  ){
+    return;
+  }
+
+
+  const {
+    data:updatedChat,
+    error
+  } =
+    await supabase
+      .from("am_chats")
+      .update({
+
+        title:title,
+
+        updated_at:
+          new Date().toISOString()
+
+      })
+      .eq(
+        "id",
+        chat.id
+      )
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .select()
+      .single();
+
+
+  if(error){
+
+    console.error(
+      "Could not update chat title:",
+      error
+    );
 
     return;
 
   }
 
 
-  try{
+  /* The student may have opened another chat meanwhile: only touch the right one. */
 
-    let title = "";
-
-
-    /* Ask the AI for a title. If anything goes wrong we fall back below. */
-
-    try{
-
-      const response =
-        await callEdgeFunction({
-
-          mode:"title",
-
-          messages:
-            toApiMessages(
-              currentMessages,
-              true
-            )
-
-        });
-
-
-      const raw =
-        await response.text();
-
-
-      try{
-
-        const data =
-          JSON.parse(raw);
-
-        title =
-          stripSafetyLabels(
-            String(data?.title || "")
-          ).trim();
-
-      }catch(parseError){
-
-        console.error(
-          "Failed to parse title response:",
-          parseError,
-          "Raw response:",
-          raw
-        );
-
-      }
-
-    }catch(requestError){
-
-      console.error(
-        "Title request failed, using fallback title:",
-        requestError
-      );
-
-    }
-
-
-    /* Remove accidental quotes and trailing dots. */
-
-    title =
-      title
-        .replace(/^["'\s]+|["'\s.]+$/g,"")
-        .trim();
-
-
-    /*
-     * The server returns "New chat" when the AI could not make a title.
-     * That equals the default title, so nothing would ever change.
-     * Use a title made from the student's first message instead.
-     */
-
-    if(
-      !title ||
-      /^new chat$/i.test(title)
-    ){
-
-      title =
-        makeFallbackTitle();
-
-    }
-
-
-    if(!title){
-      return;
-    }
-
-
-    /*
-     * Keep titles short.
-     */
-
-    if(title.length > 80){
-
-      title =
-        title.substring(0,80).trim();
-
-    }
-
-
-    if(
-      title.toLowerCase() ===
-      (currentChat.title || "").toLowerCase()
-    ){
-
-      return;
-
-    }
-
-
-    const {
-      data:updatedChat,
-      error
-    } =
-      await supabase
-        .from("am_chats")
-        .update({
-
-          title:title,
-
-          updated_at:
-            new Date().toISOString()
-
-        })
-        .eq(
-          "id",
-          currentChat.id
-        )
-        .eq(
-          "user_id",
-          currentUser.id
-        )
-        .select()
-        .single();
-
-
-    if(error){
-
-      console.error(
-        "Could not update chat title:",
-        error
-      );
-
-      return;
-
-    }
-
+  if(
+    currentChat &&
+    currentChat.id === updatedChat.id
+  ){
 
     currentChat =
       updatedChat;
 
-
-    const index =
-      chats.findIndex(
-        chat =>
-          chat.id ===
-          updatedChat.id
-      );
+  }
 
 
-    if(index !== -1){
-
-      chats[index] =
-        updatedChat;
-
-    }
-
-
-    renderChatList();
-
-  }catch(error){
-
-    /*
-     * Title failure should NOT break
-     * the actual conversation.
-     */
-
-    console.error(
-      "Chat title generation failed:",
-      error
+  const index =
+    chats.findIndex(
+      item =>
+        item.id ===
+        updatedChat.id
     );
 
+
+  if(index !== -1){
+
+    chats[index] =
+      updatedChat;
+
   }
+
+
+  renderChatList();
 
 }
 
@@ -5623,6 +5767,12 @@ async function sendMessage(){
 
   sending = true;
 
+  const abortController =
+    new AbortController();
+
+  currentAbort =
+    abortController;
+
   updateSendButton();
 
 
@@ -5797,15 +5947,23 @@ async function sendMessage(){
       attempt++
     ){
 
+      if(abortController.signal.aborted){
+        break;
+      }
+
+
       const response =
-        await callEdgeFunction({
+        await callEdgeFunction(
+          {
 
-          messages:
-            toApiMessages(
-              currentMessages
-            )
+            messages:
+              toApiMessages(
+                currentMessages
+              )
 
-        });
+          },
+          abortController.signal
+        );
 
 
       /* =====================================================
@@ -5836,7 +5994,8 @@ async function sendMessage(){
               )
             );
 
-          }
+          },
+          abortController.signal
         );
 
 
@@ -5845,6 +6004,13 @@ async function sendMessage(){
 
       answer =
         stripSafetyLabels(rawAnswer).trim();
+
+
+      /* The user pressed Stop: keep whatever was written so far. */
+
+      if(abortController.signal.aborted){
+        break;
+      }
 
 
       if(!isFailedAnswer(answer)){
@@ -5873,9 +6039,30 @@ async function sendMessage(){
     }
 
 
-    if(isFailedAnswer(answer)){
+    const wasStopped =
+      abortController.signal.aborted;
+
+
+    if(
+      !wasStopped &&
+      isFailedAnswer(answer)
+    ){
 
       answer = "";
+
+    }
+
+
+    /* Stopped before any text appeared: just remove the empty bubble. */
+
+    if(
+      wasStopped &&
+      !answer
+    ){
+
+      assistantUI.wrap.remove();
+
+      return;
 
     }
 
@@ -5990,7 +6177,7 @@ async function sendMessage(){
 
     if(userMessageCount === 1){
 
-      await generateChatTitle();
+      startChatTitle();
 
     }
 
@@ -6006,12 +6193,34 @@ async function sendMessage(){
       userMessageCount % 3 === 0
     ){
 
-      await generateChatTitle();
+      startChatTitle();
 
     }
 
 
   }catch(error){
+
+    /* Pressing Stop while the request was still starting is not an error. */
+
+    if(
+      abortController.signal.aborted ||
+      error?.name === "AbortError"
+    ){
+
+      if(
+        assistantUI &&
+        assistantUI.textEl &&
+        !assistantUI.textEl.textContent.trim()
+      ){
+
+        assistantUI.wrap.remove();
+
+      }
+
+      return;
+
+    }
+
 
     console.error(
       "sendMessage error:",
@@ -6120,8 +6329,12 @@ async function sendMessage(){
      * Restore text if something failed.
      */
 
-    input.value =
-      originalText;
+    if(!input.value.trim()){
+
+      input.value =
+        originalText;
+
+    }
 
 
     input.style.height =
@@ -6205,6 +6418,10 @@ async function sendMessage(){
   }finally{
 
     sending = false;
+
+    if(currentAbort === abortController){
+      currentAbort = null;
+    }
 
     updateSendButton();
 
