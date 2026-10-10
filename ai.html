@@ -6753,7 +6753,17 @@ function amRender(u){
   document.getElementById("amUp").style.display = (owner||prem) ? "none" : "block";
 }
 async function amRefresh(){
-  try{ const r = await callEdgeFunction({mode:"usage"}); amRender(await r.json()); }catch(e){ amRender(null); }
+  // plan is read straight from the database, so the Premium badge works even before the edge function is hooked up
+  let plan = null;
+  try{
+    const { data } = await supabase.from("am_profiles").select("plan,premium_until").maybeSingle();
+    if(data){ plan = data.plan; if(plan === "premium" && data.premium_until && new Date(data.premium_until) < new Date()) plan = "free"; }
+  }catch(_){}
+  try{
+    const r = await callEdgeFunction({mode:"usage"}); const u = await r.json();
+    if(u && u.usage){ if(plan) u.plan = plan; return amRender(u); }
+  }catch(_){}
+  amRender(plan ? {plan} : null);
 }
 amSel.addEventListener("change", () => {
   if(amSel.selectedOptions[0].textContent.includes("🔒")){ amSel.value = window.AM.model; amModal.classList.add("show"); return; }
@@ -6770,7 +6780,7 @@ document.getElementById("amRedeem").addEventListener("click", async () => {
   const { data, error } = await supabase.rpc("am_redeem", { p_code: code });
   if(error){ msg.style.color = "var(--danger)"; msg.textContent = error.message; return; }
   msg.style.color = "#16a34a"; msg.textContent = data; document.getElementById("amCode").value = "";
-  amRefresh(); amCelebrate(); setTimeout(() => amModal.classList.remove("show"), 1200);
+  amRender({plan:"premium"}); amRefresh(); amCelebrate(); setTimeout(() => amModal.classList.remove("show"), 1200);
 });
 document.getElementById("amClose").addEventListener("click", () => amModal.classList.remove("show"));
 sendBtn.addEventListener("click", () => { setTimeout(amRefresh, 5000); setTimeout(amRefresh, 15000); });
