@@ -1270,6 +1270,13 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 .am-top{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:20;max-width:calc(100% - 110px)}
 .am-top .am-select{border:1px solid var(--border);background:var(--main-bg);color:var(--text);font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;max-width:100%;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;text-overflow:ellipsis}
 .am-top .am-select:hover{background:var(--bubble-user)}
+
+.am-creating{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:90;display:flex;gap:14px;align-items:center;padding:12px 18px;border-radius:16px;background:var(--main-bg);color:var(--text);border:1px solid var(--border);box-shadow:var(--shadow);animation:amFade .3s}
+.am-creating b{display:block;font-size:14px}.am-creating span{font-size:12.5px;color:var(--muted)}
+.am-canvas{width:52px;height:52px;border-radius:12px;position:relative;overflow:hidden;background:linear-gradient(120deg,#4f46e5,#7c3aed,#ec4899,#f59e0b,#4f46e5);background-size:300% 300%;animation:amFlow 3s ease infinite}
+.am-canvas i{position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-100%);animation:amSweep 1.4s ease-in-out infinite}
+@keyframes amFade{from{opacity:0}}@keyframes amFlow{50%{background-position:100% 50%}}@keyframes amSweep{to{transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){.am-canvas,.am-canvas i{animation:none}}
 </style>
 </head>
 
@@ -6770,16 +6777,55 @@ const amSel = document.getElementById("amModel"), amImg = document.getElementByI
 const IMAGE_URL = p => `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*1e9)}`;
 const lastText = body => { const m = [...(body.messages||[])].reverse().find(x => x.role === "user") || {}; const c = m.content;
   return (typeof c === "string" ? c : (c||[]).filter(x => x.type === "text").map(x => x.text).join(" ")).trim(); };
+const IMG_STEPS = ["Understanding your idea…","Sketching the composition…","Mixing colours…","Adding fine details…","Final touches…"];
+function amShowCreating(){
+  const el = document.createElement("div"); el.className = "am-creating";
+  el.innerHTML = '<div class="am-canvas"><i></i></div><div><b>Creating your image</b><span>' + IMG_STEPS[0] + '</span></div>';
+  document.body.appendChild(el);
+  let i = 0; const t = setInterval(() => { i = (i+1) % IMG_STEPS.length; el.querySelector("span").textContent = IMG_STEPS[i]; }, 2200);
+  return () => { clearInterval(t); el.remove(); };
+}
+const loadImg = src => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+// Free plan: add the Artificial Maths watermark (faint diagonal text + logo badge)
+async function amWatermark(blob){
+  const url = URL.createObjectURL(blob);
+  try{
+    const img = await loadImg(url), W = img.naturalWidth, H = img.naturalHeight;
+    const c = document.createElement("canvas"); c.width = W; c.height = H;
+    const g = c.getContext("2d"); g.drawImage(img, 0, 0);
+    g.save(); g.translate(W/2, H/2); g.rotate(-Math.PI/6); g.globalAlpha = .16; g.fillStyle = "#fff";
+    g.font = `700 ${Math.round(W*.07)}px sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
+    for(let k = -2; k <= 2; k++) g.fillText("Artificial Maths", 0, k*H*.22);
+    g.restore();
+    let logo = null; try{ logo = await loadImg("maths-logo.png"); }catch(_){}
+    const fs = Math.round(W*.035), pad = Math.round(W*.014), lh = Math.round(W*.06);
+    g.font = `700 ${fs}px sans-serif`; g.textAlign = "left"; g.textBaseline = "middle";
+    const tw = g.measureText("Artificial Maths").width, lw = logo ? lh*(logo.naturalWidth/logo.naturalHeight) : 0;
+    const bw = pad*2.4 + (logo ? lw+pad : 0) + tw, bh = lh + pad*2, x = W - bw - pad*1.5, y = H - bh - pad*1.5;
+    g.globalAlpha = .78; g.fillStyle = "#111"; g.beginPath(); g.roundRect ? g.roundRect(x, y, bw, bh, bh/2) : g.rect(x, y, bw, bh); g.fill(); g.globalAlpha = 1;
+    let cx = x + pad*1.2; if(logo){ g.drawImage(logo, cx, y+pad, lw, lh); cx += lw + pad; }
+    g.fillStyle = "#fff"; g.fillText("Artificial Maths", cx, y + bh/2);
+    return await new Promise(r => c.toBlob(r, "image/jpeg", .92));
+  } finally { URL.revokeObjectURL(url); }
+}
 window.AM.makeImage = async body => {
   const prompt = lastText(body).replace(/\s+/g," ").slice(0,500);
-  const { error } = await supabase.rpc("am_use", { p_model: "image" });
   window.AM.image = false; amImg.classList.remove("on"); input.placeholder = "Message Artificial Maths...";
-  if(error) return new Response(JSON.stringify({ error: error.message }), { status: 429, headers: { "Content-Type": "application/json" } });
-  setTimeout(amRefresh, 1500);
-  return new Response(`![Generated image](${IMAGE_URL(prompt)})\n`, { status: 200 });
+  const stop = amShowCreating();
+  try{
+    const r = await callEdgeFunction({ mode: "image", messages: [{ role: "user", content: prompt }] });
+    const j = await r.json();
+    if(!j.image) throw new Error("Could not create the image. Please try again.");
+    let blob = await (await fetch(`data:${j.mime || "image/jpeg"};base64,${j.image}`)).blob();
+    if(j.plan === "free") blob = await amWatermark(blob);
+    const url = await uploadImage(new File([blob], "generated.jpg", { type: "image/jpeg" }));
+    setTimeout(amRefresh, 800);
+    return new Response(`![Generated image](${url})\n`, { status: 200 });
+  } finally { stop(); }
 };
 // Auto model: choose by the message, skipping models with no quota left
 window.AM.pick = body => {
+  if(body.mode) return "fast";
   if(window.AM.model !== "auto") return window.AM.model;
   const q = window.AM.q, paid = q && (q.plan === "premium" || q.plan === "owner");
   const text = lastText(body);
