@@ -1454,7 +1454,7 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 
   </button>
 
-  <div class="am-top"><select class="am-select" id="amModel" title="Choose a model" aria-label="Model"></select></div>
+  <select id="amModel" hidden aria-hidden="true"></select>
   <div
     class="chat-scroll"
     id="chatScroll"
@@ -6764,7 +6764,7 @@ updateSendButton();
 
 
 /* ===== v2: models, limits, premium, image mode ===== */
-window.AM = { model: localStorage.getItem("am_model_v2") || "auto", image: false };
+window.AM = { model: "auto", image: false };
 const NAMES = {auto:"✨ Auto",fast:"Maths Fast",reasoning:"Maths Reasoning",vision:"Maths Vision",pro:"Maths Pro ★"};
 const amSel = document.getElementById("amModel"), amImg = document.getElementById("amImg");
 const IMAGE_URL = p => `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*1e9)}`;
@@ -6800,6 +6800,8 @@ function amRender(q){
     return `<option value="${k}"${k===window.AM.model?" selected":""}>${v}${lock?" 🔒":""}${left}</option>`;
   }).join("");
   document.body.classList.toggle("am-premium", paid);
+  const imgLocked = !paid && q?.tier?.image === "premium";
+  amImg.textContent = imgLocked ? "🖼🔒" : "🖼"; amImg.title = imgLocked ? "Image generation is a Premium feature" : "Generate an image (click to toggle)";
   document.getElementById("amCrown").textContent = owner ? "★ Owner" : "★ Premium";
   const pl = document.getElementById("amPlan"), up = document.getElementById("amUp");
   if(paid){ pl.innerHTML = `<span class="am-pill">${owner ? "★ Owner · unlimited" : "★ Premium"}</span>`; up.style.display = "none"; return; }
@@ -6807,7 +6809,7 @@ function amRender(q){
   const keys = window.AM.model === "auto" ? ["fast","reasoning","vision"] : [window.AM.model];
   let used = 0, tot = 0; for(const k of keys){ if(q?.lim?.[k] != null){ used += q.used[k]||0; tot += q.lim[k]; } }
   const img = q?.lim?.image != null ? Math.max(q.lim.image-(q.used.image||0),0) : null;
-  pl.innerHTML = `Free plan · ${tot ? Math.max(tot-used,0)+" left today" : "loading..."}` + (img != null ? `<br><small>🖼 ${img} images left</small>` : "");
+  pl.innerHTML = `Free plan · ${tot ? Math.max(tot-used,0)+" left today" : "loading..."}` + (imgLocked ? `<br><small>🖼 Images: Premium only</small>` : img != null ? `<br><small>🖼 ${img} images left</small>` : "");
   document.getElementById("amBar").style.width = tot ? Math.min(100, used/tot*100)+"%" : "0";
 }
 async function amRefresh(){
@@ -6829,7 +6831,7 @@ amSel.addEventListener("change", () => {
   if(amSel.selectedOptions[0].textContent.includes("🔒")){ amSel.value = window.AM.model; amModal.classList.add("show"); return; }
   window.AM.model = amSel.value; localStorage.setItem("am_model_v2", amSel.value); amRefresh();
 });
-amImg.addEventListener("click", () => { window.AM.image = !window.AM.image; amImg.classList.toggle("on", window.AM.image);
+amImg.addEventListener("click", () => { const q0 = window.AM.q; if(q0 && q0.plan === "free" && q0.tier?.image === "premium"){ amModal.classList.add("show"); return; } window.AM.image = !window.AM.image; amImg.classList.toggle("on", window.AM.image);
   input.placeholder = window.AM.image ? "Describe the image you want..." : "Message Artificial Maths..."; });
 const amModal = document.getElementById("amModal");
 for (const id of ["amUp"]) document.getElementById(id).addEventListener("click", e => { e.preventDefault(); amModal.classList.add("show"); });
