@@ -4986,7 +4986,7 @@ async function callEdgeFunction(
   body,
   signal
 ){
-  if(body && !body.mode && window.AM.image) return window.AM.makeImage(body);
+  if(body && !body.mode && (window.AM.image || window.AM.wantsImage(body))) return window.AM.makeImage(body);
 
   const accessToken =
     await getAccessToken();
@@ -6777,6 +6777,22 @@ const amSel = document.getElementById("amModel"), amImg = document.getElementByI
 const IMAGE_URL = p => `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*1e9)}`;
 const lastText = body => { const m = [...(body.messages||[])].reverse().find(x => x.role === "user") || {}; const c = m.content;
   return (typeof c === "string" ? c : (c||[]).filter(x => x.type === "text").map(x => x.text).join(" ")).trim(); };
+// Auto-detect "make me an image of..." in normal chat (English + Spanish), no need to press the image button
+const IMG_NOUN = "(?:images?|pictures?|photos?|photographs?|illustrations?|drawings?|paintings?|artworks?|logos?|posters?|wallpapers?|portraits?|renders?|icons?|avatars?|memes?|imagen(?:es)?|fotos?|dibujos?|ilustraci[oó]n(?:es)?|p[oó]sters?)";
+const IMG_VERB = "(?:generate|create|make|draw|paint|design|produce|render|illustrate|sketch|imagine|show me|give me|i want|i need|i'd like|genera|generar|crea|crear|dibuja|dibujar|dib[uú]jame|haz|hazme|pinta|p[ií]ntame|quiero|necesito)";
+const IMG_LEAD = "(?:please\\s+|pls\\s+|por favor\\s+|(?:can|could|would|will) you\\s+(?:please\\s+)?|puedes\\s+|i want you to\\s+)?";
+const IMG_RE = new RegExp(`^\\s*${IMG_LEAD}${IMG_VERB}\\b[^.?!\\n]{0,30}?\\b${IMG_NOUN}\\b`, "i");
+const IMG_GEN = "(?:images?|pictures?|photos?|photographs?|illustrations?|drawings?|paintings?|imagen(?:es)?|fotos?|dibujos?|ilustraci[oó]n(?:es)?)";
+const IMG_STRIP = new RegExp(`^\\s*${IMG_LEAD}${IMG_VERB}\\b\\s*(?:me\\s+)?(?:an?\\s+|the\\s+|some\\s+|una?\\s+)?${IMG_GEN}\\b\\s*(?:of|showing|with|about|de|con)?\\s*`, "i");
+const IMG_STRIP2 = new RegExp(`^\\s*${IMG_LEAD}${IMG_VERB}\\b\\s*(?:me\\s+)?`, "i");
+window.AM.wantsImage = body => {
+  const last = (body.messages||[])[(body.messages||[]).length-1];
+  if(!last || last.role !== "user") return false;
+  if(Array.isArray(last.content) && last.content.some(x => x.type === "image_url")) return false; // attached photo = normal chat (Vision)
+  const t = lastText(body);
+  if(t.length > 400 || /\b(css|html|javascript|python|code|svg|function|script|program|graph|chart|diagram|plot|number line)\b/i.test(t)) return false;
+  return IMG_RE.test(t);
+};
 const IMG_STEPS = ["Understanding your idea…","Sketching the composition…","Mixing colours…","Adding fine details…","Final touches…"];
 function amShowCreating(){
   const el = document.createElement("div"); el.className = "am-creating";
@@ -6809,7 +6825,7 @@ async function amWatermark(blob){
   } finally { URL.revokeObjectURL(url); }
 }
 window.AM.makeImage = async body => {
-  const prompt = lastText(body).replace(/\s+/g," ").slice(0,500);
+  const raw = lastText(body).replace(/\s+/g," "); const c1 = raw.replace(IMG_STRIP,"").trim(), prompt = (c1 && c1 !== raw ? c1 : raw.replace(IMG_STRIP2,"").trim() || raw).slice(0,500);
   window.AM.image = false; amImg.classList.remove("on"); input.placeholder = "Message Artificial Maths...";
   const stop = amShowCreating();
   try{
