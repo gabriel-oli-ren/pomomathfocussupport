@@ -1208,77 +1208,6 @@ body.sidebar-collapsed .sidebar{
 
 }
 
-
-/* ===== v2 UI refresh ===== */
-:root{--radius:16px;--shadow:0 1px 2px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.06);--brand:#4f46e5}
-@media (prefers-color-scheme:dark){:root{--main-bg:#1b1b1d;--text:#ececf1;--muted:#9a9aa5;--border:#2e2e33;--bubble-user:#2a2a30;--accent:#4f46e5}
-.msg.assistant .msg-text :not(pre)>code{background:#2a2a30}.msg-image{background:#2a2a30}}
-.avatar{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
-.composer{border-radius:22px;box-shadow:var(--shadow);border:1px solid var(--border);background:var(--main-bg)}
-.send-btn:not(:disabled){background:var(--brand);color:#fff}
-.empty-state h1{background:linear-gradient(90deg,var(--text),var(--brand));-webkit-background-clip:text;background-clip:text;color:transparent}
-.am-tools{display:flex;gap:6px;align-items:center;padding:0 4px}
-.am-select{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:999px;padding:6px 10px;font-size:12.5px;max-width:150px}
-.am-chip{border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12.5px;color:var(--muted)}
-.am-chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
-.am-side{padding:8px;font-size:12px;color:var(--sidebar-muted)}
-.am-bar{height:5px;border-radius:9px;background:#2d2d2d;margin:4px 0 8px;overflow:hidden}.am-bar i{display:block;height:100%;background:#7c3aed}
-.am-up{display:block;width:100%;text-align:center;padding:9px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:600;font-size:13px}
-.am-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:99}.am-modal.show{display:flex}
-.am-card{background:var(--main-bg);color:var(--text);border-radius:20px;padding:26px;width:min(420px,92vw)}
-.am-card ul{padding-left:18px;color:var(--muted);line-height:1.8}.am-card .am-up{margin-top:14px}
-@media(max-width:700px){.am-select{max-width:110px}}
-
-/* premium animations */
-.am-crown{display:none;font-size:11.5px;font-weight:700;letter-spacing:.04em;padding:5px 10px;border-radius:999px;color:#fff;background:linear-gradient(110deg,#f59e0b,#ef4444,#7c3aed,#f59e0b);background-size:250% 100%;animation:amShine 4s linear infinite}
-body.am-premium .am-crown{display:inline-block}
-body.am-premium .send-btn:not(:disabled){background:linear-gradient(135deg,#f59e0b,#7c3aed)}
-.am-pill{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:700;color:#fff;background:linear-gradient(110deg,#f59e0b,#ef4444,#7c3aed,#f59e0b);background-size:250% 100%;animation:amShine 4s linear infinite}
-@keyframes amShine{to{background-position:250% 0}}
-.am-card{animation:amPop .35s cubic-bezier(.2,1.4,.4,1)}
-@keyframes amPop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
-.am-win{position:fixed;inset:0;z-index:120;pointer-events:none;display:flex;align-items:center;justify-content:center}
-.am-win .ring{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:56px;color:#fff;box-shadow:0 0 0 0 rgba(124,58,237,.6);animation:amRing 2.2s ease-out forwards}
-@keyframes amRing{0%{transform:scale(0);opacity:0}20%{transform:scale(1.15);opacity:1;box-shadow:0 0 0 0 rgba(124,58,237,.6)}35%{transform:scale(1)}80%{opacity:1;box-shadow:0 0 0 90px rgba(124,58,237,0)}100%{transform:scale(1);opacity:0}}
-.am-win b{position:fixed;top:-20px;width:9px;height:14px;border-radius:2px;animation:amFall linear forwards}
-@keyframes amFall{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
-.am-ghost{display:block;text-align:center;margin-top:14px;padding:10px;border:1px dashed var(--border);border-radius:10px;font-size:13px;color:var(--text)}
-.am-note{font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.5;text-align:center}
-@media(prefers-reduced-motion:reduce){.am-crown,.am-pill,.am-win b{animation:none}}
-
-.am-ghost{border:0;padding:4px;margin-top:10px;text-decoration:underline;color:var(--muted)}
-.am-note{margin:2px 0 0;font-size:11.5px}
-
-/* decluttered composer: text on top, tools on a quiet row underneath */
-.composer-row{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"text text text" "attach tools send";align-items:center;gap:0 4px;padding:8px 10px 8px}
-.composer-row #input{grid-area:text;width:100%;padding:8px 6px 10px;min-height:28px}
-.composer-row #attachBtn{grid-area:attach;width:32px;height:32px}
-.composer-row .am-tools{grid-area:tools;padding:0;gap:2px;min-width:0}
-.composer-row .send-btn{grid-area:send;margin:0}
-.am-tools .am-select{border:0;background:transparent;color:var(--muted);font-size:12.5px;padding:6px 4px;max-width:200px;text-overflow:ellipsis;cursor:pointer}
-.am-tools .am-select:hover{color:var(--text)}
-.am-tools .am-chip{border:0;padding:6px 8px;font-size:15px;line-height:1;border-radius:8px}
-.am-tools .am-chip:hover{background:rgba(127,127,127,.15)}
-.am-tools .am-chip.on{background:var(--brand);color:#fff}
-.am-tools .am-crown{font-size:0;width:8px;height:8px;padding:0;border-radius:50%;margin:0 2px 0 6px}
-body.am-premium .am-tools .am-crown{display:inline-block}
-.disclaimer{opacity:.7;font-size:11px;padding-top:6px}
-
-body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
-
-/* model selector in the top bar */
-.am-top{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:20;max-width:calc(100% - 110px)}
-.am-top .am-select{border:1px solid var(--border);background:var(--main-bg);color:var(--text);font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;max-width:100%;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;text-overflow:ellipsis}
-.am-top .am-select:hover{background:var(--bubble-user)}
-
-.am-creating{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:90;display:flex;gap:14px;align-items:center;padding:12px 18px;border-radius:16px;background:var(--main-bg);color:var(--text);border:1px solid var(--border);box-shadow:var(--shadow);animation:amFade .3s}
-.am-creating b{display:block;font-size:14px}.am-creating span{font-size:12.5px;color:var(--muted)}
-.am-canvas{width:52px;height:52px;border-radius:12px;position:relative;overflow:hidden;background:linear-gradient(120deg,#4f46e5,#7c3aed,#ec4899,#f59e0b,#4f46e5);background-size:300% 300%;animation:amFlow 3s ease infinite}
-.am-canvas i{position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-100%);animation:amSweep 1.4s ease-in-out infinite}
-@keyframes amFade{from{opacity:0}}@keyframes amFlow{50%{background-position:100% 50%}}@keyframes amSweep{to{transform:translateX(100%)}}
-@media(prefers-reduced-motion:reduce){.am-canvas,.am-canvas i{animation:none}}
-
-.am-chip[hidden]{display:none!important}
 </style>
 </head>
 
@@ -1351,8 +1280,7 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 
   <div class="sidebar-bottom">
 
-    <div class="am-side"><div id="amPlan">Free plan</div><div class="am-bar"><i id="amBar" style="width:0"></i></div><a class="am-up" id="amUp" href="#">Redeem Premium code</a></div>
-<div
+    <div
       class="user-row"
       id="userRow"
     >
@@ -1463,7 +1391,6 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 
   </button>
 
-  <select id="amModel" hidden aria-hidden="true"></select>
   <div
     class="chat-scroll"
     id="chatScroll"
@@ -1561,8 +1488,7 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
         >
 
 
-        <div class="am-tools"><span class="am-crown" id="amCrown">★ Premium</span><button class="am-chip" id="amImg" hidden type="button" title="Generate an image (click to toggle)">🖼</button></div>
-<textarea
+        <textarea
           id="input"
           rows="1"
           placeholder="Message Artificial Maths..."
@@ -1801,11 +1727,6 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
-<div class="am-modal" id="amModal"><div class="am-card"><h2 style="margin:0 0 4px">Go Premium</h2>
-<p style="margin:0;color:var(--muted);font-size:14px">Stronger model and higher daily limits.</p>
-<input id="amCode" placeholder="Enter your code" autocomplete="off" style="width:100%;margin-top:18px;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);text-transform:uppercase"><button class="am-up" id="amRedeem" type="button" style="margin-top:10px">Redeem</button><div id="amMsg" style="margin-top:8px;font-size:13px;min-height:16px"></div>
-<a class="am-ghost" id="amReq" href="#">Request a code</a><p class="am-note">Personal accounts only · admin@mathssupport.es</p>
-<button style="margin:6px auto 0;display:block;color:var(--muted);font-size:13px" id="amClose">Close</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
 
@@ -4988,7 +4909,6 @@ async function callEdgeFunction(
   body,
   signal
 ){
-  if(body && !body.mode && (window.AM.image || window.AM.wantsImage(body))) return window.AM.makeImage(body);
 
   const accessToken =
     await getAccessToken();
@@ -5021,7 +4941,9 @@ async function callEdgeFunction(
             body && body.mode === "title"
               ? body
               : {
-                  ...body, settings:getSettings(), model:window.AM.pick(body), mode:body.mode
+                  ...body,
+                  settings:
+                    getSettings()
                 }
           )
 
@@ -6771,163 +6693,6 @@ newChatBtn.addEventListener(
 
 updateSendButton();
 
-
-/* ===== v2: models, limits, premium, image mode ===== */
-window.AM = { model: "auto", image: false };
-const NAMES = {auto:"✨ Auto",fast:"Maths Fast",reasoning:"Maths Reasoning",vision:"Maths Vision",pro:"Maths Pro ★"};
-const amSel = document.getElementById("amModel"), amImg = document.getElementById("amImg");
-const IMAGE_URL = p => `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*1e9)}`;
-const lastText = body => { const m = [...(body.messages||[])].reverse().find(x => x.role === "user") || {}; const c = m.content;
-  return (typeof c === "string" ? c : (c||[]).filter(x => x.type === "text").map(x => x.text).join(" ")).trim(); };
-// Auto-detect "make me an image of..." in normal chat (English + Spanish), no need to press the image button
-const IMG_NOUN = "(?:images?|pictures?|photos?|photographs?|illustrations?|drawings?|paintings?|artworks?|logos?|posters?|wallpapers?|portraits?|renders?|icons?|avatars?|memes?|imagen(?:es)?|fotos?|dibujos?|ilustraci[oó]n(?:es)?|p[oó]sters?)";
-const IMG_VERB = "(?:generate|create|make|draw|paint|design|produce|render|illustrate|sketch|imagine|show me|give me|i want|i need|i'd like|genera|generar|crea|crear|dibuja|dibujar|dib[uú]jame|haz|hazme|pinta|p[ií]ntame|quiero|necesito)";
-const IMG_LEAD = "(?:please\\s+|pls\\s+|por favor\\s+|(?:can|could|would|will) you\\s+(?:please\\s+)?|puedes\\s+|i want you to\\s+)?";
-const IMG_RE = new RegExp(`^\\s*${IMG_LEAD}${IMG_VERB}\\b[^.?!\\n]{0,30}?\\b${IMG_NOUN}\\b`, "i");
-const IMG_GEN = "(?:images?|pictures?|photos?|photographs?|illustrations?|drawings?|paintings?|imagen(?:es)?|fotos?|dibujos?|ilustraci[oó]n(?:es)?)";
-const IMG_STRIP = new RegExp(`^\\s*${IMG_LEAD}${IMG_VERB}\\b\\s*(?:me\\s+)?(?:an?\\s+|the\\s+|some\\s+|una?\\s+)?${IMG_GEN}\\b\\s*(?:of|showing|with|about|de|con)?\\s*`, "i");
-const IMG_STRIP2 = new RegExp(`^\\s*${IMG_LEAD}${IMG_VERB}\\b\\s*(?:me\\s+)?`, "i");
-window.AM.wantsImage = body => {
-  const last = (body.messages||[])[(body.messages||[]).length-1];
-  if(!last || last.role !== "user") return false;
-  if(Array.isArray(last.content) && last.content.some(x => x.type === "image_url")) return false; // attached photo = normal chat (Vision)
-  const t = lastText(body);
-  if(t.length > 400 || /\b(css|html|javascript|python|code|svg|function|script|program|graph|chart|diagram|plot|number line)\b/i.test(t)) return false;
-  return IMG_RE.test(t);
-};
-const IMG_STEPS = ["Understanding your idea…","Sketching the composition…","Mixing colours…","Adding fine details…","Final touches…"];
-function amShowCreating(){
-  const el = document.createElement("div"); el.className = "am-creating";
-  el.innerHTML = '<div class="am-canvas"><i></i></div><div><b>Creating your image</b><span>' + IMG_STEPS[0] + '</span></div>';
-  document.body.appendChild(el);
-  let i = 0; const t = setInterval(() => { i = (i+1) % IMG_STEPS.length; el.querySelector("span").textContent = IMG_STEPS[i]; }, 2200);
-  return () => { clearInterval(t); el.remove(); };
-}
-const loadImg = src => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
-// Free plan: add the Artificial Maths watermark (faint diagonal text + logo badge)
-async function amWatermark(blob){
-  const url = URL.createObjectURL(blob);
-  try{
-    const img = await loadImg(url), W = img.naturalWidth, H = img.naturalHeight;
-    const c = document.createElement("canvas"); c.width = W; c.height = H;
-    const g = c.getContext("2d"); g.drawImage(img, 0, 0);
-    g.save(); g.translate(W/2, H/2); g.rotate(-Math.PI/6); g.globalAlpha = .16; g.fillStyle = "#fff";
-    g.font = `700 ${Math.round(W*.07)}px sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
-    for(let k = -2; k <= 2; k++) g.fillText("Artificial Maths", 0, k*H*.22);
-    g.restore();
-    let logo = null; try{ logo = await loadImg("maths-logo.png"); }catch(_){}
-    const fs = Math.round(W*.035), pad = Math.round(W*.014), lh = Math.round(W*.06);
-    g.font = `700 ${fs}px sans-serif`; g.textAlign = "left"; g.textBaseline = "middle";
-    const tw = g.measureText("Artificial Maths").width, lw = logo ? lh*(logo.naturalWidth/logo.naturalHeight) : 0;
-    const bw = pad*2.4 + (logo ? lw+pad : 0) + tw, bh = lh + pad*2, x = W - bw - pad*1.5, y = H - bh - pad*1.5;
-    g.globalAlpha = .78; g.fillStyle = "#111"; g.beginPath(); g.roundRect ? g.roundRect(x, y, bw, bh, bh/2) : g.rect(x, y, bw, bh); g.fill(); g.globalAlpha = 1;
-    let cx = x + pad*1.2; if(logo){ g.drawImage(logo, cx, y+pad, lw, lh); cx += lw + pad; }
-    g.fillStyle = "#fff"; g.fillText("Artificial Maths", cx, y + bh/2);
-    return await new Promise(r => c.toBlob(r, "image/jpeg", .92));
-  } finally { URL.revokeObjectURL(url); }
-}
-window.AM.makeImage = async body => {
-  const raw = lastText(body).replace(/\s+/g," "); const c1 = raw.replace(IMG_STRIP,"").trim(), prompt = (c1 && c1 !== raw ? c1 : raw.replace(IMG_STRIP2,"").trim() || raw).slice(0,500);
-  window.AM.image = false; amImg.classList.remove("on"); input.placeholder = "Message Artificial Maths...";
-  const stop = amShowCreating();
-  try{
-    const r = await callEdgeFunction({ mode: "image", messages: [{ role: "user", content: prompt }] });
-    const j = await r.json();
-    if(!j.image) throw new Error("Could not create the image. Please try again.");
-    let blob = await (await fetch(`data:${j.mime || "image/jpeg"};base64,${j.image}`)).blob();
-    if(j.plan === "free") blob = await amWatermark(blob);
-    const ext = (blob.type.split("/")[1] || "jpeg").replace("jpeg","jpg");
-    const url = await uploadImage(new File([blob], "generated." + ext, { type: blob.type || "image/jpeg" }));
-    setTimeout(amRefresh, 800);
-    return new Response(`![Generated image](${url})\n`, { status: 200 });
-  } finally { stop(); }
-};
-// Auto model: choose by the message, skipping models with no quota left
-window.AM.pick = body => {
-  if(body.mode) return "fast";
-  if(window.AM.model !== "auto") return window.AM.model;
-  const q = window.AM.q, paid = q && (q.plan === "premium" || q.plan === "owner");
-  const text = lastText(body);
-  const hasImg = (body.messages||[]).some(m => Array.isArray(m.content) && m.content.some(x => x.type === "image_url"));
-  const hard = text.length > 400 || /prove|proof|derive|integral|differential|theorem|step.by.step|solve|equation|optimi[sz]|probabilit|matrix|eigen|olympiad|limit/i.test(text);
-  const prefs = hasImg ? ["vision","fast"] : hard ? (paid ? ["pro","reasoning","fast"] : ["reasoning","fast"]) : ["fast","reasoning"];
-  const ok = k => !q || (q.tier[k] !== "premium" || paid) && (q.plan === "owner" || q.lim[k] == null || (q.used[k]||0) < q.lim[k]);
-  const k = prefs.find(ok) || prefs[0];
-  if(q && q.used) q.used[k] = (q.used[k]||0) + 1;
-  return k;
-};
-function amRender(q){
-  window.AM.q = q;
-  const plan = q?.plan || "free", owner = plan === "owner", paid = owner || plan === "premium";
-  amSel.innerHTML = Object.entries(NAMES).map(([k,v]) => {
-    const lock = !paid && q?.tier?.[k] === "premium", lim = q?.lim?.[k];
-    const left = (!paid && !lock && lim != null) ? ` (${Math.max(lim-(q.used[k]||0),0)} left)` : "";
-    return `<option value="${k}"${k===window.AM.model?" selected":""}>${v}${lock?" 🔒":""}${left}</option>`;
-  }).join("");
-  document.body.classList.toggle("am-premium", paid);
-  const imgLocked = !paid && q?.tier?.image === "premium";
-  amImg.textContent = imgLocked ? "🖼🔒" : "🖼"; amImg.title = imgLocked ? "Image generation is a Premium feature" : "Generate an image (click to toggle)";
-  document.getElementById("amCrown").textContent = owner ? "★ Owner" : "★ Premium";
-  const pl = document.getElementById("amPlan"), up = document.getElementById("amUp");
-  if(paid){ pl.innerHTML = `<span class="am-pill">${owner ? "★ Owner · unlimited" : "★ Premium"}</span>`; up.style.display = "none"; return; }
-  up.style.display = "block";
-  const keys = window.AM.model === "auto" ? ["fast","reasoning","vision"] : [window.AM.model];
-  let used = 0, tot = 0; for(const k of keys){ if(q?.lim?.[k] != null){ used += q.used[k]||0; tot += q.lim[k]; } }
-  const img = q?.lim?.image != null ? Math.max(q.lim.image-(q.used.image||0),0) : null;
-  pl.innerHTML = `Free plan · ${tot ? Math.max(tot-used,0)+" left today" : "loading..."}` + (imgLocked ? `<br><small>🖼 Images: Premium only</small>` : img != null ? `<br><small>🖼 ${img} images left</small>` : "");
-  document.getElementById("amBar").style.width = tot ? Math.min(100, used/tot*100)+"%" : "0";
-}
-async function amRefresh(){
-  try{
-    const day = new Date().toISOString().slice(0,10);
-    const [p,l,u] = await Promise.all([
-      supabase.from("am_profiles").select("plan,premium_until").maybeSingle(),
-      supabase.from("am_limits").select("*"),
-      supabase.from("am_usage").select("model,count").eq("day", day)]);
-    let plan = p.data?.plan || "free";
-    if(plan === "premium" && p.data.premium_until && new Date(p.data.premium_until) < new Date()) plan = "free";
-    const q = { plan, used:{}, lim:{}, tier:{} };
-    for(const r of l.data||[]){ q.lim[r.model] = plan === "premium" ? r.premium_limit : r.free_limit; q.tier[r.model] = r.tier; }
-    for(const r of u.data||[]) q.used[r.model] = r.count;
-    amRender(q);
-  }catch(e){ amRender(null); }
-}
-amSel.addEventListener("change", () => {
-  if(amSel.selectedOptions[0].textContent.includes("🔒")){ amSel.value = window.AM.model; amModal.classList.add("show"); return; }
-  window.AM.model = amSel.value; localStorage.setItem("am_model_v2", amSel.value); amRefresh();
-});
-amImg.addEventListener("click", () => { const q0 = window.AM.q; if(q0 && q0.plan === "free" && q0.tier?.image === "premium"){ amModal.classList.add("show"); return; } window.AM.image = !window.AM.image; amImg.classList.toggle("on", window.AM.image);
-  input.placeholder = window.AM.image ? "Describe the image you want..." : "Message Artificial Maths..."; });
-const amModal = document.getElementById("amModal");
-for (const id of ["amUp"]) document.getElementById(id).addEventListener("click", e => { e.preventDefault(); amModal.classList.add("show"); });
-document.getElementById("amRedeem").addEventListener("click", async () => {
-  const msg = document.getElementById("amMsg"), code = document.getElementById("amCode").value.trim();
-  if(!code) return;
-  msg.style.color = "var(--muted)"; msg.textContent = "Checking...";
-  const { data, error } = await supabase.rpc("am_redeem", { p_code: code });
-  if(error){ msg.style.color = "var(--danger)"; msg.textContent = error.message; return; }
-  msg.style.color = "#16a34a"; msg.textContent = data; document.getElementById("amCode").value = "";
-  amRender({plan:"premium"}); amRefresh(); amCelebrate(); setTimeout(() => amModal.classList.remove("show"), 1200);
-});
-document.getElementById("amClose").addEventListener("click", () => amModal.classList.remove("show"));
-sendBtn.addEventListener("click", () => { setTimeout(amRefresh, 5000); setTimeout(amRefresh, 15000); });
-function amCelebrate(){
-  const w = document.createElement("div"); w.className = "am-win"; w.innerHTML = '<div class="ring">★</div>';
-  if(!matchMedia("(prefers-reduced-motion:reduce)").matches){
-    const cols = ["#f59e0b","#ef4444","#7c3aed","#22c55e","#3b82f6"];
-    for(let k=0;k<70;k++){ const b = document.createElement("b");
-      b.style.cssText = `left:${Math.random()*100}vw;background:${cols[k%5]};animation-duration:${1.6+Math.random()*1.6}s;animation-delay:${Math.random()*.5}s`; w.appendChild(b); }
-  }
-  document.body.appendChild(w); setTimeout(() => w.remove(), 3800);
-}
-document.getElementById("amReq").addEventListener("click", async e => {
-  e.preventDefault();
-  let em = ""; try{ em = (await supabase.auth.getSession()).data.session?.user?.email || ""; }catch(_){}
-  const body = `Hi,\n\nI would like to request a free Premium code for Artificial Maths.\n\nAccount email: ${em}\nThis is a personal account.\nReason (optional): \n\nThanks!`;
-  location.href = "mailto:admin@mathssupport.es?subject=" + encodeURIComponent("Premium code request") + "&body=" + encodeURIComponent(body);
-});
-amRender(null);
-supabase.auth.onAuthStateChange((ev, ses) => { if(ses) setTimeout(amRefresh, 300); });
 </script>
 
 </body>
