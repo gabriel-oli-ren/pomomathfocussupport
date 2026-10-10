@@ -1277,6 +1277,8 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 .am-canvas i{position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-100%);animation:amSweep 1.4s ease-in-out infinite}
 @keyframes amFade{from{opacity:0}}@keyframes amFlow{50%{background-position:100% 50%}}@keyframes amSweep{to{transform:translateX(100%)}}
 @media(prefers-reduced-motion:reduce){.am-canvas,.am-canvas i{animation:none}}
+
+.am-chip[hidden]{display:none!important}
 </style>
 </head>
 
@@ -1559,7 +1561,7 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
         >
 
 
-        <div class="am-tools"><span class="am-crown" id="amCrown">★ Premium</span><button class="am-chip" id="amImg" type="button" title="Generate an image (click to toggle)">🖼</button></div>
+        <div class="am-tools"><span class="am-crown" id="amCrown">★ Premium</span><button class="am-chip" id="amImg" hidden type="button" title="Generate an image (click to toggle)">🖼</button></div>
 <textarea
           id="input"
           rows="1"
@@ -6834,7 +6836,8 @@ window.AM.makeImage = async body => {
     if(!j.image) throw new Error("Could not create the image. Please try again.");
     let blob = await (await fetch(`data:${j.mime || "image/jpeg"};base64,${j.image}`)).blob();
     if(j.plan === "free") blob = await amWatermark(blob);
-    const url = await uploadImage(new File([blob], "generated.jpg", { type: "image/jpeg" }));
+    const ext = (blob.type.split("/")[1] || "jpeg").replace("jpeg","jpg");
+    const url = await uploadImage(new File([blob], "generated." + ext, { type: blob.type || "image/jpeg" }));
     setTimeout(amRefresh, 800);
     return new Response(`![Generated image](${url})\n`, { status: 200 });
   } finally { stop(); }
