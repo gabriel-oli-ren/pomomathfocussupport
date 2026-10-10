@@ -1265,6 +1265,11 @@ body.am-premium .am-tools .am-crown{display:inline-block}
 .disclaimer{opacity:.7;font-size:11px;padding-top:6px}
 
 body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
+
+/* model selector in the top bar */
+.am-top{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:20;max-width:calc(100% - 110px)}
+.am-top .am-select{border:1px solid var(--border);background:var(--main-bg);color:var(--text);font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;max-width:100%;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;text-overflow:ellipsis}
+.am-top .am-select:hover{background:var(--bubble-user)}
 </style>
 </head>
 
@@ -1449,6 +1454,7 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 
   </button>
 
+  <div class="am-top"><select class="am-select" id="amModel" title="Choose a model" aria-label="Model"></select></div>
   <div
     class="chat-scroll"
     id="chatScroll"
@@ -1546,7 +1552,7 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
         >
 
 
-        <div class="am-tools"><span class="am-crown" id="amCrown">★ Premium</span><select class="am-select" id="amModel" title="Model"></select><button class="am-chip" id="amImg" type="button" title="Generate an image (click to toggle)">🖼</button></div>
+        <div class="am-tools"><span class="am-crown" id="amCrown">★ Premium</span><button class="am-chip" id="amImg" type="button" title="Generate an image (click to toggle)">🖼</button></div>
 <textarea
           id="input"
           rows="1"
@@ -6758,7 +6764,7 @@ updateSendButton();
 
 
 /* ===== v2: models, limits, premium, image mode ===== */
-window.AM = { model: localStorage.getItem("am_model") || "auto", image: false };
+window.AM = { model: localStorage.getItem("am_model_v2") || "auto", image: false };
 const NAMES = {auto:"✨ Auto",fast:"Maths Fast",reasoning:"Maths Reasoning",vision:"Maths Vision",pro:"Maths Pro ★"};
 const amSel = document.getElementById("amModel"), amImg = document.getElementById("amImg");
 const IMAGE_URL = p => `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*1e9)}`;
@@ -6821,7 +6827,7 @@ async function amRefresh(){
 }
 amSel.addEventListener("change", () => {
   if(amSel.selectedOptions[0].textContent.includes("🔒")){ amSel.value = window.AM.model; amModal.classList.add("show"); return; }
-  window.AM.model = amSel.value; localStorage.setItem("am_model", amSel.value); amRefresh();
+  window.AM.model = amSel.value; localStorage.setItem("am_model_v2", amSel.value); amRefresh();
 });
 amImg.addEventListener("click", () => { window.AM.image = !window.AM.image; amImg.classList.toggle("on", window.AM.image);
   input.placeholder = window.AM.image ? "Describe the image you want..." : "Message Artificial Maths..."; });
