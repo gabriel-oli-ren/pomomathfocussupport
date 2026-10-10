@@ -1263,6 +1263,8 @@ body.am-premium .send-btn:not(:disabled){background:linear-gradient(135deg,#f59e
 .am-tools .am-crown{font-size:0;width:8px;height:8px;padding:0;border-radius:50%;margin:0 2px 0 6px}
 body.am-premium .am-tools .am-crown{display:inline-block}
 .disclaimer{opacity:.7;font-size:11px;padding-top:6px}
+
+body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 </style>
 </head>
 
@@ -4971,6 +4973,7 @@ async function callEdgeFunction(
   body,
   signal
 ){
+  if(body && !body.mode && window.AM.image) return window.AM.makeImage(body);
 
   const accessToken =
     await getAccessToken();
@@ -5003,7 +5006,7 @@ async function callEdgeFunction(
             body && body.mode === "title"
               ? body
               : {
-                  ...body, settings:getSettings(), model:window.AM.model, mode:(body.mode||(window.AM.image?"image":undefined))
+                  ...body, settings:getSettings(), model:window.AM.pick(body), mode:body.mode
                 }
           )
 
@@ -6755,35 +6758,66 @@ updateSendButton();
 
 
 /* ===== v2: models, limits, premium, image mode ===== */
-window.AM = { model: localStorage.getItem("am_model") || "fast", image: false };
-const NAMES = {fast:"Maths Fast",reasoning:"Maths Reasoning",vision:"Maths Vision",pro:"Maths Pro ★"};
+window.AM = { model: localStorage.getItem("am_model") || "auto", image: false };
+const NAMES = {auto:"✨ Auto",fast:"Maths Fast",reasoning:"Maths Reasoning",vision:"Maths Vision",pro:"Maths Pro ★"};
 const amSel = document.getElementById("amModel"), amImg = document.getElementById("amImg");
-function amRender(u){
-  const owner = u?.plan === "owner", prem = u?.plan === "premium";
+const IMAGE_URL = p => `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*1e9)}`;
+const lastText = body => { const m = [...(body.messages||[])].reverse().find(x => x.role === "user") || {}; const c = m.content;
+  return (typeof c === "string" ? c : (c||[]).filter(x => x.type === "text").map(x => x.text).join(" ")).trim(); };
+window.AM.makeImage = async body => {
+  const prompt = lastText(body).replace(/\s+/g," ").slice(0,500);
+  const { error } = await supabase.rpc("am_use", { p_model: "image" });
+  window.AM.image = false; amImg.classList.remove("on"); input.placeholder = "Message Artificial Maths...";
+  if(error) return new Response(JSON.stringify({ error: error.message }), { status: 429, headers: { "Content-Type": "application/json" } });
+  setTimeout(amRefresh, 1500);
+  return new Response(`![Generated image](${IMAGE_URL(prompt)})\n`, { status: 200 });
+};
+// Auto model: choose by the message, skipping models with no quota left
+window.AM.pick = body => {
+  if(window.AM.model !== "auto") return window.AM.model;
+  const q = window.AM.q, paid = q && (q.plan === "premium" || q.plan === "owner");
+  const text = lastText(body);
+  const hasImg = (body.messages||[]).some(m => Array.isArray(m.content) && m.content.some(x => x.type === "image_url"));
+  const hard = text.length > 400 || /prove|proof|derive|integral|differential|theorem|step.by.step|solve|equation|optimi[sz]|probabilit|matrix|eigen|olympiad|limit/i.test(text);
+  const prefs = hasImg ? ["vision","fast"] : hard ? (paid ? ["pro","reasoning","fast"] : ["reasoning","fast"]) : ["fast","reasoning"];
+  const ok = k => !q || (q.tier[k] !== "premium" || paid) && (q.plan === "owner" || q.lim[k] == null || (q.used[k]||0) < q.lim[k]);
+  const k = prefs.find(ok) || prefs[0];
+  if(q && q.used) q.used[k] = (q.used[k]||0) + 1;
+  return k;
+};
+function amRender(q){
+  window.AM.q = q;
+  const plan = q?.plan || "free", owner = plan === "owner", paid = owner || plan === "premium";
   amSel.innerHTML = Object.entries(NAMES).map(([k,v]) => {
-    const e = u?.usage?.[k]; const lock = e?.locked ? " 🔒" : "";
-    const left = e && e.limit != null && !e.locked ? ` (${Math.max(e.limit-e.used,0)} left)` : "";
-    return `<option value="${k}"${k===window.AM.model?" selected":""}>${v}${lock}${left}</option>`;
+    const lock = !paid && q?.tier?.[k] === "premium", lim = q?.lim?.[k];
+    const left = (!paid && !lock && lim != null) ? ` (${Math.max(lim-(q.used[k]||0),0)} left)` : "";
+    return `<option value="${k}"${k===window.AM.model?" selected":""}>${v}${lock?" 🔒":""}${left}</option>`;
   }).join("");
-  document.getElementById("amPlan").innerHTML = owner ? '<span class="am-pill">★ Owner · unlimited</span>' : prem ? '<span class="am-pill">★ Premium</span>' : "Free plan";
-  document.body.classList.toggle("am-premium", owner || prem);
+  document.body.classList.toggle("am-premium", paid);
   document.getElementById("amCrown").textContent = owner ? "★ Owner" : "★ Premium";
-  const cur = u?.usage?.[window.AM.model];
-  document.getElementById("amBar").style.width = cur?.limit ? Math.min(100, cur.used/cur.limit*100)+"%" : "0";
-  document.getElementById("amUp").style.display = (owner||prem) ? "none" : "block";
+  const pl = document.getElementById("amPlan"), up = document.getElementById("amUp");
+  if(paid){ pl.innerHTML = `<span class="am-pill">${owner ? "★ Owner · unlimited" : "★ Premium"}</span>`; up.style.display = "none"; return; }
+  up.style.display = "block";
+  const keys = window.AM.model === "auto" ? ["fast","reasoning","vision"] : [window.AM.model];
+  let used = 0, tot = 0; for(const k of keys){ if(q?.lim?.[k] != null){ used += q.used[k]||0; tot += q.lim[k]; } }
+  const img = q?.lim?.image != null ? Math.max(q.lim.image-(q.used.image||0),0) : null;
+  pl.innerHTML = `Free plan · ${tot ? Math.max(tot-used,0)+" left today" : "loading..."}` + (img != null ? `<br><small>🖼 ${img} images left</small>` : "");
+  document.getElementById("amBar").style.width = tot ? Math.min(100, used/tot*100)+"%" : "0";
 }
 async function amRefresh(){
-  // plan is read straight from the database, so the Premium badge works even before the edge function is hooked up
-  let plan = null;
   try{
-    const { data } = await supabase.from("am_profiles").select("plan,premium_until").maybeSingle();
-    if(data){ plan = data.plan; if(plan === "premium" && data.premium_until && new Date(data.premium_until) < new Date()) plan = "free"; }
-  }catch(_){}
-  try{
-    const r = await callEdgeFunction({mode:"usage"}); const u = await r.json();
-    if(u && u.usage){ if(plan) u.plan = plan; return amRender(u); }
-  }catch(_){}
-  amRender(plan ? {plan} : null);
+    const day = new Date().toISOString().slice(0,10);
+    const [p,l,u] = await Promise.all([
+      supabase.from("am_profiles").select("plan,premium_until").maybeSingle(),
+      supabase.from("am_limits").select("*"),
+      supabase.from("am_usage").select("model,count").eq("day", day)]);
+    let plan = p.data?.plan || "free";
+    if(plan === "premium" && p.data.premium_until && new Date(p.data.premium_until) < new Date()) plan = "free";
+    const q = { plan, used:{}, lim:{}, tier:{} };
+    for(const r of l.data||[]){ q.lim[r.model] = plan === "premium" ? r.premium_limit : r.free_limit; q.tier[r.model] = r.tier; }
+    for(const r of u.data||[]) q.used[r.model] = r.count;
+    amRender(q);
+  }catch(e){ amRender(null); }
 }
 amSel.addEventListener("change", () => {
   if(amSel.selectedOptions[0].textContent.includes("🔒")){ amSel.value = window.AM.model; amModal.classList.add("show"); return; }
