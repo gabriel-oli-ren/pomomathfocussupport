@@ -1245,6 +1245,9 @@ body.am-premium .send-btn:not(:disabled){background:linear-gradient(135deg,#f59e
 .am-ghost{display:block;text-align:center;margin-top:14px;padding:10px;border:1px dashed var(--border);border-radius:10px;font-size:13px;color:var(--text)}
 .am-note{font-size:11.5px;color:var(--muted);margin:8px 0 0;line-height:1.5;text-align:center}
 @media(prefers-reduced-motion:reduce){.am-crown,.am-pill,.am-win b{animation:none}}
+
+.am-ghost{border:0;padding:4px;margin-top:10px;text-decoration:underline;color:var(--muted)}
+.am-note{margin:2px 0 0;font-size:11.5px}
 </style>
 </head>
 
@@ -1766,9 +1769,11 @@ body.am-premium .send-btn:not(:disabled){background:linear-gradient(135deg,#f59e
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
-<div class="am-modal" id="amModal"><div class="am-card"><h2 style="margin:0 0 8px">Artificial Maths Premium</h2>
-<ul><li>Pro model (strongest reasoning)</li><li>10x higher daily limits</li><li>More image generations</li><li>Enter your Premium code below</li></ul>
-<input id="amCode" placeholder="AM-XXXXXXXXXXXX" autocomplete="off" style="width:100%;margin-top:14px;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);text-transform:uppercase"><button class="am-up" id="amRedeem" type="button" style="margin-top:10px">Redeem code</button><div id="amMsg" style="margin-top:10px;font-size:13px;min-height:18px"></div><a class="am-ghost" id="amReq" href="#">✉️ No code? Request a free one from the admin</a><p class="am-note">Requests are for <b>personal accounts only</b>. Email <b>admin@mathssupport.es</b> from the personal address you signed up with (no school or shared accounts). If approved, you may receive a free code.</p><button style="margin:12px auto 0;display:block;color:var(--muted)" id="amClose">Not now</button></div></div>
+<div class="am-modal" id="amModal"><div class="am-card"><h2 style="margin:0 0 4px">Go Premium</h2>
+<p style="margin:0;color:var(--muted);font-size:14px">Stronger model and higher daily limits.</p>
+<input id="amCode" placeholder="Enter your code" autocomplete="off" style="width:100%;margin-top:18px;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);text-transform:uppercase"><button class="am-up" id="amRedeem" type="button" style="margin-top:10px">Redeem</button><div id="amMsg" style="margin-top:8px;font-size:13px;min-height:16px"></div>
+<a class="am-ghost" id="amReq" href="#">Request a code</a><p class="am-note">Personal accounts only · admin@mathssupport.es</p>
+<button style="margin:6px auto 0;display:block;color:var(--muted);font-size:13px" id="amClose">Close</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
 
