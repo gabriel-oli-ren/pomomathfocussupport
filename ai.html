@@ -1578,7 +1578,7 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
         <input
           type="file"
           id="fileInput"
-          accept="image/*,application/pdf,.pdf"
+          accept="image/*,.pdf,.docx,.xlsx,.xls,.xlsm,.pptx,.odt,.ods,.odp,.rtf,.txt,.md,.markdown,.csv,.tsv,.json,.jsonl,.xml,.html,.htm,.css,.svg,.yml,.yaml,.toml,.ini,.log,.tex,.sql,.py,.js,.mjs,.ts,.tsx,.jsx,.java,.c,.h,.cpp,.hpp,.cs,.go,.rs,.rb,.php,.swift,.kt,.dart,.scala,.r,.lua,.sh,.bat,.ps1,.vue,text/*"
           multiple
           hidden
         >
@@ -2938,8 +2938,7 @@ function appendMessageEl(
       icon.className =
         "pdf-chip-icon";
 
-      icon.textContent =
-        "PDF";
+      setDocIcon(icon, pdf.name);
 
       const info =
         document.createElement("div");
@@ -2963,7 +2962,7 @@ function appendMessageEl(
         "pdf-chip-meta";
 
       meta.textContent =
-        `${pdf.pages} page${pdf.pages === 1 ? "" : "s"}`;
+        docMeta(pdf.name, pdf.pages, (pdf.text || "").length);
 
       info.appendChild(nameEl);
 
@@ -4046,19 +4045,77 @@ function pdfBlocksForModel(content, compact = false){
     PDF_BLOCK_REGEX,
     (match, name, pages, body) => {
 
+      const isPdf = /\.pdf$/i.test(name);
+
+      const label = isPdf ? "PDF" : "file";
+
       if(compact){
-        return `\n[Attached PDF: ${name}]`;
+        return `\n[Attached ${label}: ${name}]`;
       }
 
       return (
-        `\n\n[Attached PDF: "${name}" - ${pages} page(s). ` +
-        `Extracted text follows.]\n` +
+        `\n\n[Attached ${label}: "${name}"` +
+        (Number(pages) ? ` - ${docMeta(name, pages, 0)}` : "") +
+        `. Extracted text follows.]\n` +
         body +
-        `\n[End of PDF "${name}"]`
+        `\n[End of ${label} "${name}"]`
       );
 
     }
   );
+
+}
+
+
+function docExt(name){
+
+  const m = /\.([a-z0-9]+)$/i.exec(String(name || ""));
+
+  return m ? m[1].toLowerCase() : "";
+
+}
+
+/* Icon colour + label for the file chips (PDF keeps its red icon). */
+
+function setDocIcon(el, name){
+
+  const ext = docExt(name);
+
+  const colors = {
+    pdf:"#d93025",
+    docx:"#2b579a", odt:"#2b579a", rtf:"#2b579a",
+    xlsx:"#1d6f42", xls:"#1d6f42", xlsm:"#1d6f42", ods:"#1d6f42", csv:"#1d6f42", tsv:"#1d6f42",
+    pptx:"#c43e1c", odp:"#c43e1c"
+  };
+
+  el.textContent = (ext || "FILE").toUpperCase().slice(0, 4);
+
+  el.style.background = colors[ext] || "#5f6368";
+
+}
+
+/* Second line of the chip: pages / slides / sheets, or the text size. */
+
+function docMeta(name, units, chars){
+
+  const ext = docExt(name);
+
+  const n = Number(units) || 0;
+
+  if(n){
+
+    const word =
+      ext === "pptx" || ext === "odp" ? "slide" :
+      ext === "xlsx" || ext === "xls" || ext === "xlsm" || ext === "ods" ? "sheet" :
+      "page";
+
+    return `${n} ${word}${n === 1 ? "" : "s"}`;
+
+  }
+
+  const c = Number(chars) || 0;
+
+  return c >= 1000 ? `${(c / 1000).toFixed(1)}k characters` : `${c} characters`;
 
 }
 
@@ -4472,6 +4529,298 @@ async function handlePdfFile(file){
 
 
 /* =========================================================
+   MORE FILE TYPES
+   Text is extracted in the browser and sent inside the message
+   (same mechanism as PDFs). Libraries load only when needed.
+     - Word (.docx), Excel (.xlsx .xls .xlsm), PowerPoint (.pptx)
+     - OpenDocument (.odt .ods .odp), .rtf
+     - Plain text, Markdown, CSV/TSV, JSON, XML, HTML, SVG and
+       most code files
+========================================================= */
+
+const DOC_TEXT_EXT = new Set(("txt md markdown csv tsv json jsonl xml html htm css svg yml yaml toml ini cfg conf log tex " +
+  "sql py js mjs ts tsx jsx java c h cpp hpp cs go rs rb php swift kt dart scala r lua sh bat ps1 vue").split(" "));
+
+const DOC_OFFICE_EXT = new Set(["docx","xlsx","xls","xlsm","pptx","odt","ods","odp","rtf"]);
+
+const DOC_LIBS = {
+  mammoth:{ url:"https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js", global:"mammoth" },
+  xlsx:{ url:"https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js", global:"XLSX" },
+  jszip:{ url:"https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js", global:"JSZip" }
+};
+
+const docLibPromises = {};
+
+function loadDocLib(key){
+
+  const lib = DOC_LIBS[key];
+
+  if(window[lib.global]){
+    return Promise.resolve(window[lib.global]);
+  }
+
+  if(!docLibPromises[key]){
+
+    docLibPromises[key] = new Promise((resolve, reject) => {
+
+      const tag = document.createElement("script");
+
+      tag.src = lib.url;
+
+      tag.onload = () =>
+        window[lib.global]
+          ? resolve(window[lib.global])
+          : reject(new Error(key + " did not load"));
+
+      tag.onerror = () => {
+        delete docLibPromises[key];
+        reject(new Error("Could not load the reader for this file type. Check your connection."));
+      };
+
+      document.head.appendChild(tag);
+
+    });
+
+  }
+
+  return docLibPromises[key];
+
+}
+
+function isDocFile(file){
+
+  const ext = docExt(file.name);
+
+  return (
+    DOC_TEXT_EXT.has(ext) ||
+    DOC_OFFICE_EXT.has(ext) ||
+    (
+      !ext &&
+      (/^text\//.test(file.type) || file.type === "application/json")
+    )
+  );
+
+}
+
+function xmlToText(xml){
+
+  return String(xml)
+    .replace(/<\/(?:a:p|text:p|text:h|w:p)>/g, "\n")
+    .replace(/<(?:text:line-break|a:br|w:br)\s*\/>/g, "\n")
+    .replace(/<text:tab\s*\/>/g, "\t")
+    .replace(/<text:s\b[^>]*\/>/g, " ")
+    .replace(/<\/table:table-cell>/g, "\t")
+    .replace(/<\/table:table-row>/g, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;|&#39;/g, "'")
+    .replace(/&amp;/g, "&");
+
+}
+
+function rtfToText(rtf){
+
+  return String(rtf)
+    .replace(/\\'([0-9a-f]{2})/gi, (m, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/\\u(-?\d+)\??/g, (m, n) => String.fromCharCode(Number(n) < 0 ? Number(n) + 65536 : Number(n)))
+    .replace(/\\(?:par|line)d?\b ?/g, "\n")
+    .replace(/\\tab\b ?/g, "\t")
+    .replace(/\{\\\*[^{}]*\}/g, " ")
+    .replace(/\{\\(?:fonttbl|colortbl|stylesheet|info|pict)(?:[^{}]|\{[^{}]*\})*\}/g, " ")
+    .replace(/\\[a-z]+-?\d* ?/gi, "")
+    .replace(/\\([{}\\])/g, "$1")
+    .replace(/[{}]/g, "");
+
+}
+
+/* -> { text, units }   units = slides / sheets (0 when not applicable) */
+
+async function extractDocText(file){
+
+  const ext = docExt(file.name);
+
+  if(!DOC_OFFICE_EXT.has(ext)){
+
+    const limit = PDF_MAX_CHARS_PER_FILE * 4;
+
+    const raw = await (file.size > limit ? file.slice(0, limit) : file).text();
+
+    if(/\u0000{3,}/.test(raw.slice(0, 4000))){
+      throw new Error("binary");
+    }
+
+    return { text:raw, units:0 };
+
+  }
+
+  const buffer = await file.arrayBuffer();
+
+  if(ext === "docx"){
+
+    const mammoth = await loadDocLib("mammoth");
+
+    const result = await mammoth.extractRawText({ arrayBuffer:buffer });
+
+    return { text:result.value || "", units:0 };
+
+  }
+
+  if(ext === "xlsx" || ext === "xls" || ext === "xlsm"){
+
+    const XLSX = await loadDocLib("xlsx");
+
+    const book = XLSX.read(buffer, { type:"array" });
+
+    const parts = book.SheetNames.map(
+      name => `## Sheet: ${name}\n` + XLSX.utils.sheet_to_csv(book.Sheets[name])
+    );
+
+    return { text:parts.join("\n\n"), units:book.SheetNames.length };
+
+  }
+
+  if(ext === "rtf"){
+
+    return { text:rtfToText(new TextDecoder("latin1").decode(buffer)), units:0 };
+
+  }
+
+  /* pptx / odt / ods / odp are zip files with XML inside */
+
+  const JSZip = await loadDocLib("jszip");
+
+  const zip = await JSZip.loadAsync(buffer);
+
+  if(ext === "pptx"){
+
+    const slides = Object.keys(zip.files)
+      .map(n => ({ n, i:/^ppt\/slides\/slide(\d+)\.xml$/.exec(n) }))
+      .filter(x => x.i)
+      .sort((a, b) => Number(a.i[1]) - Number(b.i[1]));
+
+    const parts = [];
+
+    for(const slide of slides){
+
+      const xml = await zip.file(slide.n).async("string");
+
+      parts.push(`## Slide ${slide.i[1]}\n` + xmlToText(xml).trim());
+
+    }
+
+    return { text:parts.join("\n\n"), units:slides.length };
+
+  }
+
+  const content = zip.file("content.xml");
+
+  if(!content){
+    throw new Error("unreadable");
+  }
+
+  return { text:xmlToText(await content.async("string")), units:0 };
+
+}
+
+async function handleDocFile(file){
+
+  if(file.size > PDF_MAX_FILE_BYTES){
+
+    alert(`"${file.name}" is too large (max 25 MB).`);
+
+    return;
+
+  }
+
+  const exists =
+    pendingImages.some(
+      item =>
+        item.file.name === file.name &&
+        item.file.size === file.size &&
+        item.file.lastModified === file.lastModified
+    );
+
+  if(exists){
+    return;
+  }
+
+  const entry = {
+    file,
+    kind:"pdf",          /* same pipeline as PDFs: text goes inside the message */
+    url:null,
+    uploadedUrl:null,
+    status:"reading",
+    pages:0,
+    text:""
+  };
+
+  pendingImages.push(entry);
+
+  renderImagePreviews();
+
+  updateSendButton();
+
+  try{
+
+    const result = await extractDocText(file);
+
+    let text = String(result.text || "")
+      .replace(/<<<(END )?PDF/g, "<<($1PDF")
+      .replace(/\r\n/g, "\n")
+      .replace(/\n{4,}/g, "\n\n\n")
+      .trim();
+
+    if(text.replace(/\s/g, "").length < 1){
+      throw new Error("empty");
+    }
+
+    if(text.length > PDF_MAX_CHARS_PER_FILE){
+
+      text =
+        text.slice(0, PDF_MAX_CHARS_PER_FILE) +
+        "\n\n[Note: this file was longer than the limit, so only the first part is included.]";
+
+    }
+
+    entry.text = text;
+
+    entry.pages = result.units || 0;
+
+    entry.status = "ready";
+
+  }catch(error){
+
+    console.error("File read error:", error);
+
+    const index = pendingImages.indexOf(entry);
+
+    if(index !== -1){
+      pendingImages.splice(index, 1);
+    }
+
+    const why =
+      error && error.message === "empty"
+        ? "It has no readable text."
+        : error && error.message === "binary"
+          ? "It looks like a binary file, not text."
+          : /Could not load/.test(String(error?.message))
+            ? error.message
+            : "The file may be damaged or protected.";
+
+    alert(`Could not read "${file.name}". ${why}`);
+
+  }
+
+  renderImagePreviews();
+
+  updateSendButton();
+
+}
+
+
+/* =========================================================
    IMAGE UPLOAD SELECTOR
 ========================================================= */
 
@@ -4502,6 +4851,8 @@ fileInput.addEventListener(
 
     let rejectedSvg = false;
 
+    const unsupportedNames = [];
+
 
     for(
       const file of files
@@ -4516,9 +4867,20 @@ fileInput.addEventListener(
       }
 
 
+      if(isDocFile(file)){
+
+        handleDocFile(file);
+
+        continue;
+
+      }
+
+
       if(
         !file.type.startsWith("image/")
       ){
+
+        unsupportedNames.push(file.name);
 
         continue;
 
@@ -4576,6 +4938,17 @@ fileInput.addEventListener(
     renderImagePreviews();
 
     updateSendButton();
+
+
+    if(unsupportedNames.length){
+
+      alert(
+        "These files are not supported: " + unsupportedNames.join(", ") +
+        "\n\nYou can attach images, PDF, Word (.docx), Excel, PowerPoint (.pptx), " +
+        "text, CSV, JSON and code files. For old .doc / .ppt files, save them as .docx / .pptx first."
+      );
+
+    }
 
 
     if(rejectedSvg){
@@ -4651,8 +5024,7 @@ function renderImagePreviews(){
         icon.className =
           "pdf-chip-icon";
 
-        icon.textContent =
-          "PDF";
+        setDocIcon(icon, image.file.name);
 
         const info =
           document.createElement("div");
@@ -4678,7 +5050,7 @@ function renderImagePreviews(){
         meta.textContent =
           image.status === "reading"
             ? "Reading..."
-            : `${image.pages} page${image.pages === 1 ? "" : "s"}`;
+            : docMeta(image.file.name, image.pages, (image.text || "").length);
 
         info.appendChild(nameEl);
 
@@ -6816,6 +7188,8 @@ newChatBtn.addEventListener(
 
       /* drop the current chat if it is still empty, then show a blank one */
       discardEmptyChat(currentChat);
+
+      selectSeq++;   /* cancel any chat that is still loading */
 
       currentChat = null;
 
