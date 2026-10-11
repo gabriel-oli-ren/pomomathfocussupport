@@ -72,6 +72,7 @@ textarea{
 
 .app{
   height:100vh;
+  height:100dvh;
   display:flex;
   overflow:hidden;
 }
@@ -91,9 +92,14 @@ textarea{
   flex-direction:column;
 
   padding:10px;
+
+  height:100%;
+  min-height:0;
+  overflow:hidden;
 }
 
 .brand{
+  flex-shrink:0;
   display:flex;
   align-items:center;
   gap:9px;
@@ -112,6 +118,7 @@ textarea{
 }
 
 .new-chat-btn{
+  flex-shrink:0;
   display:flex;
   align-items:center;
   gap:10px;
@@ -131,8 +138,12 @@ textarea{
 }
 
 .chat-list{
-  flex:1;
+  flex:1 1 0;
+  min-height:0;
   overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#3a3a3a transparent;
   margin-top:14px;
 
   display:flex;
@@ -141,6 +152,7 @@ textarea{
 }
 
 .chat-list-label{
+  flex-shrink:0;
   font-size:11px;
   color:var(--sidebar-muted);
 
@@ -151,6 +163,7 @@ textarea{
 }
 
 .chat-item{
+  flex-shrink:0;
   position:relative;
 
   display:flex;
@@ -205,6 +218,7 @@ textarea{
 }
 
 .sidebar-bottom{
+  flex-shrink:0;
   border-top:1px solid var(--sidebar-border);
 
   padding-top:10px;
