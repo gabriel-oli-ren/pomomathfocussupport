@@ -1284,6 +1284,10 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 .am-mode{text-align:left;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--main-bg);color:var(--text);transition:transform .15s,box-shadow .15s}
 .am-mode:hover{transform:translateY(-2px);box-shadow:var(--shadow)}.am-mode b{display:block;font-size:14px;margin:6px 0 2px}.am-mode span{font-size:12px;color:var(--muted)}.am-mode i{font-style:normal;font-size:22px}
 @media(max-width:560px){.am-modes{grid-template-columns:repeat(2,1fr)}}
+
+.chat-item .rename-btn:hover{color:var(--sidebar-text,#fff)}
+.chat-item.active .delete-btn{opacity:1}
+.rename-input{flex:1;min-width:0;background:transparent;border:1px solid var(--sidebar-border);border-radius:6px;color:inherit;padding:2px 6px;font:inherit;outline:none}
 </style>
 </head>
 
@@ -2442,8 +2446,13 @@ function renderChatList(){
     );
 
 
+    const ren = document.createElement("button");
+    ren.className = "delete-btn rename-btn"; ren.type = "button"; ren.title = "Rename chat";
+    ren.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+    ren.addEventListener("click", event => { event.stopPropagation(); startRename(chat, title); });
+    title.addEventListener("dblclick", event => { event.stopPropagation(); startRename(chat, title); });
     item.appendChild(title);
-
+    item.appendChild(ren);
     item.appendChild(del);
 
 
@@ -5666,6 +5675,7 @@ async function generateChatTitle(
   chat,
   messages
 ){
+  if(window.AM_manual && window.AM_manual.has(chat.id)){ return; } /* the student renamed it themselves */
 
   if(
     !chat ||
@@ -6953,6 +6963,27 @@ const amGrid = document.createElement("div"); amGrid.className = "am-modes";
 amGrid.innerHTML = Object.entries(AM_MODES).map(([k,v]) => `<button class="am-mode" type="button" data-k="${k}"><i>${v[0]}</i><b>${v[1]}</b><span>${v[2]}</span></button>`).join("");
 amGrid.addEventListener("click", e => { const b = e.target.closest(".am-mode"); if(b) amSetMode(b.dataset.k); });
 emptyState.appendChild(amGrid);
+
+/* ===== rename chat (pencil button or double-click the title) ===== */
+function startRename(chat, titleEl){
+  const box = document.createElement("input");
+  box.className = "rename-input"; box.value = chat.title || ""; box.maxLength = 80;
+  titleEl.replaceWith(box); box.focus(); box.select();
+  let done = false;
+  const finish = async save => {
+    if(done) return; done = true;
+    const v = box.value.trim().replace(/\s+/g, " ");
+    if(save && v && v !== chat.title){
+      const { error } = await supabase.from("am_chats").update({ title: v }).eq("id", chat.id).eq("user_id", currentUser.id);
+      if(error){ console.error("Rename failed:", error); alert("Could not rename the chat."); }
+      else { chat.title = v; if(currentChat && currentChat.id === chat.id) currentChat.title = v; (window.AM_manual ||= new Set()).add(chat.id); }
+    }
+    renderChatList();
+  };
+  box.addEventListener("keydown", e => { if(e.key === "Enter") finish(true); if(e.key === "Escape") finish(false); });
+  box.addEventListener("blur", () => finish(true));
+  box.addEventListener("click", e => e.stopPropagation());
+}
 </script>
 
 </body>
