@@ -2273,27 +2273,9 @@ async function loadChats(){
   renderChatList();
 
 
-  if(
-    chats.length &&
-    !currentChat
-  ){
-
-    const lastId =
-      readLocal(LAST_CHAT_KEY);
-
-    const remembered =
-      chats.find(
-        chat =>
-          chat.id === lastId
-      );
-
-    await selectChat(
-      remembered || chats[0]
-    );
-
-  }else if(!chats.length){
-
-    currentChat = null;
+  /* No chat is created or opened on load: the app starts blank.
+     A chat is only created (and listed) when the first message is sent. */
+  if(!currentChat){
 
     currentMessages = [];
 
@@ -6832,7 +6814,17 @@ newChatBtn.addEventListener(
         "auto";
 
 
-      await createNewChat();
+      /* drop the current chat if it is still empty, then show a blank one */
+      discardEmptyChat(currentChat);
+
+      currentChat = null;
+
+      currentMessages = [];
+
+      renderChatList();
+
+      renderMessages();
+
 
       input.focus();
 
