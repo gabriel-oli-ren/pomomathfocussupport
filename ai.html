@@ -6845,6 +6845,11 @@ async function amWatermark(blob){
 window.AM.makeImage = async body => {
   const raw = lastText(body).replace(/\s+/g," "); const c1 = raw.replace(IMG_STRIP,"").trim(), prompt = (c1 && c1 !== raw ? c1 : raw.replace(IMG_STRIP2,"").trim() || raw).slice(0,500);
   window.AM.image = false; amImg.classList.remove("on"); input.placeholder = "Message Artificial Maths...";
+  { const q = window.AM.q;
+    if(q && q.plan !== "owner" && q.plan !== "premium"){
+      if(q.tier?.image === "premium"){ amModal.classList.add("show"); throw new Error("Image generation is a Premium feature."); }
+      if(q.lim?.image != null && (q.used?.image||0) >= q.lim.image) throw new Error("You've used all of today's free images. Come back tomorrow or upgrade to Premium.");
+    } }
   const stop = amShowCreating();
   try{
     const r = await callEdgeFunction({ mode: "image", messages: [{ role: "user", content: prompt }] });
@@ -6861,16 +6866,27 @@ window.AM.makeImage = async body => {
 // Auto model: choose by the message, skipping models with no quota left
 window.AM.pick = body => {
   if(body.mode) return "fast";
-  if(window.AM.model !== "auto") return window.AM.model;
-  const q = window.AM.q, paid = q && (q.plan === "premium" || q.plan === "owner");
+  const q = window.AM.q;
+  if(!q) return window.AM.model === "auto" ? "fast" : window.AM.model;   // quota not loaded yet: let the server decide
+  const plan = q.plan || "free", owner = plan === "owner", paid = owner || plan === "premium";
+  const tier = q.tier || {}, lim = q.lim || {}, used = q.used || (q.used = {});
+  const left = k => owner || lim[k] == null || (used[k]||0) < lim[k];
+  const allowed = k => (tier[k] !== "premium" || paid) && left(k);
+  const take = k => { used[k] = (used[k]||0) + 1; return k; };
+  const block = (msg, modal) => { if(modal && typeof amModal !== "undefined") amModal.classList.add("show"); throw new Error(msg); };
+  if(window.AM.model !== "auto"){
+    const k = window.AM.model;
+    if(tier[k] === "premium" && !paid) block(NAMES[k] + " is a Premium model. Upgrade, or switch to Auto.", true);
+    if(!left(k)) block("You've used all of today's " + NAMES[k] + " messages. Switch to Auto or another model, or come back tomorrow.", !paid);
+    return take(k);
+  }
   const text = lastText(body);
   const hasImg = (body.messages||[]).some(m => Array.isArray(m.content) && m.content.some(x => x.type === "image_url"));
   const hard = text.length > 400 || /prove|proof|derive|integral|differential|theorem|step.by.step|solve|equation|optimi[sz]|probabilit|matrix|eigen|olympiad|limit/i.test(text);
   const prefs = hasImg ? ["vision","fast"] : hard ? (paid ? ["pro","reasoning","fast"] : ["reasoning","fast"]) : ["fast","reasoning"];
-  const ok = k => !q || (q.tier[k] !== "premium" || paid) && (q.plan === "owner" || q.lim[k] == null || (q.used[k]||0) < q.lim[k]);
-  const k = prefs.find(ok) || prefs[0];
-  if(q && q.used) q.used[k] = (q.used[k]||0) + 1;
-  return k;
+  const k = prefs.find(allowed);
+  if(!k) block("You've reached today's free limit. Upgrade to Premium, or come back tomorrow.", !paid);
+  return take(k);
 };
 function amRender(q){
   window.AM.q = q;
@@ -6900,13 +6916,14 @@ async function amRefresh(){
       supabase.from("am_profiles").select("plan,premium_until").maybeSingle(),
       supabase.from("am_limits").select("*"),
       supabase.from("am_usage").select("model,count").eq("day", day)]);
+    if(p.error || l.error || u.error) console.error("Limits load failed:", p.error || l.error || u.error);
     let plan = p.data?.plan || "free";
     if(plan === "premium" && p.data.premium_until && new Date(p.data.premium_until) < new Date()) plan = "free";
     const q = { plan, used:{}, lim:{}, tier:{} };
     for(const r of l.data||[]){ q.lim[r.model] = plan === "premium" ? r.premium_limit : r.free_limit; q.tier[r.model] = r.tier; }
     for(const r of u.data||[]) q.used[r.model] = r.count;
     amRender(q);
-  }catch(e){ amRender(null); }
+  }catch(e){ console.error("amRefresh failed:", e); amRender(null); }
 }
 amSel.addEventListener("change", () => {
   if(amSel.selectedOptions[0].textContent.includes("🔒")){ amSel.value = window.AM.model; amModal.classList.add("show"); return; }
@@ -6923,7 +6940,7 @@ document.getElementById("amRedeem").addEventListener("click", async () => {
   const { data, error } = await supabase.rpc("am_redeem", { p_code: code });
   if(error){ msg.style.color = "var(--danger)"; msg.textContent = error.message; return; }
   msg.style.color = "#16a34a"; msg.textContent = data; document.getElementById("amCode").value = "";
-  amRender({plan:"premium"}); amRefresh(); amCelebrate(); setTimeout(() => amModal.classList.remove("show"), 1200);
+  amRender({plan:"premium",used:{},lim:{},tier:{}}); amRefresh(); amCelebrate(); setTimeout(() => amModal.classList.remove("show"), 1200);
 });
 document.getElementById("amClose").addEventListener("click", () => amModal.classList.remove("show"));
 sendBtn.addEventListener("click", () => { setTimeout(amRefresh, 5000); setTimeout(amRefresh, 15000); });
