@@ -146,9 +146,7 @@ textarea{
   scrollbar-color:#3a3a3a transparent;
   margin-top:14px;
 
-  display:flex;
-  flex-direction:column;
-  gap:2px;
+  display:block;
 }
 
 .chat-list-label{
@@ -164,6 +162,8 @@ textarea{
 
 .chat-item{
   flex-shrink:0;
+  min-height:38px;
+  margin-bottom:2px;
   position:relative;
 
   display:flex;
@@ -2233,6 +2233,27 @@ async function loadChats(){
   chats =
     data || [];
 
+  /* remove leftover empty "New chat" entries from earlier sessions */
+  try{
+    const keepId = currentChat ? currentChat.id : null;
+    const cand = chats.filter(c => c.title === "New chat" && c.id !== keepId).map(c => c.id);
+    if(cand.length){
+      const { data: usedRows, error: uErr } = await supabase.from("am_messages").select("chat_id").in("chat_id", cand);
+      if(!uErr){
+        const usedIds = new Set((usedRows || []).map(r => r.chat_id));
+        const empty = cand.filter(id => !usedIds.has(id));
+        if(empty.length){
+          const { error: dErr } = await supabase.from("am_chats").delete().in("id", empty).eq("user_id", userId);
+          if(!dErr) chats = chats.filter(c => !empty.includes(c.id));
+        }
+      }
+    }
+  }catch(e){ console.error("Empty chat cleanup failed:", e); }
+
+  if(seq !== loadSeq || !currentUser){
+    return true;
+  }
+
 
   if(currentChat){
 
@@ -2491,12 +2512,48 @@ function renderChatList(){
    SELECT CHAT
 ========================================================= */
 
+/* =========================================================
+   EMPTY CHATS: removed when you open another chat or close the page
+========================================================= */
+
+const isEmptyChat = chat =>
+  !!chat && chat.title === "New chat" &&
+  !!currentChat && currentChat.id === chat.id &&
+  currentMessages.length === 0 && !sending;
+
+function discardEmptyChat(chat){
+  if(!isEmptyChat(chat) || !currentUser) return;
+  const id = chat.id;
+  chats = chats.filter(c => c.id !== id);
+  supabase.from("am_chats").delete().eq("id", id).eq("user_id", currentUser.id)
+    .then(({ error }) => { if(error) console.error("Could not remove empty chat:", error); });
+}
+
+// closing / reloading the page: keepalive request so it still goes out
+window.AM_tok = "";
+supabase.auth.getSession().then(r => { window.AM_tok = r?.data?.session?.access_token || window.AM_tok; }).catch(() => {});
+supabase.auth.onAuthStateChange((_e, ses) => { window.AM_tok = ses?.access_token || ""; });
+window.addEventListener("pagehide", () => {
+  try{
+    if(!isEmptyChat(currentChat) || !currentUser || !window.AM_tok) return;
+    fetch(`${SUPABASE_URL}/rest/v1/am_chats?id=eq.${encodeURIComponent(currentChat.id)}&user_id=eq.${encodeURIComponent(currentUser.id)}`, {
+      method: "DELETE", keepalive: true,
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${window.AM_tok}` }
+    });
+  }catch(_){}
+});
+
+
 async function selectChat(chat, force){
 
   if(sending && !force){
     return;
   }
 
+
+  if(currentChat && currentChat.id !== chat.id){
+    discardEmptyChat(currentChat);
+  }
 
   const seq = ++selectSeq;
 
@@ -2576,6 +2633,12 @@ async function createNewChat(){
       "You must be signed in."
     );
 
+  }
+
+  if(isEmptyChat(currentChat)){
+    renderChatList();
+    renderMessages();
+    return currentChat;
   }
 
 
