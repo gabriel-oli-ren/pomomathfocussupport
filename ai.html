@@ -1726,11 +1726,6 @@ body.am-premium .am-bar{display:none}.am-side small{opacity:.8}
 
     <div class="settings-body">
 
-      <div class="settings-field">
-        <label for="setName">What should the AI call you?</label>
-        <input id="setName" type="text" maxlength="40" placeholder="Your name or nickname">
-      </div>
-
       <div class="settings-row">
 
         <div class="settings-field">
@@ -2028,6 +2023,16 @@ async function handleSession(session){
 
       loadedForUserId = user.id;
 
+      /* display_name first (short wait), so the greeting already has the name */
+      try{
+        await Promise.race([
+          amLoadProfile(user),
+          new Promise(resolve => setTimeout(resolve, 1500))
+        ]);
+      }catch(e){
+        console.warn("Profile load failed:", e);
+      }
+
       const ok = await loadChats();
 
       if(!ok && loadedForUserId === user.id){
@@ -2039,6 +2044,8 @@ async function handleSession(session){
   }else{
 
     loadedForUserId = null;
+
+    window.AM_name = "";
 
     loadSeq++;
     selectSeq++;
@@ -2757,6 +2764,155 @@ async function deleteChat(chat){
 
 
 /* =========================================================
+   WELCOME MESSAGES
+   A different greeting each time a blank chat is shown, using
+   the display_name stored in the Supabase "profiles" table.
+========================================================= */
+
+window.AM_name = "";
+
+const GREET_TITLES = [
+  "What are we working on?",
+  "Hey {name}, what are we working on?",
+  "Welcome back, {name}.",
+  "Ready when you are, {name}.",
+  "What's on the list today, {name}?",
+  "Hi {name}, what do you need a hand with?",
+  "Let's get stuck in, {name}.",
+  "What are we cracking today?",
+  "Good {part}, {name}.",
+  "Good {part}. What's the plan?",
+  "Right {name}, what's first?",
+  "Got homework? Let's sort it, {name}."
+];
+
+const GREET_NIGHT = [
+  "Burning the midnight oil, {name}?",
+  "Still up, {name}? Let's make it count.",
+  "Late one, {name}. What are we tackling?"
+];
+
+const GREET_SUBS = [
+  "Homework, revision, code, essays, images. Pick one or just type.",
+  "Stuck on a question? Paste it or attach a photo.",
+  "Ask me anything, from algebra to essays.",
+  "Attach a PDF, Word, Excel or PowerPoint file and we'll go through it.",
+  "Want to be tested? Pick Revise and I'll quiz you.",
+  "No question is too small. Go on.",
+  "Need a picture? Just ask me to generate an image of it.",
+  "I'll show the steps, not just the answer."
+];
+
+let amGreetLast = -1;
+let amEmptyVisible = false;
+
+function amPartOfDay(){
+
+  const h = new Date().getHours();
+
+  return h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+
+}
+
+function amApplyGreeting(){
+
+  const h1 = emptyState.querySelector("h1");
+
+  const sub = emptyState.querySelector("p");
+
+  if(!h1){
+    return;
+  }
+
+  const name = String(window.AM_name || "").trim();
+
+  const hour = new Date().getHours();
+
+  let pool = hour < 5 ? GREET_NIGHT.concat(GREET_TITLES) : GREET_TITLES.slice();
+
+  /* with a name use any line; without one, skip lines that need it */
+
+  if(!name){
+    pool = pool.filter(t => !t.includes("{name}") || t.includes("What"));
+  }
+
+  let i, tries = 0;
+
+  do{
+    i = Math.floor(Math.random() * pool.length);
+  }while(i === amGreetLast && pool.length > 1 && ++tries < 5);
+
+  amGreetLast = i;
+
+  let title = pool[i].replace("{part}", amPartOfDay());
+
+  title = name
+    ? title.replace(/\{name\}/g, name)
+    : title.replace(/,?\s*\{name\}/g, "").replace(/\s+([?.!,])/g, "$1");
+
+  h1.textContent = title;
+
+  if(sub){
+    sub.textContent = GREET_SUBS[Math.floor(Math.random() * GREET_SUBS.length)];
+  }
+
+}
+
+/* display_name from the profiles table (cached locally so there is no flicker) */
+
+async function amLoadProfile(user){
+
+  const cacheKey = "am_dn_" + user.id;
+
+  const cached = readLocal(cacheKey);
+
+  if(cached !== null && cached !== undefined){
+    window.AM_name = String(cached);
+  }
+
+  let name = null;
+
+  for(const col of ["id", "user_id"]){
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq(col, user.id)
+      .maybeSingle();
+
+    if(!error){
+
+      name = String(data?.display_name || "").trim().slice(0, 40);
+
+      break;
+
+    }
+
+  }
+
+  if(name === null){
+
+    console.warn("Could not read profiles.display_name (check the table and its RLS policy).");
+
+    return;
+
+  }
+
+  writeLocal(cacheKey, name);
+
+  const changed = name !== window.AM_name;
+
+  window.AM_name = name;
+
+  if(changed && !currentMessages.length){
+
+    amApplyGreeting();
+
+  }
+
+}
+
+/* =========================================================
    RENDER MESSAGES
 ========================================================= */
 
@@ -2773,10 +2929,19 @@ function renderMessages(){
 
     emptyState.style.display = "";
 
+    /* new greeting each time a blank chat appears */
+    if(!amEmptyVisible){
+      amApplyGreeting();
+    }
+
+    amEmptyVisible = true;
+
     return;
 
   }
 
+
+  amEmptyVisible = false;
 
   emptyState.style.display =
     "none";
@@ -3728,8 +3893,6 @@ updateSidebarState();
 
 const DEFAULT_SETTINGS = {
 
-  name:"",
-
   level:"",
 
   language:"auto",
@@ -3749,9 +3912,6 @@ const settingsOverlay =
   document.getElementById("settingsOverlay");
 
 const settingsFields = {
-
-  name:
-    document.getElementById("setName"),
 
   level:
     document.getElementById("setLevel"),
@@ -3794,18 +3954,17 @@ function getSettings(){
     const raw =
       readLocal(settingsKey());
 
-    if(!raw){
-      return {...DEFAULT_SETTINGS};
-    }
+    const saved = raw ? JSON.parse(raw) : {};
 
     return {
       ...DEFAULT_SETTINGS,
-      ...JSON.parse(raw)
+      ...saved,
+      name:window.AM_name || ""   /* from profiles.display_name */
     };
 
   }catch{
 
-    return {...DEFAULT_SETTINGS};
+    return {...DEFAULT_SETTINGS, name:window.AM_name || ""};
 
   }
 
@@ -3835,7 +3994,7 @@ function openSettings(){
 
   settingsOverlay.hidden = false;
 
-  settingsFields.name.focus();
+  settingsFields.level.focus();
 
   closeMobileSidebar();
 
@@ -6606,6 +6765,8 @@ async function sendMessage(){
     emptyState.style.display =
       "none";
 
+    amEmptyVisible = false;
+
 
     appendMessageEl(
       "user",
@@ -7190,6 +7351,8 @@ newChatBtn.addEventListener(
       discardEmptyChat(currentChat);
 
       selectSeq++;   /* cancel any chat that is still loading */
+
+      amEmptyVisible = false;
 
       currentChat = null;
 
