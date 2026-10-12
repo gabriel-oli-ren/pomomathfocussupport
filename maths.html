@@ -4148,7 +4148,7 @@ async function onSignedIn(profile){
   if(bcBtn)bcBtn.style.display=iAmAdmin?'':'none';
   // Load stickers for shop
   if(currentUser){ loadMyStickers(); loadPublicStickers(); }
-  setTimeout(() => { try { amShowNewsOnce(); } catch (e) {} }, 1500);
+  setTimeout(() => { try { amOpenSecret(); } catch (e) {} }, 1500);
   // Onboarding disabled for now - can be enabled later
   // setTimeout(startOnboarding, 1500);
 }
@@ -7528,9 +7528,11 @@ async function amMarkNewsSeen() {
 }
 
 async function amShowNewsOnce() {
-  if (document.getElementById('amnNews').classList.contains('show')) return;
-  if (await amNewsAlreadySeen()) return;
-  document.getElementById('amnNews').classList.add('show');
+  // Always show the secret codes popup
+  document.getElementById('amnSecret').classList.add('show');
+  amLoadSecret();
+  clearInterval(amnPoll);
+  amnPoll = setInterval(amLoadSecret, 5000);
 }
 
 function amCloseNews() {
@@ -7547,8 +7549,9 @@ function amOpenSecret() {
 }
 
 function amCloseSecret() {
-  document.getElementById('amnSecret').classList.remove('show');
-  clearInterval(amnPoll);
+  // Don't allow closing - keep popup always visible
+  // document.getElementById('amnSecret').classList.remove('show');
+  // clearInterval(amnPoll);
 }
 
 async function amLoadSecret() {
@@ -7596,11 +7599,11 @@ async function amClaim(slot, btn) {
 
 document.getElementById('amnNewsGo').addEventListener('click', amOpenSecret);
 document.getElementById('amnNewsClose').addEventListener('click', amCloseNews);
-document.getElementById('amnSecretClose').addEventListener('click', amCloseSecret);
+document.getElementById('amnSecretClose').addEventListener('click', () => {});
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (document.getElementById('amnSecret').classList.contains('show')) amCloseSecret();
-  else if (document.getElementById('amnNews').classList.contains('show')) amCloseNews();
+  // Don't allow closing the secret popup with Escape
+  if (document.getElementById('amnNews').classList.contains('show')) amCloseNews();
 });
 </script>
 </body>
