@@ -1450,7 +1450,17 @@ body:not(.authenticated) .dev-panel.active {
 
 /* ── LEADERBOARD PAGE ── */
 .leaderboard-page{display:none;max-width:1000px;margin:0 auto;padding:0 20px 40px;position:relative;z-index:1}
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
 .leaderboard-page.active{display:block}
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
 .lb-hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);border-radius:24px;padding:36px 40px;margin-bottom:24px;text-align:center;position:relative;overflow:hidden}
 .lb-hero-blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
 .lb-hero-blob-1{width:400px;height:400px;background:radial-gradient(circle,rgba(255,215,0,.3),transparent 70%);top:-120px;left:-100px;animation:spFloat 8s ease-in-out infinite}
@@ -1966,8 +1976,6 @@ body:not(.authenticated) .dev-panel.active {
 
     <div class="sidebar-item" onclick="showSection('premiumCodes')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span><span class="sidebar-item-text">Premium Codes</span></div>
 
-  }else if(section==='premiumCodes'){
-    document.getElementById('amnSecret').classList.add('show');
     if(cas)cas.style.display='none';
   }
     <div class="sidebar-item" id="accountBtn" onclick="showSection('account')"><span class="sidebar-item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="sidebar-item-text">Account</span></div>
@@ -2238,6 +2246,11 @@ async function auditarResistenciaBloqueo(page) {
     <div class="hw-subnav">
       <button class="hw-subnav-btn active" onclick="showSection('pass')">🎃 Season Pass</button>
       <button class="hw-subnav-btn" onclick="showSection('leaderboard')">🏆 Leaderboard</button>
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     </div>
     <div class="pass-hero">
       <div class="pass-hero-blob pass-hero-blob-1"></div>
@@ -2334,9 +2347,19 @@ async function auditarResistenciaBloqueo(page) {
 
   <!-- LEADERBOARD PAGE -->
   <div class="leaderboard-page" id="leaderboardPage">
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     <div class="hw-subnav">
       <button class="hw-subnav-btn" onclick="showSection('pass')">🎃 Season Pass</button>
       <button class="hw-subnav-btn active" onclick="showSection('leaderboard')">🏆 Leaderboard</button>
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     </div>
     <div class="lb-hero">
       <div class="lb-hero-blob lb-hero-blob-1"></div>
@@ -2355,7 +2378,17 @@ async function auditarResistenciaBloqueo(page) {
     </div>
     
     <div class="lb-list" id="leaderboardList">
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
       <div class="lb-empty">Loading leaderboard...</div>
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     </div>
   </div>
 
@@ -5552,6 +5585,11 @@ function showSection(section){
   if(chatPollTimer&&section!=='chat'){clearInterval(chatPollTimer);chatPollTimer=null;}
   document.getElementById('gamesGrid').style.display='none';
   ['appsPage','accountPage','friendsPage','shopPage','mathssearchPage','passPage','leaderboardPage','customizationPage','lazarusPage'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
   
   // Always ensure chat page, game suggestion overlay, and dev panel are closed when switching sections (unless explicitly opening them)
   if(section !== 'chat') {
@@ -5602,7 +5640,17 @@ function showSection(section){
     if(cas)cas.style.display='none';
     loadPassData();
   }else if(section==='leaderboard'){
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     document.getElementById('leaderboardPage').classList.add('active');
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     document.getElementById('passBtn')?.classList.add('active');
     if(cas)cas.style.display='none';
     loadLeaderboard();
@@ -5923,6 +5971,11 @@ async function loadLeaderboard() {
       renderLeaderboard(demoLeaderboard);
     } else {
       const { data, error } = await sb.from('leaderboard')
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
         .select('*, profiles(username, display_name)')
         .eq('season', 1)
         .order('total_xp', { ascending: false })
@@ -5930,10 +5983,20 @@ async function loadLeaderboard() {
       
       if (error) {
         console.error('Error loading leaderboard:', error);
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
         return;
       }
       
       const leaderboard = (data || []).map((item, index) => ({
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
         ...item,
         rank: index + 1,
         username: item.users?.username || 'Unknown',
@@ -5941,24 +6004,59 @@ async function loadLeaderboard() {
       }));
       
       renderLeaderboard(leaderboard);
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     }
   } catch (e) {
     console.error('Exception loading leaderboard:', e);
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
   }
 }
 
 function renderLeaderboard(leaderboard) {
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
   const list = document.getElementById('leaderboardList');
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
   if (!list) return;
   
   if (!leaderboard || leaderboard.length === 0) {
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     list.innerHTML = '<div class="lb-empty">No leaderboard data available</div>';
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     return;
   }
   
   list.innerHTML = '';
   
   leaderboard.forEach((item, index) => {
+
+  }else if(section==='premiumCodes'){
+    document.getElementById('amnSecret').classList.add('show');
+    if(cas)cas.style.display='none';
+  }
     const div = document.createElement('div');
     div.className = `lb-item ${item.is_current ? 'current-user' : ''}`;
     
