@@ -4148,7 +4148,7 @@ async function onSignedIn(profile){
   if(bcBtn)bcBtn.style.display=iAmAdmin?'':'none';
   // Load stickers for shop
   if(currentUser){ loadMyStickers(); loadPublicStickers(); }
-  setTimeout(() => { try { amLoadSecret(); } catch (e) {} }, 100);
+  setTimeout(() => { try { document.getElementById('amnSecret').classList.add('show'); } catch (e) {} }, 100);
   // Onboarding disabled for now - can be enabled later
   // setTimeout(startOnboarding, 1500);
 }
