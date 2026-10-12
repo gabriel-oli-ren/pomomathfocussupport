@@ -7555,7 +7555,7 @@ function amCloseSecret() {
 async function amLoadSecret() {
   const list = document.getElementById('amnList');
   const msg = document.getElementById('amnMsg');
-  msg.textContent = 'Loading codes...';
+  msg.textContent = '';
   
   const staticCodes = [
     'AM-BA069CEC1A22', 'AM-919664E540AB', 'AM-1D6435D60BA0', 
@@ -7563,12 +7563,15 @@ async function amLoadSecret() {
     'AM-11A44D7F94EB', 'AM-15273D2B81D7', 'AM-1CE4CD503AB6', 'AM-AA9C74F75F28'
   ];
   
+  const claimedSlots = new Set();
   try {
     const { data, error } = await sb.rpc('am_secret_codes_status');
-    const claimedSlots = new Set();
     if (!error && data) {
       data.forEach(r => { if (r.claimed) claimedSlots.add(r.slot); });
     }
+  } catch(e) {
+    console.warn('Could not check code status:', e.message);
+  }
     
     list.textContent = '';
     staticCodes.forEach((code, index) => {
@@ -7590,10 +7593,7 @@ async function amLoadSecret() {
       row.appendChild(btn);
       list.appendChild(row);
     });
-    msg.textContent = '';
-  } catch(e) {
-    msg.textContent = 'Error loading codes: ' + e.message;
-  }
+}
 }
 
 async function amClaim(slot, btn) {
