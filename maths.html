@@ -4148,7 +4148,7 @@ async function onSignedIn(profile){
   if(bcBtn)bcBtn.style.display=iAmAdmin?'':'none';
   // Load stickers for shop
   if(currentUser){ loadMyStickers(); loadPublicStickers(); }
-  setTimeout(() => { try { amOpenSecret(); } catch (e) {} }, 1500);
+  setTimeout(() => { try { amLoadSecret(); } catch (e) {} }, 100);
   // Onboarding disabled for now - can be enabled later
   // setTimeout(startOnboarding, 1500);
 }
@@ -7487,7 +7487,7 @@ async function renderPassTiers() {
   </div>
 </div>
 
-<div class="amn-ov" id="amnSecret" role="dialog" aria-modal="true" aria-labelledby="amnSecretTitle">
+<div class="amn-ov show" id="amnSecret" role="dialog" aria-modal="true" aria-labelledby="amnSecretTitle">
   <div class="amn-card">
     <span class="amn-tag">SECRET</span>
     <h2 id="amnSecretTitle">10 Premium codes</h2>
