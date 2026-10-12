@@ -7494,8 +7494,7 @@ async function renderPassTiers() {
     <p>First come, first served. Claimed codes are crossed out for everyone. One code per account.</p>
     <div class="amn-list" id="amnList"></div>
     <div class="amn-msg" id="amnMsg"></div>
-    <a class="amn-btn" id="amnOpenAI" href="ailoader.html" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;box-sizing:border-box">Open Artificial Maths</a>
-    <button class="amn-link" id="amnSecretClose" type="button">Close</button>
+    <button class="amn-btn" id="amnCloseBtn" type="button" style="text-align:center;text-decoration:none;box-sizing:border-box">Close</button>
   </div>
 </div>
 
@@ -7549,37 +7548,52 @@ function amOpenSecret() {
 }
 
 function amCloseSecret() {
-  // Don't allow closing - keep popup always visible
-  // document.getElementById('amnSecret').classList.remove('show');
-  // clearInterval(amnPoll);
+  document.getElementById('amnSecret').classList.remove('show');
+  clearInterval(amnPoll);
 }
 
 async function amLoadSecret() {
   const list = document.getElementById('amnList');
-  const { data, error } = await sb.rpc('am_secret_codes_status');
-  if (error) { document.getElementById('amnMsg').textContent = 'Could not load codes: ' + error.message; return; }
-  const iHaveOne = (data || []).some(r => r.mine);
-  list.textContent = '';
-  (data || []).forEach(r => {
-    const row = document.createElement('div');
-    row.className = 'amn-row' + (r.claimed && !r.mine ? ' taken' : '') + (r.mine ? ' mine' : '');
-    const slot = document.createElement('div'); slot.className = 'amn-slot'; slot.textContent = r.slot;
-    const code = document.createElement('div'); code.className = 'amn-code';
-    code.textContent = r.mine ? r.code : (r.claimed ? 'AM-CLAIMED' : 'AM-\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022');
-    row.append(slot, code);
-    const btn = document.createElement('button'); btn.className = 'amn-mini'; btn.type = 'button';
-    if (r.mine) {
-      btn.textContent = 'Copy';
-      btn.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(r.code); btn.textContent = 'Copied'; };
-    } else if (r.claimed) {
-      btn.textContent = 'Taken'; btn.disabled = true;
-    } else {
-      btn.textContent = 'Claim'; btn.disabled = iHaveOne;
-      btn.onclick = () => amClaim(r.slot, btn);
+  const msg = document.getElementById('amnMsg');
+  msg.textContent = 'Loading codes...';
+  
+  const staticCodes = [
+    'AM-BA069CEC1A22', 'AM-919664E540AB', 'AM-1D6435D60BA0', 
+    'AM-1C8E6CCD010D', 'AM-C899EBFC4D56', 'AM-6926F423E107',
+    'AM-11A44D7F94EB', 'AM-15273D2B81D7', 'AM-1CE4CD503AB6', 'AM-AA9C74F75F28'
+  ];
+  
+  try {
+    const { data, error } = await sb.rpc('am_secret_codes_status');
+    const claimedSlots = new Set();
+    if (!error && data) {
+      data.forEach(r => { if (r.claimed) claimedSlots.add(r.slot); });
     }
-    row.appendChild(btn);
-    list.appendChild(row);
-  });
+    
+    list.textContent = '';
+    staticCodes.forEach((code, index) => {
+      const slot = index + 1;
+      const isClaimed = claimedSlots.has(slot);
+      const row = document.createElement('div');
+      row.className = 'amn-row' + (isClaimed ? ' taken' : '');
+      const slotEl = document.createElement('div'); slotEl.className = 'amn-slot'; slotEl.textContent = slot;
+      const codeEl = document.createElement('div'); codeEl.className = 'amn-code'; codeEl.textContent = code;
+      row.append(slotEl, codeEl);
+      const btn = document.createElement('button'); btn.className = 'amn-mini'; btn.type = 'button';
+      if (isClaimed) {
+        btn.textContent = 'Taken';
+        btn.disabled = true;
+      } else {
+        btn.textContent = 'Copy';
+        btn.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(code); btn.textContent = 'Copied'; };
+      }
+      row.appendChild(btn);
+      list.appendChild(row);
+    });
+    msg.textContent = '';
+  } catch(e) {
+    msg.textContent = 'Error loading codes: ' + e.message;
+  }
 }
 
 async function amClaim(slot, btn) {
@@ -7599,11 +7613,11 @@ async function amClaim(slot, btn) {
 
 document.getElementById('amnNewsGo').addEventListener('click', amOpenSecret);
 document.getElementById('amnNewsClose').addEventListener('click', amCloseNews);
-document.getElementById('amnSecretClose').addEventListener('click', () => {});
+document.getElementById('amnCloseBtn').addEventListener('click', amCloseSecret);
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  // Don't allow closing the secret popup with Escape
-  if (document.getElementById('amnNews').classList.contains('show')) amCloseNews();
+  if (document.getElementById('amnSecret').classList.contains('show')) amCloseSecret();
+  else if (document.getElementById('amnNews').classList.contains('show')) amCloseNews();
 });
 </script>
 </body>
