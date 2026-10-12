@@ -7553,44 +7553,47 @@ function amCloseSecret() {
 }
 
 async function amLoadSecret() {
-  const list = document.getElementById('amnList');
-  const msg = document.getElementById('amnMsg');
-  msg.textContent = '';
+  const list = document.getElementById("amnList");
+  list.textContent = "";
   
-  const staticCodes = [
-    'AM-BA069CEC1A22', 'AM-919664E540AB', 'AM-1D6435D60BA0', 
-    'AM-1C8E6CCD010D', 'AM-C899EBFC4D56', 'AM-6926F423E107',
-    'AM-11A44D7F94EB', 'AM-15273D2B81D7', 'AM-1CE4CD503AB6', 'AM-AA9C74F75F28'
+  const codes = [
+    "AM-BA069CEC1A22", "AM-919664E540AB", "AM-1D6435D60BA0", 
+    "AM-1C8E6CCD010D", "AM-C899EBFC4D56", "AM-6926F423E107",
+    "AM-11A44D7F94EB", "AM-15273D2B81D7", "AM-1CE4CD503AB6", "AM-AA9C74F75F28"
   ];
   
-  const claimedSlots = new Set();
-  try {
-    const { data, error } = await sb.rpc('am_secret_codes_status');
-    if (!error && data) {
-      data.forEach(r => { if (r.claimed) claimedSlots.add(r.slot); });
-    }
-  } catch(e) {
-    console.warn('Could not check code status:', e.message);
-  }
+  codes.forEach(code => {
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.gap = "10px";
+    row.style.padding = "8px 12px";
+    row.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
     
-    list.textContent = '';
-    staticCodes.forEach((code, index) => {
-      const slot = index + 1;
-      const isClaimed = claimedSlots.has(slot);
-      const row = document.createElement('div');
-      row.className = 'amn-row' + (isClaimed ? ' taken' : '');
-      const slotEl = document.createElement('div'); slotEl.className = 'amn-slot'; slotEl.textContent = slot;
-      const codeEl = document.createElement('div'); codeEl.className = 'amn-code'; codeEl.textContent = code;
-      row.append(slotEl, codeEl);
-      const btn = document.createElement('button'); btn.className = 'amn-mini'; btn.type = 'button';
-      if (isClaimed) {
-        btn.textContent = 'Taken';
-        btn.disabled = true;
-      } else {
-        btn.textContent = 'Copy';
-        btn.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(code); btn.textContent = 'Copied'; };
-      }
-      row.appendChild(btn);
+    const codeEl = document.createElement("span");
+    codeEl.textContent = code;
+    codeEl.style.flex = "1";
+    codeEl.style.fontFamily = "monospace";
+    codeEl.style.fontSize = "14px";
+    
+    const btn = document.createElement("button");
+    btn.textContent = "Copy";
+    btn.type = "button";
+    btn.style.padding = "4px 10px";
+    btn.style.background = "#6366f1";
+    btn.style.color = "#fff";
+    btn.style.border = "none";
+    btn.style.borderRadius = "6px";
+    btn.style.cursor = "pointer";
+    btn.onclick = () => {
+      navigator.clipboard.writeText(code);
+      btn.textContent = "Copied!";
+      setTimeout(() => btn.textContent = "Copy", 2000);
+    };
+    
+    list.appendChild(row);
+  });
+}
       list.appendChild(row);
     });
 }
