@@ -3173,31 +3173,75 @@ function initializeGoogleSignIn() {
 // Stores every rejected (non-allowed domain) sign-in attempt in the
 // `unauthorised_atempts` table. Successful logins are never stored here.
 // ══════════════════════════════════════════════════════════════════
-async function logUnauthorisedAttempt(email, payload) {
+// Google ID tokens are base64URL (-/_ and no padding): plain atob() throws on many of them,
+// and that exception used to abort the handler BEFORE the attempt was logged.
+function decodeJwtPayload(token) {
+  const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
   try {
-    if (!sb) return;
-    const row = {
-      email: email || null,
-      domain: (email && email.includes('@')) ? email.split('@').pop().toLowerCase() : null,
-      name: (payload && payload.name) || null,
-      reason: 'domain_not_allowed',
-      user_agent: navigator.userAgent,
-      page_url: window.location.href
-    };
-    const { error } = await sb.from('unauthorised_atempts').insert(row);
-    if (error) console.warn('Could not log unauthorised attempt:', error.message);
-  } catch (e) {
-    console.warn('Could not log unauthorised attempt:', e);
+    return JSON.parse(decodeURIComponent(Array.prototype.map.call(bin, c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('')));
+  } catch (e) { return JSON.parse(bin); }
+}
+
+async function sendUnauthorisedRow(row) {
+  if (!sb) return false;
+  // 1st choice: SECURITY DEFINER RPC (works even if the table has no anon INSERT policy)
+  try {
+    const r = await sb.rpc('log_unauthorised_attempt', {
+      p_email: row.email, p_domain: row.domain, p_name: row.name,
+      p_reason: row.reason, p_user_agent: row.user_agent, p_page_url: row.page_url
+    });
+    if (!r.error) return true;
+    console.warn('log_unauthorised_attempt RPC failed:', r.error.message);
+  } catch (e) { console.warn('log_unauthorised_attempt RPC exception:', e); }
+  // 2nd choice: direct insert
+  try {
+    const r2 = await sb.from('unauthorised_atempts').insert(row);
+    if (!r2.error) return true;
+    console.warn('unauthorised_atempts insert failed:', r2.error.message);
+  } catch (e) { console.warn('unauthorised_atempts insert exception:', e); }
+  return false;
+}
+
+async function flushUnauthorisedQueue() {
+  try {
+    const q = JSON.parse(localStorage.getItem('unauth_queue') || '[]');
+    if (!q.length) return;
+    const left = [];
+    for (const row of q) { if (!(await sendUnauthorisedRow(row))) left.push(row); }
+    localStorage.setItem('unauth_queue', JSON.stringify(left.slice(-20)));
+  } catch (e) {}
+}
+
+// Logs every rejected sign-in/sign-up: wrong domain OR rejected by Supabase itself.
+async function logUnauthorisedAttempt(email, payload, reason) {
+  const row = {
+    email: email || null,
+    domain: (email && email.includes('@')) ? email.split('@').pop().toLowerCase() : null,
+    name: (payload && payload.name) || null,
+    reason: (reason || 'domain_not_allowed').slice(0, 300),
+    user_agent: navigator.userAgent,
+    page_url: window.location.href
+  };
+  const ok = await sendUnauthorisedRow(row);
+  if (!ok) {
+    // keep it and retry on the next page load instead of losing it
+    try {
+      const q = JSON.parse(localStorage.getItem('unauth_queue') || '[]');
+      q.push(row);
+      localStorage.setItem('unauth_queue', JSON.stringify(q.slice(-20)));
+    } catch (e) {}
   }
 }
+window.addEventListener('load', () => setTimeout(flushUnauthorisedQueue, 2500));
 
 async function handleCredentialResponse(response) {
   try {
     console.log('Google credential received, signing in with Supabase...');
     
     // First, decode the JWT to get the email before calling Supabase
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-    const email = payload.email;
+    const payload = decodeJwtPayload(response.credential);
+    const email = String(payload.email || '');
     
     // Validate email domain
     const allowedDomains = ['@kcpupils.org', '@mathssupport.es'];
@@ -3207,7 +3251,7 @@ async function handleCredentialResponse(response) {
       const errorEl = document.getElementById('authError');
       errorEl.textContent = 'Access denied (system not working properly)';
       errorEl.classList.add('show');
-      logUnauthorisedAttempt(email, payload);
+      await logUnauthorisedAttempt(email, payload, 'domain_not_allowed');
       return;
     }
     
@@ -3218,6 +3262,8 @@ async function handleCredentialResponse(response) {
 
     if (error) {
       console.error('Error de login con Google:', error);
+      // Supabase itself refused this account (sign-ups disabled, DB trigger/hook, etc.) -> log it too
+      logUnauthorisedAttempt(email, payload, 'signin_blocked: ' + (error.message || error.code || 'unknown'));
       
       // Check if Google is not configured yet
       if (error.message && error.message.includes('Google')) {
@@ -4102,6 +4148,7 @@ async function onSignedIn(profile){
   if(bcBtn)bcBtn.style.display=iAmAdmin?'':'none';
   // Load stickers for shop
   if(currentUser){ loadMyStickers(); loadPublicStickers(); }
+  setTimeout(() => { try { amShowNewsOnce(); } catch (e) {} }, 1500);
   // Onboarding disabled for now - can be enabled later
   // setTimeout(startOnboarding, 1500);
 }
@@ -7386,6 +7433,151 @@ async function renderPassTiers() {
   // Start hidden
   window.updateErudaVisibility(false);
 })();
+</script>
+
+<style>
+.amn-ov{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,5,10,.82);backdrop-filter:blur(8px)}
+.amn-ov.show{display:flex}
+.amn-card{width:min(460px,100%);max-height:92vh;overflow:auto;background:var(--bg-card,#1a1a24);color:#f4f4f8;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:amnPop .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes amnPop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.amn-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:999px;background:linear-gradient(110deg,#f59e0b,#ec4899,#8b5cf6);color:#fff}
+.amn-card h2{margin:14px 0 8px;font-size:24px;line-height:1.2}
+.amn-card p{margin:0 0 18px;color:#b8b8c8;font-size:14.5px;line-height:1.55}
+.amn-btn{display:block;width:100%;padding:12px;border:0;border-radius:12px;font-size:14.5px;font-weight:600;color:#fff;cursor:pointer;background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899)}
+.amn-btn:disabled{opacity:.5;cursor:default}
+.amn-link{display:block;margin:12px auto 0;background:none;border:0;color:#9a9aae;font-size:13px;cursor:pointer;text-decoration:underline}
+.amn-list{display:grid;gap:8px;margin:0 0 16px}
+.amn-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
+.amn-slot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:rgba(139,92,246,.25)}
+.amn-code{flex:1;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;letter-spacing:.04em}
+.amn-row.taken{opacity:.55}
+.amn-row.taken .amn-code{text-decoration:line-through}
+.amn-row.mine{border-color:#10b981;background:rgba(16,185,129,.1)}
+.amn-mini{padding:6px 12px;border:0;border-radius:9px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;background:#6366f1}
+.amn-mini:disabled{opacity:.4;cursor:default}
+.amn-msg{min-height:18px;margin-bottom:6px;font-size:13px;text-align:center;color:#b8b8c8}
+</style>
+
+<div class="amn-ov" id="amnNews" role="dialog" aria-modal="true" aria-labelledby="amnNewsTitle">
+  <div class="amn-card">
+    <span class="amn-tag">NEWS</span>
+    <h2 id="amnNewsTitle">Artificial Maths is better than ever&hellip;</h2>
+    <p>We've been working hard on a smarter, faster Artificial Maths. Something special is waiting for you.</p>
+    <button class="amn-btn" id="amnNewsGo" type="button">See what's new &#10024;</button>
+    <button class="amn-link" id="amnNewsClose" type="button">Not now</button>
+  </div>
+</div>
+
+<div class="amn-ov" id="amnSecret" role="dialog" aria-modal="true" aria-labelledby="amnSecretTitle">
+  <div class="amn-card">
+    <span class="amn-tag">SECRET</span>
+    <h2 id="amnSecretTitle">10 Premium codes</h2>
+    <p>First come, first served. Claimed codes are crossed out for everyone. One code per account.</p>
+    <div class="amn-list" id="amnList"></div>
+    <div class="amn-msg" id="amnMsg"></div>
+    <a class="amn-btn" id="amnOpenAI" href="ailoader.html" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;box-sizing:border-box">Open Artificial Maths</a>
+    <button class="amn-link" id="amnSecretClose" type="button">Close</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// NEWS (once per user) -> SECRET SCREEN (only reachable from the news button)
+// ══════════════════════════════════════════════════════════════════
+const AM_NEWS_KEY = 'artificial-maths-better-than-ever-v1';
+let amnPoll = null;
+
+function amnLsKey() { return 'am_news_seen:' + AM_NEWS_KEY + ':' + (currentUser && currentUser.id); }
+
+async function amNewsAlreadySeen() {
+  if (!currentUser || !currentUser.id) return true;
+  if (localStorage.getItem(amnLsKey())) return true;
+  try {
+    const { data, error } = await sb.from('am_news_seen').select('news_key')
+      .eq('user_id', currentUser.id).eq('news_key', AM_NEWS_KEY).maybeSingle();
+    if (!error && data) { localStorage.setItem(amnLsKey(), '1'); return true; }
+  } catch (e) {}
+  return false;
+}
+
+async function amMarkNewsSeen() {
+  if (!currentUser || !currentUser.id) return;
+  localStorage.setItem(amnLsKey(), '1');
+  try {
+    await sb.from('am_news_seen').upsert({ user_id: currentUser.id, news_key: AM_NEWS_KEY }, { onConflict: 'user_id,news_key' });
+  } catch (e) { console.warn('Could not save news-seen flag:', e); }
+}
+
+async function amShowNewsOnce() {
+  if (document.getElementById('amnNews').classList.contains('show')) return;
+  if (await amNewsAlreadySeen()) return;
+  document.getElementById('amnNews').classList.add('show');
+}
+
+function amCloseNews() {
+  document.getElementById('amnNews').classList.remove('show');
+  amMarkNewsSeen();
+}
+
+function amOpenSecret() {
+  amCloseNews();
+  document.getElementById('amnSecret').classList.add('show');
+  amLoadSecret();
+  clearInterval(amnPoll);
+  amnPoll = setInterval(amLoadSecret, 5000); // keeps "crossed out" in sync with Supabase
+}
+
+function amCloseSecret() {
+  document.getElementById('amnSecret').classList.remove('show');
+  clearInterval(amnPoll);
+}
+
+async function amLoadSecret() {
+  const list = document.getElementById('amnList');
+  const { data, error } = await sb.rpc('am_secret_codes_status');
+  if (error) { document.getElementById('amnMsg').textContent = 'Could not load codes: ' + error.message; return; }
+  const iHaveOne = (data || []).some(r => r.mine);
+  list.textContent = '';
+  (data || []).forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'amn-row' + (r.claimed && !r.mine ? ' taken' : '') + (r.mine ? ' mine' : '');
+    const slot = document.createElement('div'); slot.className = 'amn-slot'; slot.textContent = r.slot;
+    const code = document.createElement('div'); code.className = 'amn-code';
+    code.textContent = r.mine ? r.code : (r.claimed ? 'AM-CLAIMED' : 'AM-\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022');
+    row.append(slot, code);
+    const btn = document.createElement('button'); btn.className = 'amn-mini'; btn.type = 'button';
+    if (r.mine) {
+      btn.textContent = 'Copy';
+      btn.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(r.code); btn.textContent = 'Copied'; };
+    } else if (r.claimed) {
+      btn.textContent = 'Taken'; btn.disabled = true;
+    } else {
+      btn.textContent = 'Claim'; btn.disabled = iHaveOne;
+      btn.onclick = () => amClaim(r.slot, btn);
+    }
+    row.appendChild(btn);
+    list.appendChild(row);
+  });
+}
+
+async function amClaim(slot, btn) {
+  const msg = document.getElementById('amnMsg');
+  btn.disabled = true; msg.textContent = 'Claiming...';
+  const { error } = await sb.rpc('am_secret_claim', { p_slot: slot });
+  if (error) {
+    const m = error.message || '';
+    msg.textContent = m.includes('already_claimed') ? 'Too late, someone just claimed that one.'
+      : m.includes('one_per_user') ? 'You already claimed a code.'
+      : 'Could not claim: ' + m;
+  } else {
+    msg.textContent = 'Claimed! Copy your code and redeem it in Artificial Maths (Redeem Premium code).';
+  }
+  amLoadSecret();
+}
+
+document.getElementById('amnNewsGo').addEventListener('click', amOpenSecret);
+document.getElementById('amnNewsClose').addEventListener('click', amCloseNews);
+document.getElementById('amnSecretClose').addEventListener('click', amCloseSecret);
 </script>
 </body>
 </html>
