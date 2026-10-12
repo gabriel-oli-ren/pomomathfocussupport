@@ -7456,6 +7456,25 @@ async function renderPassTiers() {
 .amn-mini{padding:6px 12px;border:0;border-radius:9px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;background:#6366f1}
 .amn-mini:disabled{opacity:.4;cursor:default}
 .amn-msg{min-height:18px;margin-bottom:6px;font-size:13px;text-align:center;color:#b8b8c8}
+.amn-btn,.amn-link,.amn-mini{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.amn-card{max-height:calc(100dvh - 36px)}
+/* Phones: bottom sheet, thumb-friendly, respects notch / home bar */
+@media (max-width:600px){
+  .amn-ov{align-items:flex-end;padding:0}
+  .amn-card{width:100%;max-height:92dvh;border-radius:22px 22px 0 0;border-bottom:0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));animation:amnSheet .3s ease-out}
+  .amn-card h2{font-size:21px}
+  .amn-btn{padding:15px;font-size:16px}
+  .amn-mini{padding:10px 16px;font-size:14px;min-height:40px}
+  .amn-row{padding:10px}
+  .amn-code{font-size:13px}
+  .amn-link{padding:12px;font-size:14px}
+}
+@keyframes amnSheet{from{transform:translateY(100%)}to{transform:none}}
+/* Tablets */
+@media (min-width:601px) and (max-width:1024px){ .amn-card{width:min(520px,92vw);padding:30px 28px} }
+/* Phones in landscape: short screen */
+@media (max-height:480px) and (orientation:landscape){ .amn-ov{align-items:center;padding:8px} .amn-card{width:min(560px,96vw);max-height:96dvh;border-radius:18px;padding:16px 20px;animation:none} .amn-card h2{margin:8px 0 4px;font-size:18px} .amn-card p{margin-bottom:10px} }
+@media (prefers-reduced-motion:reduce){ .amn-card{animation:none} }
 </style>
 
 <div class="amn-ov" id="amnNews" role="dialog" aria-modal="true" aria-labelledby="amnNewsTitle">
@@ -7578,6 +7597,11 @@ async function amClaim(slot, btn) {
 document.getElementById('amnNewsGo').addEventListener('click', amOpenSecret);
 document.getElementById('amnNewsClose').addEventListener('click', amCloseNews);
 document.getElementById('amnSecretClose').addEventListener('click', amCloseSecret);
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('amnSecret').classList.contains('show')) amCloseSecret();
+  else if (document.getElementById('amnNews').classList.contains('show')) amCloseNews();
+});
 </script>
 </body>
 </html>
