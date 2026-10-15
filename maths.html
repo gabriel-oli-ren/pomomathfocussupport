@@ -12,6 +12,33 @@
 <script src="https://cdn.jsdelivr.net/gh/bubbls/granny@212c543a85b243c4a0b92211f557e760d83d2292/sdk.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.puter.com/v2/"></script>
+<script src="https://cdn.jsdelivr.net/npm/iframe-resizer@4.3.9/js/iframeResizer.min.js"></script>
+<script>
+/* ── DYNAMIC IFRAME HELPERS (createElement + appendChild + iFrameResize) ── */
+function createFrame(containerId, opts){
+  const container = document.getElementById(containerId);
+  if(!container) return null;
+  removeFrame(opts.id);                       // never keep two frames with the same id
+  const iframe = document.createElement('iframe');
+  iframe.id = opts.id;
+  if(opts.className) iframe.className = opts.className;
+  iframe.style.width = '100%';                // height comes from the CSS class
+  Object.entries(opts.attrs || {}).forEach(([k,v]) => iframe.setAttribute(k,v));
+  iframe.src = opts.src;
+  container.appendChild(iframe);
+  try{
+    if(typeof iFrameResize === 'function')
+      iFrameResize({checkOrigin:false, warningTimeout:0, log:false}, '#' + opts.id);
+  }catch(e){ console.warn('iFrameResize failed', e); }
+  return iframe;
+}
+function removeFrame(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  try{ if(el.iFrameResizer) el.iFrameResizer.close(); }catch(e){}
+  if(el.isConnected) el.remove();
+}
+</script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 /* MODERNIZED VERSION - Enhanced Color System */
@@ -2469,7 +2496,7 @@ async function auditarResistenciaBloqueo(page) {
           <button class="close-button" onclick="closeGame()">✕ Close Game</button>
         </div>
       </div>
-      <iframe id="gameFrame" class="game-frame" src=""></iframe>
+      <div id="gameFrameContainer"></div>
     </div>
     <div class="game-ad-right" id="gameAdRight"></div>
   </div>
@@ -2494,7 +2521,7 @@ async function auditarResistenciaBloqueo(page) {
       <button class="game-suggestion-close" onclick="closeGameSuggestion()">✕</button>
     </div>
     <div class="game-suggestion-content">
-      <iframe class="game-suggestion-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSeF6q5CnTvBYsx-KSaITnoU9q9oOJrX3As8y_ZDsnsay_1wmg/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+      <div id="gameSuggestionContainer" style="width:100%;height:100%"></div>
     </div>
   </div>
 </div>
@@ -2559,7 +2586,7 @@ async function auditarResistenciaBloqueo(page) {
     </div>
   </div>
   <div class="maths-search-content">
-    <iframe id="mathsSearchFrame" src="proxy.html" class="maths-search-iframe"></iframe>
+    <div id="mathsSearchContainer" style="width:100%;height:100%"></div>
   </div>
 </div>
 
@@ -5497,12 +5524,8 @@ function skipGameBanner() {
 function actuallyOpenGame(name, url) {
   document.getElementById('gameTitle').textContent = name;
   const gameContainer = document.getElementById('gameContainer');
-  const gameFrame = document.getElementById('gameFrame');
   if (gameContainer) gameContainer.classList.add('active');
-  if (gameFrame) {
-    gameFrame.removeAttribute('srcdoc');
-    gameFrame.src = url;
-  }
+  createFrame('gameFrameContainer', {id:'gameFrame', className:'game-frame', src:url});
   ['gamesGrid','appsPage','accountPage','friendsPage'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -5537,7 +5560,7 @@ function closeGame(){
   if(document.fullscreenElement)document.exitFullscreen();
   const gameContainer = document.getElementById('gameContainer');
   if(gameContainer)gameContainer.classList.remove('active');
-  document.getElementById('gameFrame').src='about:blank';
+  removeFrame('gameFrame');
   document.getElementById('gameMainWrapper').style.display='none';
   document.getElementById('gameAdBottom').style.display='none';
   broadcastGameStatus(null,null);
@@ -5648,6 +5671,8 @@ function showSection(section){
   }else if(section==='mathssearch'){
     document.getElementById('mathssearchPage').classList.add('active');
     document.getElementById('mathsSearchBtn').classList.add('active');
+    if(!document.getElementById('mathsSearchFrame'))
+      createFrame('mathsSearchContainer', {id:'mathsSearchFrame', className:'maths-search-iframe', src:'proxy.html'});
     if(cas)cas.style.display='none';
     document.body.style.overflow='hidden';
   }
@@ -5665,6 +5690,7 @@ function closeChatOverlay() {
 }
 
 function closeMathsSearch(){
+  removeFrame('mathsSearchFrame');
   document.getElementById('mathssearchPage').classList.remove('active');
   document.getElementById('mathsSearchBtn').classList.remove('active');
   document.body.style.overflow='';
@@ -7262,8 +7288,16 @@ observer.observe(document.body, { attributes: true });
   window.openGameSuggestion=function(){
     showSection('gameSuggestion');
     document.getElementById('gameSuggestionOverlay').classList.add('active');
+    if(!document.getElementById('gameSuggestionFrame'))
+      createFrame('gameSuggestionContainer', {
+        id:'gameSuggestionFrame',
+        className:'game-suggestion-iframe',
+        src:'https://docs.google.com/forms/d/e/1FAIpQLSeF6q5CnTvBYsx-KSaITnoU9q9oOJrX3As8y_ZDsnsay_1wmg/viewform?embedded=true',
+        attrs:{frameborder:'0', marginheight:'0', marginwidth:'0'}
+      });
   };
   window.closeGameSuggestion=function(){
+    removeFrame('gameSuggestionFrame');
     document.getElementById('gameSuggestionOverlay').classList.remove('active');
     showSection('home');
   };
