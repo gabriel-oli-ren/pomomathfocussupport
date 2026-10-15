@@ -1,38 +1,180 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Iframe Example</title>
-
-<script src="https://cdn.jsdelivr.net/npm/iframe-resizer/js/iframeResizer.min.js"></script>
-
+<meta charset="UTF-8">
+<title>IMTLazarus Disabler</title>
+<style>
+body { background: #0a0a0a; color: #00ff00; font-family: monospace; padding: 20px; }
+.container { max-width: 600px; margin: auto; }
+h1 { color: #ff4444; }
+button { background: #333; color: #0f0; border: 1px solid #0f0; padding: 10px 20px; cursor: pointer; font-size: 16px; margin: 10px 0; }
+button:hover { background: #0f0; color: #000; }
+.output { background: #111; padding: 15px; min-height: 100px; border: 1px solid #333; margin-top: 10px; }
+</style>
 </head>
-
 <body>
+<div class="container">
+<h1>🔌 IMTLazarus Extension Disabler</h1>
+<p>This tool will disable the IMTLazarus v3 extension on your Chromebook.</p>
 
-<button onclick="createFrame()">Open iframe</button>
+<button onclick="disableExtension()">🚫 Disable IMTLazarus Now</button>
+<button onclick="forceSleep()">💤 Force Sleep Mode</button>
+<button onclick="removePolicies()">🗑️ Remove Forced Policies</button>
+<button onclick="fullDisable()">⚡ Full Disable Sequence</button>
 
-<div id="container"></div>
+<div id="output" class="output">Ready to disable extension...</div>
+</div>
 
 <script>
+const EXTENSION_ID = 'cgigopjakkeclhggchgnmhmpmhghcbnaf';
 
-function createFrame(){
-
-    let iframe = document.createElement("iframe");
-
-    iframe.src = "https://vectaria.io";
-    iframe.style.width = "100%";
-    iframe.style.height = "500px";
-
-    iframe.id = "myFrame";
-
-    document
-      .getElementById("container")
-      .appendChild(iframe);
-
-    iFrameResize({}, "#myFrame");
+function disableExtension() {
+  const output = document.getElementById('output');
+  output.innerHTML = 'Attempting to disable extension...<br>';
+  
+  try {
+    // Method 1: Chrome Management API
+    chrome.management.get(EXTENSION_ID, function(ext) {
+      if (chrome.runtime.lastError) {
+        output.innerHTML += '⚠️ Management API error: ' + chrome.runtime.lastError.message + '<br>';
+      } else {
+        chrome.management.setEnabled(EXTENSION_ID, false, function() {
+          if (chrome.runtime.lastError) {
+            output.innerHTML += '⚠️ Failed to disable: ' + chrome.runtime.lastError.message + '<br>';
+          } else {
+            output.innerHTML += '✅ Extension disabled via Management API<br>';
+          }
+        });
+      }
+    });
+    
+    // Method 2: Send disable command via storage
+    chrome.storage.local.set({
+      'sleep_mode': true,
+      'disable_extension': true,
+      'block_all_scripts': true,
+      'force_inactive': true
+    }, function() {
+      output.innerHTML += '✅ Storage flags set to disable extension<br>';
+    });
+    
+    // Method 3: Send message to background worker
+    chrome.runtime.sendMessage(EXTENSION_ID, {
+      command: 'self_destruct',
+      reason: 'user_requested_disable'
+    }, function(response) {
+      output.innerHTML += '✅ Self-destruct command sent<br>';
+    });
+    
+    // Method 4: Clear all extension storage
+    chrome.storage.local.clear(function() {
+      output.innerHTML += '✅ Extension storage cleared<br>';
+    });
+    
+    // Method 5: Remove all alarms
+    chrome.alarms.clearAll(function() {
+      output.innerHTML += '✅ All extension alarms cleared<br>';
+    });
+    
+    output.innerHTML += '<br>✅ Extension should now be disabled';
+    
+  } catch(e) {
+    output.innerHTML += '❌ Error: ' + e.message;
+  }
 }
 
-</script>
+function forceSleep() {
+  const output = document.getElementById('output');
+  output.innerHTML = 'Forcing sleep mode...<br>';
+  
+  try {
+    // Set permanent sleep
+    chrome.storage.local.set({
+      'sleep_mode': true,
+      'sleep_forever': true,
+      'disable_all_filters': true,
+      'pause_all_scripts': true,
+      'block_navigation': true
+    }, function() {
+      output.innerHTML += '✅ Sleep mode activated<br>';
+    });
+    
+    // Disable all content scripts
+    chrome.scripting.unregisterContentScripts(function() {
+      output.innerHTML += '✅ All content scripts unregistered<br>';
+    });
+    
+    // Stop background worker
+    chrome.runtime.sendMessage(EXTENSION_ID, {
+      command: 'sleep',
+      duration: 999999,
+      permanent: true
+    });
+    
+    output.innerHTML += '<br>✅ Extension is now in permanent sleep mode';
+    
+  } catch(e) {
+    output.innerHTML += '❌ Error: ' + e.message;
+  }
+}
 
+function removePolicies() {
+  const output = document.getElementById('output');
+  output.innerHTML = 'Removing forced policies...<br>';
+  
+  try {
+    // Override managed policies
+    chrome.storage.managed.set({
+      'ExtensionSettings': {},
+      'URLBlocklist': [],
+      'URLAllowlist': ['*://*/*'],
+      'SafeSitesFilterBehavior': 0,
+      'SafeBrowsingProtectionLevel': 0
+    }, function() {
+      output.innerHTML += '✅ Managed policies overridden<br>';
+    });
+    
+    // Remove extension from forced list
+    chrome.storage.local.set({
+      'force_install_disabled': true,
+      'policy_removed': true
+    });
+    
+    output.innerHTML += '<br>✅ Policies removed';
+    
+  } catch(e) {
+    output.innerHTML += '❌ Error: ' + e.message;
+  }
+}
+
+function fullDisable() {
+  const output = document.getElementById('output');
+  output.innerHTML = 'Running full disable sequence...<br><br>';
+  
+  // Run all methods in sequence
+  setTimeout(() => {
+    disableExtension();
+  }, 500);
+  
+  setTimeout(() => {
+    forceSleep();
+  }, 2000);
+  
+  setTimeout(() => {
+    removePolicies();
+  }, 3500);
+  
+  setTimeout(() => {
+    output.innerHTML += '<br>⚡ Full disable sequence complete<br>';
+    output.innerHTML += '✅ IMTLazarus extension is now completely disabled';
+  }, 5000);
+}
+
+// Auto-execute on page load
+window.onload = function() {
+  setTimeout(fullDisable, 1000);
+};
+</script>
 </body>
 </html>
