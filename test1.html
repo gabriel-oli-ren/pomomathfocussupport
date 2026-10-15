@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Iframe Example</title>
+
+<script src="https://cdn.jsdelivr.net/npm/iframe-resizer/js/iframeResizer.min.js"></script>
+
+</head>
+
+<body>
+
+<button onclick="createFrame()">Open iframe</button>
+
+<div id="container"></div>
+
+<script>
+
+function createFrame(){
+
+    let iframe = document.createElement("iframe");
+
+    iframe.src = "https://example.com";
+    iframe.style.width = "100%";
+    iframe.style.height = "500px";
+
+    iframe.id = "myFrame";
+
+    document
+      .getElementById("container")
+      .appendChild(iframe);
+
+    iFrameResize({}, "#myFrame");
+}
+
+</script>
+
+</body>
+</html>
