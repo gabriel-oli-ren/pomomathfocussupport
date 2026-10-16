@@ -4121,6 +4121,18 @@ document.addEventListener(
 
 const PDF_MAX_CHARS_PER_FILE = 80000;
 
+/* Postgres (Supabase) cannot store NUL (\u0000) in text/JSONB, and lone
+   UTF-16 surrogates break JSON escaping. PDFs often contain both, which
+   causes "unsupported Unicode escape sequence". Strip them before saving. */
+function cleanText(value){
+  return String(value ?? "")
+    .replace(/\u0000/g, "")
+    .replace(/[\u0001-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+    .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/g, "")
+    .replace(/(^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "$1");
+}
+
+
 const PDF_MAX_PAGES = 150;
 
 const PDF_SCAN_MAX_IMAGE_PAGES = 6;
@@ -4157,7 +4169,7 @@ function buildPdfBlock(name, pages, text){
 
   return (
     `<<<PDF name="${safeName}" pages="${pages}">>>\n` +
-    text +
+    cleanText(text) +
     `\n<<<END PDF>>>`
   );
 
@@ -4408,7 +4420,7 @@ async function extractPdf(file){
   }
 
 
-  text = text.trim();
+  text = cleanText(text).trim();
 
 
   if(truncated && text){
@@ -6481,7 +6493,7 @@ async function saveUserMessage(
       "user",
 
     content:
-      text || "",
+      cleanText(text || ""),
 
     image_urls:
       imageUrls || []
@@ -6545,7 +6557,7 @@ async function saveAssistantMessage(
           "assistant",
 
         content:
-          answer,
+          cleanText(answer),
 
         image_urls:
           []
