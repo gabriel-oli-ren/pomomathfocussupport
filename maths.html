@@ -23,12 +23,21 @@ function createFrame(containerId, opts){
   iframe.id = opts.id;
   if(opts.className) iframe.className = opts.className;
   iframe.style.width = '100%';                // height comes from the CSS class
+  iframe.setAttribute('scrolling', 'yes');    // allow scrolling inside the frame
   Object.entries(opts.attrs || {}).forEach(([k,v]) => iframe.setAttribute(k,v));
   iframe.src = opts.src;
   container.appendChild(iframe);
   try{
     if(typeof iFrameResize === 'function')
-      iFrameResize({checkOrigin:false, warningTimeout:0, log:false}, '#' + opts.id);
+      iFrameResize({
+        checkOrigin: false,
+        warningTimeout: 0,
+        log: false,
+        scrolling: true,      // stops it from forcing scrolling="no" / overflow:hidden
+        sizeHeight: false,    // keep the height from your CSS classes
+        sizeWidth: false,
+        autoResize: false
+      }, '#' + opts.id);
   }catch(e){ console.warn('iFrameResize failed', e); }
   return iframe;
 }
