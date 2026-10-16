@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>404 – Page not found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --ink: #15171c;
+    --muted: #5d6270;
+    --line: #d9dce3;
+    --accent: #2f54eb;
+    --accent-ink: #ffffff;
+    --font: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101216; --ink: #eceef3; --muted: #9aa0ae; --line: #2b2f38;
+      --accent: #7b93ff; --accent-ink: #0d1020; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101216; --ink: #eceef3; --muted: #9aa0ae; --line: #2b2f38;
+    --accent: #7b93ff; --accent-ink: #0d1020; color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { height: 100%; }
+  body {
+    margin: 0; min-height: 100%;
+    display: grid; place-items: center;
+    padding: 24px;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--font); line-height: 1.5;
+  }
+  main { width: 100%; max-width: 640px; text-align: left; }
+
+  .code {
+    display: flex; align-items: center; gap: .04em;
+    font-size: clamp(110px, 28vw, 220px);
+    font-weight: 800; letter-spacing: -.05em; line-height: .9;
+    margin: 0 0 32px; user-select: none;
+  }
+  .eye {
+    position: relative; display: inline-block;
+    width: .72em; height: .72em; border-radius: 50%;
+    border: .13em solid currentColor; flex: none;
+  }
+  .pupil {
+    position: absolute; left: 50%; top: 50%;
+    width: .22em; height: .22em; margin: -.11em 0 0 -.11em;
+    border-radius: 50%; background: var(--accent);
+    transition: transform .12s ease-out;
+  }
+
+  h1 { font-size: clamp(26px, 5vw, 36px); font-weight: 600; letter-spacing: -.02em; line-height: 1.15; margin: 0 0 12px; }
+  p { color: var(--muted); font-size: 18px; max-width: 46ch; margin: 0 0 32px; }
+  .path { color: var(--ink); font-weight: 600; word-break: break-all; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn {
+    font: inherit; font-weight: 600; font-size: 16px;
+    padding: 13px 22px; border-radius: 999px; cursor: pointer;
+    text-decoration: none; border: 1.5px solid var(--line);
+    background: transparent; color: var(--ink);
+    transition: background-color .15s, border-color .15s;
+  }
+  .btn:hover { border-color: var(--ink); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) { .pupil { transition: none; } }
+</style>
+</head>
+<body>
+  <main>
+    <div class="code" aria-hidden="true">
+      <span>4</span>
+      <span class="eye"><span class="pupil" id="pupil"></span></span>
+      <span>4</span>
+    </div>
+    <h1>We can’t find that page</h1>
+    <p>The link may be broken, or the page may have moved. <span class="path" id="path"></span></p>
+    <div class="actions">
+      <a class="btn primary" href="/">Go to homepage</a>
+      <button class="btn" type="button" id="back">Go back</button>
+    </div>
+  </main>
+
+<script>
+  (function () {
+    var pupil = document.getElementById('pupil');
+    var eye = pupil.parentElement;
+
+    function look(x, y) {
+      var r = eye.getBoundingClientRect();
+      var dx = x - (r.left + r.width / 2);
+      var dy = y - (r.top + r.height / 2);
+      var dist = Math.hypot(dx, dy) || 1;
+      var max = r.width * 0.2;
+      var k = Math.min(dist, max) / dist;
+      pupil.style.transform = 'translate(' + dx * k + 'px,' + dy * k + 'px)';
+    }
+    addEventListener('pointermove', function (e) { look(e.clientX, e.clientY); });
+    addEventListener('touchmove', function (e) {
+      var t = e.touches[0]; if (t) look(t.clientX, t.clientY);
+    }, { passive: true });
+
+    document.getElementById('back').addEventListener('click', function () {
+      if (history.length > 1) history.back(); else location.href = '/';
+    });
+
+    var p = location.pathname;
+    if (p && p !== '/') document.getElementById('path').textContent = p;
+  })();
+</script>
+</body>
+</html>
